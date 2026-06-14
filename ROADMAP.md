@@ -188,12 +188,13 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 **Deliverables**
 
 - electron-builder config (icon, app id, Windows target)
-- `npm run build` + `npm run package:win`
+- `npm run build` + `npm run package:win` (and `npm run build:exe` alias for CI)
 - Native module rebuild in CI/local documented
 - Smoke test checklist on clean Windows machine
 - Version 0.1.0 tag ready
+- CI/CD aligned with [CI_CD.md](./CI_CD.md): `ci.yml` on push/PR, `release.yml` on `v*.*.*` tags attaching exe to GitHub Release
 
-**Exit criteria:** Installable or portable exe runs without dev tooling; DB and settings persist in userData.
+**Exit criteria:** Installable or portable exe runs without dev tooling; DB and settings persist in userData. Pushing tag `v0.1.0` triggers release workflow and publishes the exe artifact.
 
 ## Phase Dependency Graph
 
@@ -222,3 +223,4 @@ When completing work in Cursor:
 - [CHANGELOG.md](./CHANGELOG.md)
 - [ARCHITECTURE.md](./ARCHITECTURE.md)
 - [DEVELOPMENT.md](./DEVELOPMENT.md)
+- [CI_CD.md](./CI_CD.md)

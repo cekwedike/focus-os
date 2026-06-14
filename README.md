@@ -119,6 +119,7 @@ Output will be written to the `dist/` or `release/` directory (exact path define
 | [SECURITY.md](./SECURITY.md) | Data handling and API key practices |
 | [CHANGELOG.md](./CHANGELOG.md) | Version history |
 | [PROMPTS_LOG.md](./PROMPTS_LOG.md) | Cross-session prompt trace |
+| [CI_CD.md](./CI_CD.md) | GitHub Actions CI and release workflows |
 
 ## License
 

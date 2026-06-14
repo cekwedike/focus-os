@@ -238,3 +238,4 @@ Focus OS is designed for multi-session AI-assisted development. Follow these pra
 - [ALLOCATION_ENGINE.md](./ALLOCATION_ENGINE.md)
 - [ROADMAP.md](./ROADMAP.md)
 - [rules.md](./rules.md)
+- [CI_CD.md](./CI_CD.md)
