@@ -9,6 +9,8 @@ let databaseInstance: Database.Database | null = null
 let databasePathValue: string | null = null
 
 function getElectronUserDataPath(): string {
+  // Dynamic require keeps electron out of Vitest imports; only called from main process init.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const electron = require('electron') as typeof import('electron')
   return electron.app.getPath('userData')
 }

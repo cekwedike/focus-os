@@ -228,7 +228,7 @@ Focus OS is designed for multi-session AI-assisted development. Follow these pra
 
 ## Dependency Notes
 
-- **better-sqlite3**: Native rebuild via `postinstall` (`electron-builder install-app-deps`). Re-run `pnpm install` after Electron version bumps.
+- **better-sqlite3**: Native module rebuilt for Electron via `postinstall` and `predev` (`electron-builder install-app-deps`). Tests run Vitest under Electron's Node (`pnpm test`) so the same native binary is used in tests and the app.
 - **electron-builder**: Configured for Windows NSIS or portable target in Phase 12.
 - Run `pnpm audit` periodically; see [SECURITY.md](./SECURITY.md).
 

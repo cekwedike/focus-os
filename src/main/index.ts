@@ -1,4 +1,5 @@
 import { app, BrowserWindow, shell } from 'electron'
+import { existsSync } from 'fs'
 import { join } from 'path'
 import {
   APP_BACKGROUND_COLOR,
@@ -9,6 +10,15 @@ import {
 } from '@shared/constants/app'
 import { bootstrapDatabase, registerIpcHandlers } from './ipc'
 
+function resolveWindowIcon(): string | undefined {
+  const candidates = [
+    join(__dirname, '../../resources/icon.png'),
+    join(process.resourcesPath, 'icon.png'),
+  ]
+
+  return candidates.find((candidate) => existsSync(candidate))
+}
+
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: DEFAULT_WINDOW_WIDTH,
@@ -17,6 +27,7 @@ function createWindow(): void {
     minHeight: MIN_WINDOW_HEIGHT,
     show: false,
     backgroundColor: APP_BACKGROUND_COLOR,
+    icon: resolveWindowIcon(),
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

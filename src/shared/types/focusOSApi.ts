@@ -10,7 +10,6 @@ import type {
   ClientsUpdatePayload,
   ClientsUpdateResponse,
   DbHealthResponse,
-  IpcEventChannel,
   IpcInvokeChannel,
   IpcResult,
   MicroBreakDuePayload,
@@ -25,9 +24,8 @@ import type {
   ProtectedBlocksUpdateResponse,
   StalenessAlertPayload,
 } from './ipc'
-import type { Unsubscribe } from './focusOSApi'
 
-export type { Unsubscribe }
+export type Unsubscribe = () => void
 
 export interface FocusOSApi {
   invoke<T>(channel: IpcInvokeChannel, payload?: unknown): Promise<IpcResult<T>>

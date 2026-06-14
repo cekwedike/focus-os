@@ -63,7 +63,7 @@ CI does **not** build Electron, run integration tests against SQLite, or produce
 
 ### Native Modules Note
 
-`better-sqlite3` is a native addon used in the main process. Migration unit tests load better-sqlite3 on the CI runner; `postinstall` runs `electron-builder install-app-deps` to compile native modules for Electron. If CI fails on native builds, add a Windows job or document a manual rebuild step.
+`better-sqlite3` is compiled for Electron's Node ABI via `postinstall` and `predev` (`electron-builder install-app-deps`). Unit tests run through `scripts/run-vitest-electron.mjs`, which executes Vitest with `ELECTRON_RUN_AS_NODE=1` so the same native binary works in tests and in the app without a second compile pass.
 
 ## Continuous Delivery (`release.yml`)
 

@@ -2,12 +2,12 @@ import { mkdtempSync, rmSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { closeDatabase, openDatabase } from '../src/main/db/connection'
+import { closeDatabase, openDatabase } from '../../src/main/db/connection'
 import {
   EXPECTED_PROTECTED_BLOCK_TYPES,
   EXPECTED_TABLE_NAMES,
-} from '../src/main/db/migrations/seed'
-import { getLatestSchemaVersion, listUserTableNames, runMigrations } from '../src/main/db/migrations/runner'
+} from '../../src/main/db/migrations/seed'
+import { getLatestSchemaVersion, listUserTableNames, runMigrations } from '../../src/main/db/migrations/runner'
 
 function createTempDatabasePath(): string {
   const directory = mkdtempSync(join(tmpdir(), 'focus-os-test-'))

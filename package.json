@@ -11,6 +11,12 @@
     "node": ">=20",
     "pnpm": ">=9"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
@@ -22,9 +28,11 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "node scripts/run-vitest-electron.mjs",
+    "test:watch": "node scripts/run-vitest-electron.mjs --watch",
+    "predev": "pnpm exec electron-builder install-app-deps",
     "preview": "electron-vite preview",
+    "generate:icons": "node scripts/generate-icons.mjs",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
@@ -70,6 +78,7 @@
       "**/node_modules/better-sqlite3/**/*"
     ],
     "win": {
+      "icon": "resources/icon.ico",
       "target": [
         "nsis"
       ]

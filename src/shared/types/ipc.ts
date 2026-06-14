@@ -7,7 +7,12 @@ import type {
   UpdateClientProjectInput,
   UpdateProtectedBlockInput,
 } from './db'
-import type { AppPingResponse, IpcResult } from './ipc'
+
+export type IpcResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: { code: string; message: string } }
+
+export type { DbHealthResponse }
 
 export type IpcInvokeChannel =
   | 'app:ping'
