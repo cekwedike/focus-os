@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-surface: #0a0e14;
+  --color-surface-card: #131820;
+  --color-surface-elevated: #1a2030;
+  --color-surface-border: #2a3344;
+  --color-accent-mint: #2dd4a0;
+  --color-accent-slate: #6c8ef5;
+  --color-text-primary: #f0f4f8;
+  --color-text-secondary: #8b9bb4;
+  --color-text-muted: #5c6b82;
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-badge: 6px;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    @apply h-full min-h-screen bg-surface text-text-primary font-sans antialiased;
+  }
+
+  * {
+    @apply border-surface-border;
+  }
+}
+
+@layer components {
+  .focus-card {
+    @apply rounded-card border border-surface-border bg-surface-card p-card;
+  }
+
+  .focus-card-dashed {
+    @apply rounded-card border border-dashed border-surface-border bg-surface-card/50 p-card;
+  }
+
+  .focus-nav-item {
+    @apply flex w-full items-center gap-3 rounded-button px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors;
+  }
+
+  .focus-nav-item-active {
+    @apply bg-surface-elevated text-accent-mint;
+  }
+
+  .focus-nav-item:hover:not(.focus-nav-item-active) {
+    @apply bg-surface-elevated/60 text-text-primary;
+  }
+
+  .focus-badge {
+    @apply inline-flex items-center rounded-badge border border-surface-border bg-surface-elevated px-2 py-0.5 text-xs font-medium text-text-secondary;
+  }
+
+  .focus-badge-mint {
+    @apply border-accent-mint/30 bg-accent-mint/10 text-accent-mint;
+  }
+
+  .focus-badge-slate {
+    @apply border-accent-slate/30 bg-accent-slate/10 text-accent-slate;
+  }
+}
+
+@layer utilities {
+  .border-dashed-action {
+    @apply border-dashed border-surface-border;
+  }
+}

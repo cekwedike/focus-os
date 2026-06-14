@@ -7,7 +7,7 @@ This document covers local environment setup, project structure, Electron proces
 | Requirement | Version / Notes |
 |-------------|-----------------|
 | Node.js | **v20 LTS** or later (`.nvmrc` or `engines` field to be added at scaffold) |
-| Package manager | **npm** (default) or **pnpm**; pick one and stay consistent |
+| Package manager | **pnpm** (v9+; see `packageManager` in package.json) |
 | Git | For version control |
 | Windows | Primary target for packaged `.exe`; dev may run on macOS/Linux with platform-specific Electron builds |
 | Ollama | Optional; install locally for offline Daily Insight testing |
@@ -18,7 +18,7 @@ This document covers local environment setup, project structure, Electron proces
 ```bash
 git clone <repository-url>
 cd focus-os
-npm install
+pnpm install
 cp .env.example .env
 ```
 
@@ -28,15 +28,16 @@ Edit `.env` with optional OpenRouter credentials and Ollama settings. The app mu
 
 Focus OS follows the standard Electron pattern: a **main process** (Node.js, privileged) and a **renderer process** (Chromium, React UI).
 
-### Expected npm Scripts (at scaffold)
+### Expected pnpm Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `npm run dev` | Start Vite/webpack dev server for renderer + Electron main with watch/reload |
-| `npm run build` | Production build of renderer and main bundles |
-| `npm run package:win` | electron-builder Windows artifact |
-| `npm test` | Unit tests (allocation engine, utilities) |
-| `npm run lint` | ESLint + TypeScript check |
+| `pnpm dev` | Start Vite dev server for renderer + Electron main with watch/reload |
+| `pnpm build` | Production build of renderer and main bundles |
+| `pnpm build:exe` | Production build + electron-builder Windows artifact |
+| `pnpm typecheck` | TypeScript check (node + web tsconfigs) |
+| `pnpm test` | Unit tests (allocation engine, database migrations, utilities) |
+| `pnpm lint` | ESLint |
 
 ### Dev Mode Flow
 
@@ -48,7 +49,7 @@ Focus OS follows the standard Electron pattern: a **main process** (Node.js, pri
 ### Debugging
 
 - **Renderer**: Chromium DevTools (View > Toggle Developer Tools or `Ctrl+Shift+I`).
-- **Main process**: Attach VS Code/Cursor debugger to Electron main, or use `console.log` piped to terminal running `npm run dev`.
+- **Main process**: Attach VS Code/Cursor debugger to Electron main, or use `console.log` piped to terminal running `pnpm dev`.
 - **SQLite**: Inspect `focus-os.db` in user data directory with DB Browser for SQLite during development.
 
 ## Folder Structure (Proposed)
@@ -195,7 +196,7 @@ Never split purely to game the line count (e.g. moving blank lines or imports al
 - **Allocation engine**: Pure functions in `src/shared/allocation/`; full unit test coverage before UI integration (Phase 4).
 - **DB layer**: Integration tests against in-memory or temp-file SQLite.
 - **Renderer**: Component tests for critical flows (wake-time modal, break popup) as needed.
-- Run `npm test` before marking roadmap phases complete.
+- Run `pnpm test` before marking roadmap phases complete.
 
 ## Working with Cursor Across Sessions
 
@@ -227,9 +228,9 @@ Focus OS is designed for multi-session AI-assisted development. Follow these pra
 
 ## Dependency Notes
 
-- **better-sqlite3**: Native rebuild required on Node/Electron version change; use `@electron/rebuild` in postinstall.
+- **better-sqlite3**: Native rebuild via `postinstall` (`electron-builder install-app-deps`). Re-run `pnpm install` after Electron version bumps.
 - **electron-builder**: Configured for Windows NSIS or portable target in Phase 12.
-- Run `npm audit` periodically; see [SECURITY.md](./SECURITY.md).
+- Run `pnpm audit` periodically; see [SECURITY.md](./SECURITY.md).
 
 ## Related Documents
 

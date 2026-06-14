@@ -6,7 +6,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 ## Phase 1: Electron + React + TS + Tailwind Scaffold
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Runnable desktop shell with navigation and routing only (no business logic).
 
@@ -21,20 +21,24 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** App launches; navigation works; no database yet.
 
+**Completed 2026-06-14:** electron-vite scaffold, design tokens, AppShell with sidebar and top bar, HashRouter across 8 placeholder screens, preload `window.focusOS` bridge with `app:ping`, npm scripts for CI (`typecheck`, `lint`, `test`, `build`, `build:exe`).
+
 ## Phase 2: SQLite Schema Setup
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Persistent local database with all tables and migrations.
 
 **Deliverables**
 
-- better-sqlite3 in main process with `@electron/rebuild`
+- better-sqlite3 in main process with `electron-builder install-app-deps` postinstall rebuild
 - Migrations for all 9 tables per [SCHEMA.md](./SCHEMA.md)
 - Seed default protected_blocks and app_settings
-- IPC: health check and simple read (e.g. list clients empty)
+- IPC: `db:health`, clients/projects CRUD, protected_blocks CRUD
 
 **Exit criteria:** DB file created in userData on first launch; schema version tracked.
+
+**Completed 2026-06-14:** Versioned migration runner, initial schema migration, seed data for 5 protected block types and app_settings defaults, repositories and IPC handlers for clients and protected blocks, Vitest migration tests. Package manager switched to pnpm with hoisted node linker.
 
 ## Phase 3: Settings Screen
 

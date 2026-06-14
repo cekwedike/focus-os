@@ -7,7 +7,7 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 
 export default tseslint.config(
   {
-    ignores: ['out/**', 'release/**', 'dist/**', 'node_modules/**'],
+    ignores: ['out/**', 'release/**', 'dist/**', 'node_modules/**', 'tailwind.config.js', 'postcss.config.js'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

@@ -2,7 +2,7 @@
 
 Focus OS is a desktop Electron app shipped as a Windows `.exe`, not a hosted web service. Continuous integration catches regressions early on every push. Continuous delivery builds and publishes the installer only when you cut a versioned release.
 
-This document describes the GitHub Actions setup in `.github/workflows/`. The workflows are ready for Phase 1 onward once `package.json`, lockfile, and npm scripts exist. Until then, workflow runs may fail at the install step because no `package-lock.json` is present yet.
+This document describes the GitHub Actions setup in `.github/workflows/`. Workflows use **pnpm** with a committed `pnpm-lock.yaml`.
 
 ## Philosophy
 
@@ -37,11 +37,11 @@ Pull requests into `main` should pass CI before merge. Even on a solo project, o
 **Steps:**
 
 1. Checkout repository
-2. Setup Node.js **v20** (see [DEVELOPMENT.md](./DEVELOPMENT.md))
-3. `npm ci` (requires committed `package-lock.json` from Phase 1)
-4. `npm run typecheck` (TypeScript compiler, no emit)
-5. `npm run lint` (ESLint)
-6. `npm run test` (unit tests; allocation engine coverage is the priority per [ARCHITECTURE.md](./ARCHITECTURE.md))
+2. Setup pnpm v9 and Node.js **v20** (see [DEVELOPMENT.md](./DEVELOPMENT.md))
+3. `pnpm install --frozen-lockfile`
+4. `pnpm typecheck` (TypeScript compiler, no emit)
+5. `pnpm lint` (ESLint)
+6. `pnpm test` (unit tests; allocation engine and migration coverage per [ARCHITECTURE.md](./ARCHITECTURE.md))
 
 ### What CI Validates
 
@@ -53,21 +53,17 @@ Pull requests into `main` should pass CI before merge. Even on a solo project, o
 
 CI does **not** build Electron, run integration tests against SQLite, or produce an exe. Those belong to local dev and the release workflow.
 
-### Expected npm Scripts (Phase 1)
-
-These scripts will be added to `package.json` during the Electron scaffold:
+### Expected pnpm Scripts
 
 | Script | Command (typical) |
 |--------|-------------------|
-| `typecheck` | `tsc --noEmit` (or project references across tsconfigs) |
+| `typecheck` | `tsc --noEmit` (node + web tsconfigs) |
 | `lint` | `eslint .` |
 | `test` | `vitest run` |
 
-`npm run lint` in [DEVELOPMENT.md](./DEVELOPMENT.md) may be documented as a combined local shortcut; CI keeps typecheck and lint separate for clearer failure messages.
-
 ### Native Modules Note
 
-`better-sqlite3` is a native addon used in the main process. Pure allocation tests in `src/shared/allocation/` run on Ubuntu without rebuilding Electron. Main-process or DB integration tests that load `better-sqlite3` may require `windows-latest` or an explicit `@electron/rebuild` step in CI later. Start with Ubuntu for speed; expand runners if tests demand it.
+`better-sqlite3` is a native addon used in the main process. Migration unit tests load better-sqlite3 on the CI runner; `postinstall` runs `electron-builder install-app-deps` to compile native modules for Electron. If CI fails on native builds, add a Windows job or document a manual rebuild step.
 
 ## Continuous Delivery (`release.yml`)
 
@@ -78,10 +74,10 @@ These scripts will be added to `package.json` during the Electron scaffold:
 **Steps:**
 
 1. Checkout repository
-2. Setup Node.js v20
-3. `npm ci`
+2. Setup pnpm v9 and Node.js v20
+3. `pnpm install --frozen-lockfile`
 4. Safety gate: same checks as CI (`typecheck`, `lint`, `test`)
-5. `npm run build:exe` (production build + electron-builder Windows target)
+5. `pnpm build:exe` (production build + electron-builder Windows target)
 6. Upload `.exe` (and optional `.exe.blockmap` if generated) to the GitHub Release for that tag
 
 ### Versioning and CHANGELOG
@@ -116,15 +112,15 @@ The release workflow uses `softprops/action-gh-release` to create or update the 
 Before pushing to `main` or opening a PR, run the same checks CI will run:
 
 ```bash
-npm run typecheck
-npm run lint
-npm run test
+pnpm typecheck
+pnpm lint
+pnpm test
 ```
 
 For changes touching packaging or native modules, also verify locally on Windows:
 
 ```bash
-npm run build:exe
+pnpm build:exe
 ```
 
 Use the full self-review checklist in [CONTRIBUTING.md](./CONTRIBUTING.md): allocation behavior, file size limits, naming conventions, no secrets committed, and AI features remaining advisory-only.
@@ -132,7 +128,7 @@ Use the full self-review checklist in [CONTRIBUTING.md](./CONTRIBUTING.md): allo
 Optional but recommended before a release tag:
 
 - [ ] CHANGELOG section dated and version bumped in `package.json`
-- [ ] `npm audit` reviewed ([SECURITY.md](./SECURITY.md))
+- [ ] `pnpm audit` reviewed ([SECURITY.md](./SECURITY.md))
 - [ ] Smoke test on a clean Windows machine (Phase 12 exit criteria)
 - [ ] ROADMAP Phase 12 items complete or explicitly deferred with notes in PROMPTS_LOG
 
@@ -170,7 +166,7 @@ electron-updater or a custom update channel is out of scope for 0.1.0. Users ins
 Possible additions without changing the minimal default:
 
 - Windows job on PR when `better-sqlite3` integration tests land
-- `npm audit --audit-level=high` as a non-blocking or blocking step
+- `pnpm audit --audit-level=high` as a non-blocking or blocking step
 - Artifact upload of unsigned exe on `main` for manual QA (nightly or manual workflow_dispatch)
 - macOS/Linux builders if platforms expand beyond Windows
 

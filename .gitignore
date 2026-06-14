@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Lockfiles (pnpm is the package manager)
+package-lock.json
+
 # Environment and secrets
 .env
 .env.local

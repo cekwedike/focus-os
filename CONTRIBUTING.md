@@ -142,7 +142,7 @@ Run this before every non-trivial commit or phase completion.
 - [ ] All planned phase items for version complete
 - [ ] CHANGELOG version section dated
 - [ ] Version bumped in `package.json`
-- [ ] `npm run build` and `npm run package:win` succeed
+- [ ] `pnpm build` and `pnpm build:exe` succeed
 - [ ] Smoke test on clean Windows VM or machine
 - [ ] Tag: `git tag v0.1.0`
 

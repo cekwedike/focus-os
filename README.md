@@ -65,13 +65,13 @@ Built for freelancers who manage dynamic, user-created clients and projects (nev
 ## Prerequisites
 
 - **Node.js**: v20 LTS or later (see `DEVELOPMENT.md`)
-- **npm** (default; pnpm acceptable alternative, pick one at Phase 1 scaffold)
+- **pnpm** v9+ (see `packageManager` in package.json)
 - **Windows** for native `.exe` builds (development may run cross-platform)
 - **Ollama** (optional): for offline Daily Insight fallback
 
 ## Installation
 
-> Application code is not yet scaffolded. These steps will be updated once Phase 1 of the roadmap is complete.
+> Phase 1 and Phase 2 complete. Run `pnpm install` then `pnpm dev` to launch the app.
 
 ```bash
 # Clone the repository
@@ -79,7 +79,7 @@ git clone <repository-url>
 cd focus-os
 
 # Install dependencies
-npm install
+pnpm install
 
 # Copy environment template
 cp .env.example .env
@@ -90,7 +90,7 @@ cp .env.example .env
 
 ```bash
 # Start Electron in development mode (main + renderer with hot reload)
-npm run dev
+pnpm dev
 ```
 
 See [DEVELOPMENT.md](./DEVELOPMENT.md) for environment setup, process architecture, and Cursor workflow notes.
@@ -99,8 +99,8 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for environment setup, process architectu
 
 ```bash
 # Production build and Windows packaging via electron-builder
-npm run build
-npm run package:win
+pnpm build
+pnpm build:exe
 ```
 
 Output will be written to the `dist/` or `release/` directory (exact path defined at scaffold time). The packaged artifact is a standalone Windows `.exe` installer or portable build depending on electron-builder configuration.
@@ -127,4 +127,4 @@ TBD (solo project; license to be decided before public release).
 
 ## Status
 
-**Pre-development.** Foundational documentation only. See [ROADMAP.md](./ROADMAP.md) for the planned build phases.
+**Phase 1 complete.** Electron shell runs with navigation and placeholder screens. See [ROADMAP.md](./ROADMAP.md) for Phase 2 (SQLite schema).

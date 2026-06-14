@@ -29,6 +29,26 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-14: pnpm switch and Phase 2 SQLite
+
+**Prompt summary:** Part A: migrate from npm to pnpm (lockfile, docs, CI workflows, .npmrc hoisted linker). Part B: Phase 2 SQLite per SCHEMA.md with better-sqlite3, migration runner, 9 tables, seed protected_blocks and app_settings, IPC CRUD for clients_projects and protected_blocks, Vitest migration tests.
+
+**Outcome:** pnpm is the package manager (`pnpm-lock.yaml`, `packageManager` field, CI uses `pnpm install --frozen-lockfile`). Database initializes in Electron userData, migrations are idempotent, 5 protected block types seeded. IPC exposes `db:health` and full clients/protected-blocks CRUD via `window.focusOS`. All checks pass with pnpm.
+
+**Files / phases:** package.json, .npmrc, .gitignore, CI/CD docs and workflows, src/main/db/, src/main/ipc/clientHandlers.ts, shared types, tests/db/migrations.test.ts. Phase 2 Complete.
+
+**Follow-ups:** Phase 3 Settings screen UI wired to clients and protected blocks IPC.
+
+### 2026-06-14: Phase 1 Electron scaffold
+
+**Prompt summary:** Scaffold Phase 1 per ROADMAP: Electron + Vite + React + TypeScript + Tailwind, dark/mint design tokens, sidebar and top status bar shell, routing to 8 placeholder screens, preload IPC bridge, ESLint/Prettier/Vitest, npm scripts for dev/build/build:exe/typecheck/lint/test.
+
+**Outcome:** Application shell complete. electron-vite project with main/preload/renderer/shared structure per ARCHITECTURE.md. Live clock in top bar, sidebar navigation with active state, HashRouter defaulting to Dashboard. `app:ping` IPC stub via contextBridge. CI checks pass: typecheck, lint, test, build.
+
+**Files / phases:** package.json, electron.vite.config.ts, tsconfig.*, tailwind/postcss, eslint/prettier/vitest configs, src/main, src/preload, src/renderer (8 screens), src/shared/types, tests/placeholder.test.ts, resources/.gitkeep. Phase 1 Complete.
+
+**Follow-ups:** Phase 2 SQLite schema setup (better-sqlite3, 9 tables, migrations).
+
 ### 2026-06-14: CI/CD documentation and workflows
 
 **Prompt summary:** Add CI/CD documentation and starter GitHub Actions workflows before Phase 1 scaffold. Document CI (typecheck, lint, test on push/PR), CD (Windows exe build on version tags), branching, semver tie to CHANGELOG, local pre-push checklist, and future signing/auto-update notes. Create `ci.yml` and `release.yml`. Update ROADMAP Phase 12 and PROMPTS_LOG.
