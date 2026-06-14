@@ -236,7 +236,7 @@ Builds a **snapshot** from:
 - Today's schedule summary (block types, client names, durations)
 - Task list highlights (overdue, high priority)
 - Staleness alerts
-- Faith streak and yesterday journal presence
+- Faith Streak and yesterday journal presence
 - Yesterday planned vs actual hours (aggregated)
 
 Does **not** include: raw API keys, full historical journal text (summaries/excerpts only), or system file paths.

@@ -76,6 +76,13 @@ const APP_SETTINGS_SEEDS: Array<{ key: string; value: string }> = [
   { key: 'default_staleness_hours', value: JSON.stringify(24) },
   { key: 'micro_break_interval_minutes', value: JSON.stringify(90) },
   { key: 'min_viable_block_minutes', value: JSON.stringify(15) },
+  { key: 'default_buffer_percent', value: JSON.stringify(10) },
+  { key: 'doomscroll_allowance_minutes', value: JSON.stringify(5) },
+  { key: 'time_format', value: JSON.stringify('12h') },
+  { key: 'week_starts_on', value: JSON.stringify('sunday') },
+  { key: 'date_format', value: JSON.stringify('mdy') },
+  { key: 'default_sleep_time', value: JSON.stringify('23:00') },
+  { key: 'timezone', value: JSON.stringify('UTC') },
   {
     key: 'notifications',
     value: JSON.stringify({

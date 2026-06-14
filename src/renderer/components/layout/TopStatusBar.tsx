@@ -1,12 +1,5 @@
 import { useEffect, useState } from 'react'
-
-function formatClockTime(date: Date): string {
-  return date.toLocaleTimeString([], {
-    hour: 'numeric',
-    minute: '2-digit',
-    second: '2-digit',
-  })
-}
+import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 
 function NotificationBellIcon(): React.JSX.Element {
   return (
@@ -29,17 +22,18 @@ function NotificationBellIcon(): React.JSX.Element {
 }
 
 export function TopStatusBar(): React.JSX.Element {
-  const [currentTime, setCurrentTime] = useState(() => formatClockTime(new Date()))
+  const { formatClock } = useDisplayPreferences()
+  const [currentTime, setCurrentTime] = useState(() => formatClock(new Date()))
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      setCurrentTime(formatClockTime(new Date()))
+      setCurrentTime(formatClock(new Date()))
     }, 1000)
 
     return () => {
       window.clearInterval(intervalId)
     }
-  }, [])
+  }, [formatClock])
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-surface-border bg-surface-card px-shell">
@@ -57,8 +51,8 @@ export function TopStatusBar(): React.JSX.Element {
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="focus-badge focus-badge-mint" title="Faith streak placeholder">
-          Faith streak: 0 days
+        <span className="focus-badge focus-badge-mint" title="Faith Streak placeholder">
+          Faith Streak: 0 days
         </span>
         <span className="focus-badge focus-badge-slate" title="Focus score placeholder">
           Focus: --

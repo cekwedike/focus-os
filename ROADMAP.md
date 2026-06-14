@@ -42,7 +42,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 ## Phase 3: Settings Screen
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Full CRUD for clients/projects and protected block configuration.
 
@@ -56,9 +56,11 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** User can create clients and configure day templates; data persists across restart.
 
+**Completed 2026-06-14:** Full Settings screen with clients/projects CRUD (soft deactivate), protected blocks editor, app_settings IPC (`settings:get`, `settings:update`), OpenRouter key in userData `secrets.json` with masked UI, scheduling defaults and notification prefs. Migration 002 adds `default_buffer_percent` and `doomscroll_allowance_minutes`.
+
 ## Phase 4: Allocation Engine (Standalone Module)
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Testable pure module implementing [ALLOCATION_ENGINE.md](./ALLOCATION_ENGINE.md).
 
@@ -69,6 +71,8 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Main process wrapper to map DB rows to engine types (no UI yet)
 
 **Exit criteria:** All allocation tests pass; manual script or test fixture can print a day schedule.
+
+**Completed 2026-06-14:** Pure allocation module with protected/fixed/buffer/weighted/task-fill pipeline, long-break re-allocation with MVB bumping and replan summary, 17 allocation unit tests, `runAllocation.ts` DB mapper in main process.
 
 ## Phase 5: Daily Workspace + Wake-Time Flow
 
@@ -99,7 +103,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Dashboard: current/next block, progress through day
 - Active block timer (planned vs elapsed)
 - Mark block complete / skip with actual times written to DB
-- Top bar wired to faith streak (placeholder until Phase 9) and focus score derived from adherence
+- Top bar wired to Faith Streak (placeholder until Phase 9) and focus score derived from adherence
 
 **Exit criteria:** User can follow schedule visually and complete blocks with persisted actuals.
 
@@ -148,7 +152,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Streak counter (consecutive days with entry)
 - Searchable history list
 - Stats panel: entries this month, longest streak, word count over time
-- Top bar faith streak badge live
+- Top bar Faith Streak badge live
 
 **Exit criteria:** Entries persist; streak survives app restart; search returns past entries.
 
@@ -176,7 +180,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 **Deliverables**
 
 - aiService: OpenRouter primary, Ollama fallback, source logged
-- Prompt builder from daily snapshot (schedule, tasks, faith streak, yesterday variance)
+- Prompt builder from daily snapshot (schedule, tasks, Faith Streak, yesterday variance)
 - Daily Insight screen renders markdown; regenerate button
 - Graceful degradation when neither provider available (raw data view)
 - **No auto-schedule mutation**

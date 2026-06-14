@@ -119,6 +119,14 @@ The hybrid allocation engine is the **authoritative** system for schedule genera
 - Sidebar + top status bar shell on all primary screens.
 - Accessible: keyboard focus, labels on inputs, sufficient contrast on accent text.
 
+### UI Copy Casing (Apple Ball Rule)
+
+User-facing **headings**, **section titles**, **card titles**, **field labels**, **button labels**, and **segmented control options** use **Title Case**: capitalize every word (e.g. "Daily Routine", "Clock Format", not "Daily routine" or "clock format"). Think "Apple Ball", not "Apple ball".
+
+- Apply to: `SettingsSectionCard` titles, form `label` props, toggle labels, dialog titles, primary action buttons.
+- Exceptions: product name **Focus OS**, acronyms (**API**, **AI**), and strings inside `hint` / description body copy (those stay sentence case).
+- Dropdown option text for time zones and model names may use their conventional casing when clearer (e.g. "Eastern Time (New York)").
+
 ## Dependencies
 
 - Do not add new npm packages without user approval or roadmap phase need.

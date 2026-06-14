@@ -6,6 +6,7 @@ import {
   registerDatabaseHandlers,
   registerProtectedBlockHandlers,
 } from './clientHandlers'
+import { registerSettingsHandlers } from './settingsHandlers'
 
 let databaseReady = false
 
@@ -33,4 +34,5 @@ export function registerIpcHandlers(): void {
   registerDatabaseHandlers()
   registerClientHandlers()
   registerProtectedBlockHandlers()
+  registerSettingsHandlers()
 }

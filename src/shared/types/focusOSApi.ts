@@ -12,6 +12,7 @@ import type {
   DbHealthResponse,
   IpcInvokeChannel,
   IpcResult,
+  AppNavigatePayload,
   MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
   ProtectedBlockGetPayload,
@@ -24,6 +25,12 @@ import type {
   ProtectedBlocksUpdateResponse,
   StalenessAlertPayload,
 } from './ipc'
+import type {
+  AppSettingsUpdate,
+  OpenRouterKeyStatusResponse,
+  SetOpenRouterKeyPayload,
+  SettingsGetResponse,
+} from './settings'
 
 export type Unsubscribe = () => void
 
@@ -45,6 +52,14 @@ export interface FocusOSApi {
     update(payload: ProtectedBlocksUpdatePayload): Promise<ProtectedBlocksUpdateResponse>
     delete(payload: ProtectedBlockDeletePayload): Promise<ProtectedBlocksDeleteResponse>
   }
+  settings: {
+    get(): Promise<SettingsGetResponse>
+    update(payload: AppSettingsUpdate): Promise<SettingsGetResponse>
+    openRouterKeyStatus(): Promise<OpenRouterKeyStatusResponse>
+    setOpenRouterKey(payload: SetOpenRouterKeyPayload): Promise<OpenRouterKeyStatusResponse>
+    clearOpenRouterKey(): Promise<OpenRouterKeyStatusResponse>
+  }
   onMicroBreakDue(callback: (payload: MicroBreakDuePayload) => void): Unsubscribe
   onStalenessAlert(callback: (payload: StalenessAlertPayload) => void): Unsubscribe
+  onNavigate(callback: (payload: AppNavigatePayload) => void): Unsubscribe
 }

@@ -57,7 +57,7 @@ Target release: **0.1.0**
 
 - Dark theme with mint green (`#2DD4A0`) accent
 - Sidebar navigation: Dashboard, Daily Workspace, Task Matrix, Schedule, Daily Insight, Journal, Review, Settings
-- Top status bar: current time/block, faith streak, focus score, long-break button, notifications
+- Top status bar: current time/block, Faith Streak, focus score, long-break button, notifications
 
 #### Settings
 

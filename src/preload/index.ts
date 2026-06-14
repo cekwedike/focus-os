@@ -14,6 +14,7 @@ import type {
   IpcEventChannel,
   IpcInvokeChannel,
   IpcResult,
+  AppNavigatePayload,
   MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
   ProtectedBlockGetPayload,
@@ -26,6 +27,12 @@ import type {
   ProtectedBlocksUpdateResponse,
   StalenessAlertPayload,
 } from '@shared/types/ipc'
+import type {
+  AppSettingsUpdate,
+  OpenRouterKeyStatusResponse,
+  SetOpenRouterKeyPayload,
+  SettingsGetResponse,
+} from '@shared/types/settings'
 import type { FocusOSApi, Unsubscribe } from '@shared/types/focusOSApi'
 
 const invokeChannels: IpcInvokeChannel[] = [
@@ -49,10 +56,18 @@ const invokeChannels: IpcInvokeChannel[] = [
   'journal:get-entry',
   'insights:generate',
   'settings:get',
+  'settings:update',
+  'settings:openrouter-key-status',
+  'settings:set-openrouter-key',
+  'settings:clear-openrouter-key',
   'breaks:log',
 ]
 
-const eventChannels: IpcEventChannel[] = ['break:micro-break-due', 'staleness:alert']
+const eventChannels: IpcEventChannel[] = [
+  'break:micro-break-due',
+  'staleness:alert',
+  'app:navigate',
+]
 
 function createInvoke<T>(channel: IpcInvokeChannel, payload?: unknown): Promise<IpcResult<T>> {
   if (!invokeChannels.includes(channel)) {
@@ -123,10 +138,22 @@ const focusOSApi: FocusOSApi = {
         await createInvoke<ProtectedBlocksDeleteResponse>('protected-blocks:delete', payload)
       ),
   },
+  settings: {
+    get: async () => unwrap(await createInvoke<SettingsGetResponse>('settings:get')),
+    update: async (payload: AppSettingsUpdate) =>
+      unwrap(await createInvoke<SettingsGetResponse>('settings:update', payload)),
+    openRouterKeyStatus: async () =>
+      unwrap(await createInvoke<OpenRouterKeyStatusResponse>('settings:openrouter-key-status')),
+    setOpenRouterKey: async (payload: SetOpenRouterKeyPayload) =>
+      unwrap(await createInvoke<OpenRouterKeyStatusResponse>('settings:set-openrouter-key', payload)),
+    clearOpenRouterKey: async () =>
+      unwrap(await createInvoke<OpenRouterKeyStatusResponse>('settings:clear-openrouter-key')),
+  },
   onMicroBreakDue: (callback) =>
     subscribeToEvent<MicroBreakDuePayload>('break:micro-break-due', callback),
   onStalenessAlert: (callback) =>
     subscribeToEvent<StalenessAlertPayload>('staleness:alert', callback),
+  onNavigate: (callback) => subscribeToEvent<AppNavigatePayload>('app:navigate', callback),
 }
 
 contextBridge.exposeInMainWorld('focusOS', focusOSApi)

@@ -9,6 +9,8 @@ import {
   MIN_WINDOW_WIDTH,
 } from '@shared/constants/app'
 import { bootstrapDatabase, registerIpcHandlers } from './ipc'
+import { setApplicationMenu } from './menus/applicationMenu'
+import { configureWindowChrome } from './window/windowChrome'
 
 function resolveWindowIcon(): string | undefined {
   const candidates = [
@@ -46,6 +48,8 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  configureWindowChrome(mainWindow)
+
   const rendererUrl = process.env['ELECTRON_RENDERER_URL']
   if (rendererUrl) {
     mainWindow.loadURL(rendererUrl)
@@ -57,6 +61,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   bootstrapDatabase()
   registerIpcHandlers()
+  setApplicationMenu()
   createWindow()
 
   app.on('activate', () => {

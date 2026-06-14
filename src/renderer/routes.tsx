@@ -39,7 +39,7 @@ export const screenDefinitions: ScreenDefinition[] = [
     label: 'Daily Insight',
     title: 'Daily Insight',
     description:
-      'AI-generated daily briefing from your schedule, tasks, faith streak, and yesterday\'s planned vs actual. Advisory only; never auto-modifies your schedule.',
+      'AI-generated daily briefing from your schedule, tasks, Faith Streak, and yesterday\'s planned vs actual. Advisory only; never auto-modifies your schedule.',
   },
   {
     path: '/journal',
@@ -60,6 +60,6 @@ export const screenDefinitions: ScreenDefinition[] = [
     label: 'Settings',
     title: 'Settings',
     description:
-      'Client and project CRUD, protected block preferences, buffer percentage, OpenRouter and Ollama configuration, and notification preferences.',
+      'Set up who you work for, your daily routines, scheduling preferences, optional AI insights, and reminders.',
   },
 ]

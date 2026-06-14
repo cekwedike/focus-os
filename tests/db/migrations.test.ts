@@ -16,8 +16,13 @@ function createTempDatabasePath(): string {
 
 describe('database migrations', () => {
   let dbPath = ''
+  let testDb: ReturnType<typeof openDatabase> | null = null
 
   afterEach(() => {
+    if (testDb) {
+      testDb.close()
+      testDb = null
+    }
     closeDatabase()
     if (dbPath) {
       rmSync(join(dbPath, '..'), { recursive: true, force: true })
@@ -27,60 +32,108 @@ describe('database migrations', () => {
 
   it('creates all 9 schema tables plus schema_migrations on a fresh database', () => {
     dbPath = createTempDatabasePath()
-    const db = openDatabase(dbPath)
-    runMigrations(db)
+    testDb = openDatabase(dbPath)
+    runMigrations(testDb)
 
-    const tableNames = listUserTableNames(db)
+    const tableNames = listUserTableNames(testDb)
     for (const tableName of EXPECTED_TABLE_NAMES) {
       expect(tableNames).toContain(tableName)
     }
 
-    expect(getLatestSchemaVersion(db)).toBe(1)
-    db.close()
+    expect(getLatestSchemaVersion(testDb)).toBe(4)
   })
 
   it('is idempotent when migrations run multiple times', () => {
     dbPath = createTempDatabasePath()
-    const db = openDatabase(dbPath)
+    testDb = openDatabase(dbPath)
 
-    runMigrations(db)
-    const firstTableNames = listUserTableNames(db)
+    runMigrations(testDb)
+    const firstTableNames = listUserTableNames(testDb)
     const firstProtectedCount = (
-      db.prepare('SELECT COUNT(*) AS count FROM protected_blocks').get() as { count: number }
+      testDb.prepare('SELECT COUNT(*) AS count FROM protected_blocks').get() as { count: number }
     ).count
     const firstSettingsCount = (
-      db.prepare('SELECT COUNT(*) AS count FROM app_settings').get() as { count: number }
+      testDb.prepare('SELECT COUNT(*) AS count FROM app_settings').get() as { count: number }
     ).count
 
-    runMigrations(db)
-    const secondTableNames = listUserTableNames(db)
+    runMigrations(testDb)
+    const secondTableNames = listUserTableNames(testDb)
     const secondProtectedCount = (
-      db.prepare('SELECT COUNT(*) AS count FROM protected_blocks').get() as { count: number }
+      testDb.prepare('SELECT COUNT(*) AS count FROM protected_blocks').get() as { count: number }
     ).count
     const secondSettingsCount = (
-      db.prepare('SELECT COUNT(*) AS count FROM app_settings').get() as { count: number }
+      testDb.prepare('SELECT COUNT(*) AS count FROM app_settings').get() as { count: number }
     ).count
 
     expect(secondTableNames).toEqual(firstTableNames)
     expect(secondProtectedCount).toBe(firstProtectedCount)
     expect(secondSettingsCount).toBe(firstSettingsCount)
-    expect(getLatestSchemaVersion(db)).toBe(1)
-
-    db.close()
+    expect(getLatestSchemaVersion(testDb)).toBe(4)
   })
 
   it('seeds protected_blocks with all 5 expected block types', () => {
     dbPath = createTempDatabasePath()
-    const db = openDatabase(dbPath)
-    runMigrations(db)
+    testDb = openDatabase(dbPath)
+    runMigrations(testDb)
 
-    const rows = db
+    const rows = testDb
       .prepare('SELECT DISTINCT block_type AS block_type FROM protected_blocks ORDER BY block_type ASC')
       .all() as Array<{ block_type: string }>
 
     const seededTypes = rows.map((row) => row.block_type).sort()
     expect(seededTypes).toEqual([...EXPECTED_PROTECTED_BLOCK_TYPES].sort())
+  })
 
-    db.close()
+  it('seeds default_buffer_percent and doomscroll_allowance_minutes settings', () => {
+    dbPath = createTempDatabasePath()
+    testDb = openDatabase(dbPath)
+    runMigrations(testDb)
+
+    const buffer = testDb
+      .prepare('SELECT value FROM app_settings WHERE key = ?')
+      .get('default_buffer_percent') as { value: string }
+    const doomscroll = testDb
+      .prepare('SELECT value FROM app_settings WHERE key = ?')
+      .get('doomscroll_allowance_minutes') as { value: string }
+
+    expect(JSON.parse(buffer.value)).toBe(10)
+    expect(JSON.parse(doomscroll.value)).toBe(5)
+  })
+
+  it('seeds display preference defaults', () => {
+    dbPath = createTempDatabasePath()
+    testDb = openDatabase(dbPath)
+    runMigrations(testDb)
+
+    const timeFormat = testDb
+      .prepare('SELECT value FROM app_settings WHERE key = ?')
+      .get('time_format') as { value: string }
+    const weekStartsOn = testDb
+      .prepare('SELECT value FROM app_settings WHERE key = ?')
+      .get('week_starts_on') as { value: string }
+    const dateFormat = testDb
+      .prepare('SELECT value FROM app_settings WHERE key = ?')
+      .get('date_format') as { value: string }
+    const defaultSleepTime = testDb
+      .prepare('SELECT value FROM app_settings WHERE key = ?')
+      .get('default_sleep_time') as { value: string }
+
+    expect(JSON.parse(timeFormat.value)).toBe('12h')
+    expect(JSON.parse(weekStartsOn.value)).toBe('sunday')
+    expect(JSON.parse(dateFormat.value)).toBe('mdy')
+    expect(JSON.parse(defaultSleepTime.value)).toBe('23:00')
+  })
+
+  it('seeds timezone setting', () => {
+    dbPath = createTempDatabasePath()
+    testDb = openDatabase(dbPath)
+    runMigrations(testDb)
+
+    const timezone = testDb
+      .prepare('SELECT value FROM app_settings WHERE key = ?')
+      .get('timezone') as { value: string }
+
+    expect(typeof JSON.parse(timezone.value)).toBe('string')
+    expect(JSON.parse(timezone.value).length).toBeGreaterThan(0)
   })
 })

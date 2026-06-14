@@ -14,11 +14,13 @@ export function ScreenCard({ title, description, children }: ScreenCardProps): R
         <p className="mt-3 text-base leading-relaxed text-text-secondary">{description}</p>
         {children}
       </div>
-      <div className="focus-card-dashed mt-4">
-        <p className="text-sm text-text-muted">
-          Screen content will be built in a later roadmap phase. Navigation and shell are live.
-        </p>
-      </div>
+      {!children && (
+        <div className="focus-card-dashed mt-4">
+          <p className="text-sm text-text-muted">
+            Screen content will be built in a later roadmap phase. Navigation and shell are live.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

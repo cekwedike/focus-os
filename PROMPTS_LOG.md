@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-14: Phases 3 and 4 Settings + Allocation Engine
+
+**Prompt summary:** Combined Phase 3 (Settings screen with clients/projects CRUD, protected blocks config, app_settings IPC, OpenRouter key via secrets file) and Phase 4 (standalone allocation engine per ALLOCATION_ENGINE.md with Vitest coverage and main-process mapper).
+
+**Outcome:** Settings screen replaces placeholder with four sections wired to IPC. OpenRouter API key stored in `{userData}/secrets.json` (main process only; renderer sees configured boolean). Migration 002 seeds `default_buffer_percent` and `doomscroll_allowance_minutes`. Allocation engine in `src/shared/allocation/` implements full day generation and long-break re-allocation with replan summary. 22 tests pass (4 migration + 17 allocation + 1 placeholder).
+
+**Files / phases:** src/renderer/screens/Settings/, src/renderer/components/ui/, src/main/ipc/settingsHandlers.ts, src/main/services/secretsService.ts, src/main/db/repositories/appSettingsRepository.ts, src/shared/allocation/, src/main/allocation/runAllocation.ts, tests/allocation/, SECURITY.md, ROADMAP.md. Phases 3 and 4 Complete.
+
+**Follow-ups:** Phase 5 Daily Workspace wake-time flow and schedule persistence.
+
 ### 2026-06-14: pnpm switch and Phase 2 SQLite
 
 **Prompt summary:** Part A: migrate from npm to pnpm (lockfile, docs, CI workflows, .npmrc hoisted linker). Part B: Phase 2 SQLite per SCHEMA.md with better-sqlite3, migration runner, 9 tables, seed protected_blocks and app_settings, IPC CRUD for clients_projects and protected_blocks, Vitest migration tests.

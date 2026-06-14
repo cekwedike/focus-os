@@ -34,7 +34,7 @@ Built for freelancers who manage dynamic, user-created clients and projects (nev
 
 ### Daily Insight
 
-- **AI daily briefing**: Synthesizes today's schedule, staleness alerts, faith streak, yesterday's planned vs actual, and suggestions.
+- **AI daily briefing**: Synthesizes today's schedule, staleness alerts, Faith Streak, yesterday's planned vs actual, and suggestions.
 - **Provider routing**: OpenRouter as primary AI provider, Ollama as offline fallback. If neither is available, the screen degrades gracefully to raw data without AI synthesis. AI never auto-modifies the schedule.
 
 ### Settings
@@ -48,7 +48,7 @@ Built for freelancers who manage dynamic, user-created clients and projects (nev
 
 - Dark theme with mint green accent (`#2DD4A0`).
 - Card-based layout with sidebar navigation: Dashboard, Daily Workspace, Task Matrix, Schedule, Daily Insight, Journal, Review, Settings.
-- Persistent top status bar: current time/block, faith streak badge, focus score, long-break button, notifications.
+- Persistent top status bar: current time/block, Faith Streak badge, focus score, long-break button, notifications.
 
 ## Tech Stack
 

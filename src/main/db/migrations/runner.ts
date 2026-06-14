@@ -1,5 +1,8 @@
 import type Database from 'better-sqlite3'
 import { INITIAL_MIGRATION_SQL } from './001_initial'
+import { applySettingsKeysMigration } from './002_settings_keys'
+import { applyDisplayPreferencesMigration } from './003_display_preferences'
+import { applyTimezoneMigration } from './004_timezone'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -15,6 +18,27 @@ const migrations: MigrationDefinition[] = [
     up: (db) => {
       db.exec(INITIAL_MIGRATION_SQL)
       seedInitialData(db)
+    },
+  },
+  {
+    version: 2,
+    name: 'settings_keys',
+    up: (db) => {
+      applySettingsKeysMigration(db)
+    },
+  },
+  {
+    version: 3,
+    name: 'display_preferences',
+    up: (db) => {
+      applyDisplayPreferencesMigration(db)
+    },
+  },
+  {
+    version: 4,
+    name: 'timezone',
+    up: (db) => {
+      applyTimezoneMigration(db)
     },
   },
 ]

@@ -35,9 +35,17 @@ export type IpcInvokeChannel =
   | 'journal:get-entry'
   | 'insights:generate'
   | 'settings:get'
+  | 'settings:update'
+  | 'settings:openrouter-key-status'
+  | 'settings:set-openrouter-key'
+  | 'settings:clear-openrouter-key'
   | 'breaks:log'
 
-export type IpcEventChannel = 'break:micro-break-due' | 'staleness:alert'
+export type IpcEventChannel = 'break:micro-break-due' | 'staleness:alert' | 'app:navigate'
+
+export interface AppNavigatePayload {
+  path: string
+}
 
 export interface MicroBreakDuePayload {
   suggestedActivities: string[]
@@ -98,3 +106,17 @@ export type ProtectedBlocksGetResult = IpcResult<ProtectedBlocksGetResponse>
 export type ProtectedBlocksCreateResult = IpcResult<ProtectedBlocksCreateResponse>
 export type ProtectedBlocksUpdateResult = IpcResult<ProtectedBlocksUpdateResponse>
 export type ProtectedBlocksDeleteResult = IpcResult<ProtectedBlocksDeleteResponse>
+
+export type {
+  AppSettings,
+  AppSettingsUpdate,
+  OpenRouterKeyStatusResponse,
+  SetOpenRouterKeyPayload,
+  SettingsGetResponse,
+} from './settings'
+
+export type SettingsGetResult = IpcResult<import('./settings').SettingsGetResponse>
+export type SettingsUpdateResult = IpcResult<import('./settings').SettingsGetResponse>
+export type OpenRouterKeyStatusResult = IpcResult<import('./settings').OpenRouterKeyStatusResponse>
+export type SetOpenRouterKeyResult = IpcResult<import('./settings').OpenRouterKeyStatusResponse>
+export type ClearOpenRouterKeyResult = IpcResult<import('./settings').OpenRouterKeyStatusResponse>

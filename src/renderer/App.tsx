@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { DisplayPreferencesProvider } from './context/DisplayPreferencesContext'
 import { AppShell } from './components/layout/AppShell'
+import { useAppNavigationEvents } from './hooks/useAppNavigationEvents'
 import { DashboardScreen } from './screens/Dashboard/DashboardScreen'
 import { DailyWorkspaceScreen } from './screens/DailyWorkspace/DailyWorkspaceScreen'
 import { TaskMatrixScreen } from './screens/TaskMatrix/TaskMatrixScreen'
@@ -9,7 +11,9 @@ import { JournalScreen } from './screens/Journal/JournalScreen'
 import { ReviewScreen } from './screens/Review/ReviewScreen'
 import { SettingsScreen } from './screens/Settings/SettingsScreen'
 
-export default function App(): React.JSX.Element {
+function AppRoutes(): React.JSX.Element {
+  useAppNavigationEvents()
+
   return (
     <AppShell>
       <Routes>
@@ -24,5 +28,13 @@ export default function App(): React.JSX.Element {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>
+  )
+}
+
+export default function App(): React.JSX.Element {
+  return (
+    <DisplayPreferencesProvider>
+      <AppRoutes />
+    </DisplayPreferencesProvider>
   )
 }

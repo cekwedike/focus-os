@@ -9,7 +9,7 @@ Focus OS is a **fully local, offline-first** desktop application. User data live
 | Clients, tasks, schedules | Local SQLite | No |
 | Faith/journal entries | Local SQLite | No |
 | Break logs, settings | Local SQLite | No |
-| OpenRouter API key | `.env` or local secure config | No (used only for outbound API calls) |
+| OpenRouter API key | `secrets.json` in userData, or `.env` for dev | No (used only for outbound API calls) |
 | Daily Insight prompts | Built at runtime | **Yes**, only when OpenRouter is used |
 | Ollama requests | Localhost HTTP | **No** (stays on machine) |
 
@@ -37,13 +37,28 @@ When OpenRouter is unavailable or unconfigured and Ollama endpoint is reachable:
 
 **Never commit API keys to the repository.**
 
-Recommended practices:
+### Primary storage: userData secrets file
 
-1. **Development**: Store in `.env` at project root (gitignored). Load via main process only.
-2. **Production / packaged app**: Prefer reading from environment variable at launch, or OS-backed secret storage if implemented later.
-3. **Do not** persist plain-text API keys in `app_settings` SQLite table in production builds unless encrypted; model name and non-secret prefs are fine in DB.
-4. Reference key in code as `process.env.OPENROUTER_API_KEY` (main process); never expose to renderer or preload.
+In the packaged app, the OpenRouter API key is stored in a separate secrets file under Electron's userData directory (not in SQLite, not in `app_settings`):
+
+- **Path:** `{userData}/secrets.json` (alongside `focus-os.db`)
+- **Access:** Main process only via `secretsService.ts`
+- **Renderer:** Sees only a boolean `configured` state; can set or clear a key via IPC but never reads the full value back
+- **Logging:** The key value must never appear in logs, IPC responses to the renderer, or error messages
+
+The secrets file lives outside the project repository (userData is per-machine). Treat it like the database: do not commit, sync to public repos, or back up to untrusted locations without encryption.
+
+### Development fallback
+
+1. **Development:** Store in `.env` at project root (gitignored) as `OPENROUTER_API_KEY`. Main process checks env before the secrets file.
+2. **Production / packaged app:** User sets key in Settings (secrets file) or via environment variable at launch.
+3. **Do not** persist plain-text API keys in the `app_settings` SQLite table.
+4. Reference env key in code as `process.env.OPENROUTER_API_KEY` (main process only); never expose to renderer or preload.
 5. Add `.env` to `.gitignore`; provide `.env.example` without real values.
+
+### Non-secret settings in SQLite
+
+OpenRouter model id, Ollama endpoint, buffer defaults, and notification preferences are stored in `app_settings` because they are not credentials.
 
 If a key is accidentally committed: rotate it immediately at OpenRouter, remove from git history if needed, and treat the old key as compromised.
 
@@ -105,7 +120,7 @@ Solo project: track security concerns in private notes or issues. If the project
 
 - [ ] `.env` and `*.db` in `.gitignore`
 - [ ] No API keys in source or committed config
-- [ ] API key loaded only in main process
+- [ ] API key stored in secrets file or env, not in SQLite
 - [ ] AI cannot write schedule without user action
 - [ ] `npm audit` reviewed
 - [ ] SECURITY.md reviewed if new network endpoints added
