@@ -58,6 +58,15 @@ import type {
   JournalUpsertPayload,
 } from './journal'
 import type { ReviewDateRangePayload, ReviewSummary } from './review'
+import type {
+  InsightsGeneratePayload,
+  InsightsGenerateResponse,
+  InsightsGetTodayPayload,
+  InsightsGetTodayResponse,
+  InsightsListPayload,
+  InsightsListResponse,
+  TestAiProvidersResponse,
+} from './insights'
 
 export type Unsubscribe = () => void
 
@@ -123,12 +132,18 @@ export interface FocusOSApi {
   review: {
     getSummary(payload: ReviewDateRangePayload): Promise<ReviewSummary>
   }
+  insights: {
+    generate(payload?: InsightsGeneratePayload): Promise<InsightsGenerateResponse>
+    getToday(payload?: InsightsGetTodayPayload): Promise<InsightsGetTodayResponse>
+    list(payload?: InsightsListPayload): Promise<InsightsListResponse>
+  }
   settings: {
     get(): Promise<SettingsGetResponse>
     update(payload: AppSettingsUpdate): Promise<SettingsGetResponse>
     openRouterKeyStatus(): Promise<OpenRouterKeyStatusResponse>
     setOpenRouterKey(payload: SetOpenRouterKeyPayload): Promise<OpenRouterKeyStatusResponse>
     clearOpenRouterKey(): Promise<OpenRouterKeyStatusResponse>
+    testAiProviders(): Promise<TestAiProvidersResponse>
   }
   onMicroBreakDue(callback: (payload: MicroBreakDuePayload) => void): Unsubscribe
   onStalenessAlert(callback: (payload: StalenessAlertPayload) => void): Unsubscribe

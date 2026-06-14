@@ -93,8 +93,9 @@ src/main/
 │   ├── timerService.ts      # Micro-break + staleness timers
 │   ├── journalService.ts    # Faith log upsert, stats, complete-faith-block transaction
 │   ├── reviewService.ts     # Compose reviewRepository + shared/review aggregators
-│   ├── notificationService.ts
-│   └── aiService.ts         # Provider selection, prompt build, response parse
+│   ├── insightService.ts    # Daily snapshot + AI generation + insights_log persistence
+│   ├── aiService.ts         # OpenRouter/Ollama routing with graceful fallback
+│   └── notificationService.ts
 └── allocation/
     └── runAllocation.ts     # Load DB state → engine → persist (orchestration)
 ```
@@ -184,7 +185,10 @@ window.focusOS.onMicroBreakDue(callback);
 | `clients:*` | invoke | CRUD clients/projects |
 | `journal:*` | invoke | Faith log read/write, search, stats, complete-faith-block |
 | `review:get-summary` | invoke | Planned vs actual, breaks, task completion for date range |
-| `insights:generate` | invoke | Trigger Daily Insight |
+| `insights:generate` | invoke | Build snapshot, call AI, persist to insights_log |
+| `insights:get-today` | invoke | Latest insight for a date |
+| `insights:list` | invoke | Insight history |
+| `settings:test-ai-providers` | invoke | Minimal OpenRouter/Ollama connectivity test |
 | `settings:*` | invoke | App and daily settings |
 | `breaks:log` | invoke | Record micro/long break |
 | `break:micro-break-due` | event | Popup trigger |

@@ -3,6 +3,7 @@ import type { IpcResult } from '@shared/types/ipc'
 import type { AppSettingsUpdate, SetOpenRouterKeyPayload } from '@shared/types/settings'
 import { getDatabase } from '../db/connection'
 import { getAllSettings, upsertSettings } from '../db/repositories/appSettingsRepository'
+import { testAiProviders } from '../services/aiService'
 import {
   clearOpenRouterApiKey,
   isOpenRouterKeyConfigured,
@@ -67,6 +68,14 @@ export function registerSettingsHandlers(): void {
       return success({ configured: false })
     } catch (error) {
       return failure('OPENROUTER_KEY_CLEAR_FAILED', String(error))
+    }
+  })
+
+  ipcMain.handle('settings:test-ai-providers', async () => {
+    try {
+      return success(await testAiProviders(getAllSettings(getDatabase())))
+    } catch (error) {
+      return failure('SETTINGS_TEST_AI_FAILED', String(error))
     }
   })
 }

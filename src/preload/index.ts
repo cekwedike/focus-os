@@ -70,8 +70,11 @@ const invokeChannels: IpcInvokeChannel[] = [
   'journal:complete-faith-block',
   'review:get-summary',
   'insights:generate',
+  'insights:get-today',
+  'insights:list',
   'settings:get',
   'settings:update',
+  'settings:test-ai-providers',
   'settings:openrouter-key-status',
   'settings:set-openrouter-key',
   'settings:clear-openrouter-key',
@@ -194,6 +197,11 @@ const focusOSApi: FocusOSApi = {
   review: {
     getSummary: async (payload) => unwrap(await createInvoke('review:get-summary', payload)),
   },
+  insights: {
+    generate: async (payload) => unwrap(await createInvoke('insights:generate', payload)),
+    getToday: async (payload) => unwrap(await createInvoke('insights:get-today', payload)),
+    list: async (payload) => unwrap(await createInvoke('insights:list', payload)),
+  },
   settings: {
     get: async () => unwrap(await createInvoke<SettingsGetResponse>('settings:get')),
     update: async (payload: AppSettingsUpdate) =>
@@ -204,6 +212,8 @@ const focusOSApi: FocusOSApi = {
       unwrap(await createInvoke<OpenRouterKeyStatusResponse>('settings:set-openrouter-key', payload)),
     clearOpenRouterKey: async () =>
       unwrap(await createInvoke<OpenRouterKeyStatusResponse>('settings:clear-openrouter-key')),
+    testAiProviders: async () =>
+      unwrap(await createInvoke('settings:test-ai-providers')),
   },
   onMicroBreakDue: (callback) =>
     subscribeToEvent<MicroBreakDuePayload>('break:micro-break-due', callback),

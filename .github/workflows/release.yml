@@ -47,10 +47,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/**/*.exe
-            release/**/*.exe.blockmap
-            dist/**/*.exe
-            dist/**/*.exe.blockmap
+            release/*.exe
+            release/*.exe.blockmap
           generate_release_notes: true
           draft: false
           prerelease: false

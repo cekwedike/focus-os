@@ -1,5 +1,5 @@
 import type { BrowserWindow } from 'electron'
-import { isSystemUnassignedClient } from '@shared/constants/systemClient'
+import { listStaleClients } from '@shared/insights/stalenessSnapshot'
 import { getDatabase } from '../db/connection'
 import { listClients } from '../db/repositories/clientsRepository'
 import { getAllSettings } from '../db/repositories/appSettingsRepository'
@@ -14,37 +14,18 @@ function checkStaleness(): void {
   }
 
   const settings = getAllSettings(getDatabase())
-  const thresholdHours = settings.defaultStalenessHours
-  const now = Date.now()
+  const staleClients = listStaleClients(listClients(getDatabase()), {
+    defaultStalenessHours: settings.defaultStalenessHours,
+  })
 
-  for (const client of listClients(getDatabase())) {
-    if (client.is_active !== 1 || isSystemUnassignedClient(client.name)) {
-      continue
-    }
-
-    const threshold = client.staleness_threshold_hours ?? thresholdHours
-    if (!client.last_touched_at) {
-      if (!alertedClients.has(client.id)) {
-        mainWindow.webContents.send('staleness:alert', {
-          clientId: client.id,
-          clientName: client.name,
-          hoursSinceTouch: threshold + 1,
-        })
-        alertedClients.add(client.id)
-      }
-      continue
-    }
-
-    const hoursSince =
-      (now - new Date(client.last_touched_at).getTime()) / (60 * 60 * 1000)
-
-    if (hoursSince >= threshold && !alertedClients.has(client.id)) {
+  for (const client of staleClients) {
+    if (!alertedClients.has(client.clientId)) {
       mainWindow.webContents.send('staleness:alert', {
-        clientId: client.id,
-        clientName: client.name,
-        hoursSinceTouch: Math.round(hoursSince),
+        clientId: client.clientId,
+        clientName: client.clientName,
+        hoursSinceTouch: client.hoursSinceTouch,
       })
-      alertedClients.add(client.id)
+      alertedClients.add(client.clientId)
     }
   }
 }

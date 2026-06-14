@@ -228,8 +228,21 @@ Focus OS is designed for multi-session AI-assisted development. Follow these pra
 
 ## Dependency Notes
 
-- **better-sqlite3**: Native module rebuilt for Electron via `postinstall` and `predev` (`electron-builder install-app-deps`). Tests run Vitest under Electron's Node (`pnpm test`) so the same native binary is used in tests and the app.
-- **electron-builder**: Configured for Windows NSIS or portable target in Phase 12.
+- **better-sqlite3**: Native module rebuilt for Electron via `postinstall` and `predev` (`electron-builder install-app-deps`). Tests run Vitest under Electron's Node (`pnpm test`) so the same native binary is used in tests and in the app. Packaged builds use `asarUnpack` for `better-sqlite3` in `package.json` `build` config.
+- **electron-builder**: Windows NSIS installer only (`release/Focus OS Setup {version}.exe`). Config lives in `package.json` `build` field. Win icon uses `resources/icon.png` (256px+).
+
+### Testing the packaged build locally
+
+```bash
+pnpm generate:icons   # if favicon assets changed
+pnpm build:exe
+# Quick smoke test without installing:
+./release/win-unpacked/Focus OS.exe
+# Or run the NSIS installer from release/
+```
+
+Verify: app launches, SQLite initializes under `%APPDATA%/focus-os/` (or Electron userData), settings persist after restart, all 8 sidebar screens load.
+
 - Run `pnpm audit` periodically; see [SECURITY.md](./SECURITY.md).
 
 ## Related Documents

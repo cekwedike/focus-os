@@ -98,12 +98,14 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for environment setup, process architectu
 ## Building the Executable
 
 ```bash
-# Production build and Windows packaging via electron-builder
+# Production renderer + main bundle
 pnpm build
+
+# Windows NSIS installer (output in release/)
 pnpm build:exe
 ```
 
-Output will be written to the `dist/` or `release/` directory (exact path defined at scaffold time). The packaged artifact is a standalone Windows `.exe` installer or portable build depending on electron-builder configuration.
+The installer is written to `release/Focus OS Setup 0.1.0.exe` (version from `package.json`). An unpacked build is also available at `release/win-unpacked/Focus OS.exe` for quick smoke testing.
 
 ## Documentation
 

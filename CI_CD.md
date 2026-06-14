@@ -101,7 +101,14 @@ The exe version string should match the git tag and CHANGELOG entry (electron-bu
 |--------|---------|
 | `build:exe` | Runs production `build` then `electron-builder` for Windows (may wrap existing `package:win`) |
 
-Artifact paths depend on electron-builder config (typically `release/` or `dist/`). Phase 12 should document the exact glob in this file once `electron-builder.yml` exists.
+Artifact output (NSIS installer):
+
+```
+release/Focus OS Setup 0.1.0.exe
+release/Focus OS Setup 0.1.0.exe.blockmap
+```
+
+The release workflow uploads `release/*.exe` and `release/*.exe.blockmap`.
 
 ### Creating the GitHub Release
 

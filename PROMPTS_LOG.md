@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-14: Phases 11 and 12 Daily Insight + Windows Packaging (Roadmap Complete)
+
+**Prompt summary:** Final roadmap phases: Daily Insight AI (OpenRouter primary, Ollama fallback, graceful degradation, insights_log persistence) and Windows NSIS packaging via electron-builder with CI release workflow.
+
+**Outcome:** All 12 roadmap phases complete. Daily Insight auto-generates on first open, degrades to raw local summary when AI unavailable, Settings includes Test Connection. NSIS installer builds to `release/Focus OS Setup 0.1.0.exe`. 65 tests pass. Packaged exe smoke test: app launches successfully.
+
+**Files / phases:** src/main/insights/, src/main/ai/, src/main/services/aiService.ts, insightService.ts, insightsLogRepository.ts, insightHandlers.ts, DailyInsight screen, settings:test-ai-providers, package.json build config, release.yml. Phases 11 and 12 Complete. Initial 12-phase roadmap finished.
+
+**Follow-ups:** Optional code signing, custom icon polish, Phase 13+ enhancements as needed.
+
 ### 2026-06-14: Phases 9 and 10 Journal + Review
 
 **Prompt summary:** Implement Phase 9 Journal (faith_log CRUD, streak calculation, faith-block entry flow, full Journal UI, live streak badges) and Phase 10 Review (planned vs actual aggregation, break analysis, CSS bar charts, date-range UI) per approved plan.

@@ -185,7 +185,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 ## Phase 11: Daily Insight (AI)
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Advisory AI briefing with provider fallback.
 
@@ -199,9 +199,11 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** Insight generates with key configured; Ollama-only path works offline; failures degrade cleanly.
 
+**Completed 2026-06-14:** `buildDailySnapshot`, `aiService` with OpenRouter/Ollama routing, `insightsLogRepository`, IPC (`insights:generate`, `insights:get-today`, `insights:list`), Daily Insight screen with auto-generate on open, `settings:test-ai-providers`.
+
 ## Phase 12: Packaging (Windows exe)
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Production build and installer.
 
@@ -215,6 +217,8 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - CI/CD aligned with [CI_CD.md](./CI_CD.md): `ci.yml` on push/PR, `release.yml` on `v*.*.*` tags attaching exe to GitHub Release
 
 **Exit criteria:** Installable or portable exe runs without dev tooling; DB and settings persist in userData. Pushing tag `v0.1.0` triggers release workflow and publishes the exe artifact.
+
+**Completed 2026-06-14:** NSIS installer via `pnpm build:exe`, output `release/Focus OS Setup 0.1.0.exe`, `asarUnpack` for better-sqlite3, release.yml artifact glob aligned, local smoke test passed (packaged exe launches).
 
 ## Phase Dependency Graph
 

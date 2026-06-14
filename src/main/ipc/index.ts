@@ -9,6 +9,7 @@ import { registerScheduleHandlers } from './scheduleHandlers'
 import { registerBreakHandlers } from './breakHandlers'
 import { registerJournalHandlers } from './journalHandlers'
 import { registerReviewHandlers } from './reviewHandlers'
+import { registerInsightHandlers } from './insightHandlers'
 
 let databaseReady = false
 
@@ -43,4 +44,5 @@ export function registerIpcHandlers(): void {
   registerBreakHandlers()
   registerJournalHandlers()
   registerReviewHandlers()
+  registerInsightHandlers()
 }

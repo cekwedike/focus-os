@@ -1,13 +1,4 @@
+# electron-builder config is defined in package.json "build".
+# This file documents the Windows NSIS target choice for Phase 12.
 appId: com.focusos.app
 productName: Focus OS
-directories:
-  output: release
-files:
-  - out/**/*
-extraResources:
-  - from: resources/icon.png
-    to: icon.png
-win:
-  icon: resources/icon.ico
-  target:
-    - nsis

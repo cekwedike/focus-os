@@ -9,14 +9,16 @@ Version numbering starts at **0.1.0** for the first functional release. Semantic
 
 ## [Unreleased]
 
-Target release: **0.1.0**
+## [0.1.0] - 2026-06-14
+
+First functional release. Completes the initial 12-phase roadmap.
 
 ### Added
 
 #### Core Platform
 
 - Electron + React + TypeScript + Tailwind CSS application scaffold
-- Windows `.exe` packaging via electron-builder
+- Windows NSIS installer via electron-builder (`pnpm build:exe`)
 - better-sqlite3 local database with full schema (9 tables)
 - Main/renderer IPC layer for database, timers, and notifications
 
@@ -52,6 +54,7 @@ Target release: **0.1.0**
 - Daily Insight AI briefing (OpenRouter primary, Ollama fallback, graceful degradation to raw data)
 - Advisory-only AI (never auto-modifies schedule)
 - Review screen: planned vs actual hours per client, break log analysis
+- Settings Test Connection for OpenRouter and Ollama
 
 #### UI Shell
 
@@ -61,14 +64,10 @@ Target release: **0.1.0**
 
 #### Settings
 
-- OpenRouter API key and model selection (via environment)
+- OpenRouter API key and model selection (main-process secrets file)
 - Ollama endpoint and model configuration
 - Notification preferences (micro-break interval, doomscroll allowance duration)
 - Protected block and buffer preferences
-
-## [0.1.0] - TBD
-
-First functional release. All items under [Unreleased] above.
 
 [Unreleased]: https://github.com/your-org/focus-os/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/your-org/focus-os/releases/tag/v0.1.0

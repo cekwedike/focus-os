@@ -1,10 +1,12 @@
 import type { AppSettings } from '@shared/types/settings'
+import type { TestAiProvidersResponse } from '@shared/types/insights'
 import { FormField } from '@renderer/components/ui/FormField'
 import { NumberInput } from '@renderer/components/ui/NumberInput'
 import { SettingsSectionCard } from '@renderer/components/ui/SettingsSectionCard'
 import { TextInput } from '@renderer/components/ui/TextInput'
 import { Toggle } from '@renderer/components/ui/Toggle'
 import { OpenRouterKeyField } from './OpenRouterKeyField'
+import { useState } from 'react'
 
 const OPENROUTER_MODELS = [
   { id: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' },
@@ -28,6 +30,9 @@ export function AppSettingsSection({
   onUpdate,
   onOpenrouterKeyConfiguredChange,
 }: AppSettingsSectionProps): React.JSX.Element {
+  const [testingAi, setTestingAi] = useState(false)
+  const [aiTestResult, setAiTestResult] = useState<TestAiProvidersResponse | null>(null)
+
   const patch = async (partial: Partial<AppSettings>): Promise<void> => {
     const next = { ...settings, ...partial }
     onSettingsChange(next)
@@ -123,6 +128,32 @@ export function AppSettingsSection({
             placeholder="e.g. llama3"
           />
         </FormField>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <button
+            type="button"
+            disabled={testingAi}
+            onClick={() => {
+              void (async () => {
+                setTestingAi(true)
+                try {
+                  const result = await window.focusOS.settings.testAiProviders()
+                  setAiTestResult(result)
+                } finally {
+                  setTestingAi(false)
+                }
+              })()
+            }}
+            className="rounded-button border border-surface-border px-3 py-2 text-sm text-text-secondary"
+          >
+            {testingAi ? 'Testing...' : 'Test Connection'}
+          </button>
+          {aiTestResult && (
+            <div className="text-xs text-text-muted">
+              <p>OpenRouter: {aiTestResult.openrouter}</p>
+              <p>Ollama: {aiTestResult.ollama}</p>
+            </div>
+          )}
+        </div>
       </SettingsSectionCard>
 
       <SettingsSectionCard
