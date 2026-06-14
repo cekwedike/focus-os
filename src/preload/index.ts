@@ -49,10 +49,19 @@ const invokeChannels: IpcInvokeChannel[] = [
   'protected-blocks:update',
   'protected-blocks:delete',
   'schedule:generate',
+  'schedule:commit',
   'schedule:reallocate',
   'schedule:get-day',
+  'schedule:start-block',
   'schedule:complete-block',
+  'schedule:update-block',
   'tasks:list',
+  'tasks:get',
+  'tasks:create',
+  'tasks:update',
+  'tasks:delete',
+  'daily:get',
+  'daily:upsert',
   'journal:get-entry',
   'insights:generate',
   'settings:get',
@@ -60,6 +69,9 @@ const invokeChannels: IpcInvokeChannel[] = [
   'settings:openrouter-key-status',
   'settings:set-openrouter-key',
   'settings:clear-openrouter-key',
+  'breaks:list',
+  'breaks:create',
+  'breaks:update',
   'breaks:log',
 ]
 
@@ -137,6 +149,32 @@ const focusOSApi: FocusOSApi = {
       unwrap(
         await createInvoke<ProtectedBlocksDeleteResponse>('protected-blocks:delete', payload)
       ),
+  },
+  tasks: {
+    list: async (filters) => unwrap(await createInvoke('tasks:list', filters)),
+    get: async (payload) => unwrap(await createInvoke('tasks:get', payload)),
+    create: async (payload) => unwrap(await createInvoke('tasks:create', payload)),
+    update: async (payload) => unwrap(await createInvoke('tasks:update', payload)),
+    delete: async (payload) => unwrap(await createInvoke('tasks:delete', payload)),
+  },
+  daily: {
+    get: async (payload) => unwrap(await createInvoke('daily:get', payload)),
+    upsert: async (payload) => unwrap(await createInvoke('daily:upsert', payload)),
+  },
+  schedule: {
+    generate: async (payload) => unwrap(await createInvoke('schedule:generate', payload)),
+    commit: async (payload) => unwrap(await createInvoke('schedule:commit', payload)),
+    getDay: async (payload) => unwrap(await createInvoke('schedule:get-day', payload)),
+    startBlock: async (payload) => unwrap(await createInvoke('schedule:start-block', payload)),
+    completeBlock: async (payload) => unwrap(await createInvoke('schedule:complete-block', payload)),
+    updateBlock: async (payload) => unwrap(await createInvoke('schedule:update-block', payload)),
+    reallocate: async (payload) => unwrap(await createInvoke('schedule:reallocate', payload)),
+  },
+  breaks: {
+    list: async (filters) => unwrap(await createInvoke('breaks:list', filters)),
+    create: async (payload) => unwrap(await createInvoke('breaks:create', payload)),
+    update: async (payload) => unwrap(await createInvoke('breaks:update', payload)),
+    log: async (payload) => unwrap(await createInvoke('breaks:log', payload)),
   },
   settings: {
     get: async () => unwrap(await createInvoke<SettingsGetResponse>('settings:get')),

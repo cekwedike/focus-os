@@ -65,6 +65,7 @@ export interface AllocationInput {
   clients: ClientInput[]
   tasks: TaskInput[]
   minViableBlockMinutes: number
+  capacityMinutes?: number
   existingBreaks?: BreakInput[]
 }
 

@@ -10,6 +10,8 @@ import {
 } from '@shared/constants/app'
 import { bootstrapDatabase, registerIpcHandlers } from './ipc'
 import { setApplicationMenu } from './menus/applicationMenu'
+import { startStalenessService, stopStalenessService } from './services/stalenessService'
+import { startTimerService, stopTimerService } from './services/timerService'
 import { configureWindowChrome } from './window/windowChrome'
 
 function resolveWindowIcon(): string | undefined {
@@ -41,6 +43,8 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    startTimerService(mainWindow)
+    startStalenessService(mainWindow)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -72,6 +76,8 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+  stopTimerService()
+  stopStalenessService()
   if (process.platform !== 'darwin') {
     app.quit()
   }

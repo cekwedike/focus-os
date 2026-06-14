@@ -10,6 +10,8 @@ import type {
   TaskInput,
 } from '@shared/allocation/types'
 import type { ClientProjectRow, ProtectedBlockRow } from '@shared/types/db'
+import type { FixedBlockOverride } from '@shared/types/schedule'
+import { applyFixedBlockOverrides } from './allocationHelpers'
 import { getAllSettings } from '../db/repositories/appSettingsRepository'
 
 export interface TaskRowForAllocation {
@@ -29,6 +31,8 @@ export interface RunAllocationParams {
   wakeTime: string
   sleepTargetTime?: string
   bufferPercent?: number
+  capacityMinutes?: number
+  fixedBlockOverrides?: FixedBlockOverride[]
 }
 
 function mapClient(row: ClientProjectRow): ClientInput {
@@ -74,12 +78,17 @@ function mapTask(row: TaskRowForAllocation): TaskInput {
 export function buildAllocationInput(
   db: Database.Database,
   params: RunAllocationParams,
-  tasks: TaskRowForAllocation[]
+  tasks: TaskRowForAllocation[],
+  clientRows?: ClientProjectRow[]
 ): AllocationInput {
   const settings = getAllSettings(db)
-  const clients = (
-    db.prepare('SELECT * FROM clients_projects ORDER BY sort_order ASC, id ASC').all() as ClientProjectRow[]
-  ).map(mapClient)
+  const rawClients =
+    clientRows ??
+    (db
+      .prepare('SELECT * FROM clients_projects ORDER BY sort_order ASC, id ASC')
+      .all() as ClientProjectRow[])
+
+  const clients = applyFixedBlockOverrides(rawClients, params.fixedBlockOverrides).map(mapClient)
 
   const protectedBlocks = (
     db
@@ -96,15 +105,17 @@ export function buildAllocationInput(
     clients,
     tasks: tasks.map(mapTask),
     minViableBlockMinutes: settings.minViableBlockMinutes,
+    capacityMinutes: params.capacityMinutes,
   }
 }
 
 export function runDayAllocation(
   db: Database.Database,
   params: RunAllocationParams,
-  tasks: TaskRowForAllocation[]
+  tasks: TaskRowForAllocation[],
+  clientRows?: ClientProjectRow[]
 ): AllocationOutput {
-  const input = buildAllocationInput(db, params, tasks)
+  const input = buildAllocationInput(db, params, tasks, clientRows)
   return allocateDay(input)
 }
 
@@ -114,8 +125,9 @@ export function runReallocationAfterLongBreak(
   tasks: TaskRowForAllocation[],
   existingBlocks: ScheduleBlock[],
   returnTime: string,
-  longBreakDurationMinutes: number
+  longBreakDurationMinutes: number,
+  clientRows?: ClientProjectRow[]
 ): ReallocationOutput {
-  const input = buildAllocationInput(db, params, tasks)
+  const input = buildAllocationInput(db, params, tasks, clientRows)
   return reallocateAfterLongBreak(input, existingBlocks, returnTime, longBreakDurationMinutes)
 }

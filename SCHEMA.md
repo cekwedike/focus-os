@@ -48,6 +48,10 @@ Dynamic clients and projects created by the user. A single table treats "client"
 - `idx_clients_projects_active` ON (`is_active`, `sort_order`)
 - `idx_clients_projects_last_touched` ON (`last_touched_at`) WHERE `is_active = 1`
 
+**System client convention**
+
+Migration 005 seeds a hidden row named `__unassigned__` with `weight_percent = 0`. Task Matrix quick-add assigns tasks here when no client is detected. The allocation engine excludes zero-weight clients from weighted distribution. Settings UI hides this row from the client list.
+
 ### 2. `tasks`
 
 Central task list across all clients.

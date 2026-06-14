@@ -77,7 +77,7 @@ export function allocateDay(input: AllocationInput): AllocationOutput {
   )
   state = afterBuffer
 
-  state = distributeWeighted(state, input.clients, input.scheduleDate, minViable)
+  state = distributeWeighted(state, input.clients, input.scheduleDate, minViable, input.capacityMinutes)
   state = fillTasksByPriority(state, input.scheduleDate, minViable)
 
   return finalizeAllocation(state, {

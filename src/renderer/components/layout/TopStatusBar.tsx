@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
+import { useScheduleContext } from '@renderer/context/ScheduleContext'
+import { useBreakContext } from '@renderer/context/BreakContext'
+import { ActiveBlockTimer } from '@renderer/components/schedule/ActiveBlockTimer'
 
 function NotificationBellIcon(): React.JSX.Element {
   return (
@@ -23,17 +26,21 @@ function NotificationBellIcon(): React.JSX.Element {
 
 export function TopStatusBar(): React.JSX.Element {
   const { formatClock } = useDisplayPreferences()
+  const { activeBlock, dayBundle, refresh } = useScheduleContext()
+  const { longBreakActive, longBreakStartedAt, openLongBreakModal, endLongBreak } = useBreakContext()
   const [currentTime, setCurrentTime] = useState(() => formatClock(new Date()))
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       setCurrentTime(formatClock(new Date()))
     }, 1000)
-
-    return () => {
-      window.clearInterval(intervalId)
-    }
+    return () => window.clearInterval(intervalId)
   }, [formatClock])
+
+  const focusLabel =
+    dayBundle?.focusScore === null || dayBundle?.focusScore === undefined
+      ? '--'
+      : `${dayBundle.focusScore}%`
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-surface-border bg-surface-card px-shell">
@@ -46,29 +53,46 @@ export function TopStatusBar(): React.JSX.Element {
         </time>
         <div className="hidden h-5 w-px bg-surface-border sm:block" aria-hidden="true" />
         <p className="hidden text-sm text-text-secondary sm:block">
-          Active block: <span className="text-text-muted">Not scheduled yet</span>
+          Active block:{' '}
+          <span className="text-text-primary">
+            {longBreakActive
+              ? 'On long break'
+              : activeBlock?.title ?? 'Not scheduled yet'}
+          </span>
         </p>
+        {longBreakActive && longBreakStartedAt && (
+          <ActiveBlockTimer startedAt={longBreakStartedAt} />
+        )}
       </div>
 
       <div className="flex items-center gap-3">
         <span className="focus-badge focus-badge-mint" title="Faith Streak placeholder">
-          Faith Streak: 0 days
+          Faith Streak: -- (soon)
         </span>
-        <span className="focus-badge focus-badge-slate" title="Focus score placeholder">
-          Focus: --
+        <span className="focus-badge focus-badge-slate" title="Focus score">
+          Focus: {focusLabel}
         </span>
-        <button
-          type="button"
-          className="rounded-button border border-accent-mint/40 bg-accent-mint/10 px-3 py-1.5 text-sm font-medium text-accent-mint transition-colors hover:bg-accent-mint/20"
-          onClick={() => undefined}
-        >
-          Take a Long Break
-        </button>
+        {longBreakActive ? (
+          <button
+            type="button"
+            onClick={() => void endLongBreak().then(() => refresh())}
+            className="rounded-button border border-amber-400/40 bg-amber-400/10 px-3 py-1.5 text-sm font-medium text-amber-200"
+          >
+            End Break
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={openLongBreakModal}
+            className="rounded-button border border-accent-mint/40 bg-accent-mint/10 px-3 py-1.5 text-sm font-medium text-accent-mint transition-colors hover:bg-accent-mint/20"
+          >
+            Take A Long Break
+          </button>
+        )}
         <button
           type="button"
           className="rounded-button border border-surface-border bg-surface-elevated p-2 text-text-secondary transition-colors hover:text-text-primary"
           aria-label="Notifications"
-          onClick={() => undefined}
         >
           <NotificationBellIcon />
         </button>

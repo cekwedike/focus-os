@@ -15,7 +15,8 @@ export function distributeWeighted(
   state: AllocationState,
   clients: ClientInput[],
   scheduleDate: string,
-  minViableBlockMinutes: number
+  minViableBlockMinutes: number,
+  capacityMinutes?: number
 ): AllocationState {
   const activeClients = clients.filter((client) => client.isActive && client.weightPercent > 0)
   const blocks = [...state.blocks]
@@ -33,11 +34,15 @@ export function distributeWeighted(
     return { ...state, warnings }
   }
 
-  const freeMinutes = freeIntervals.reduce(
+  let freeMinutes = freeIntervals.reduce(
     (sum, interval) =>
       sum + Math.round((interval.end.getTime() - interval.start.getTime()) / 60_000),
     0
   )
+
+  if (capacityMinutes !== undefined) {
+    freeMinutes = Math.min(freeMinutes, capacityMinutes)
+  }
 
   const weightedClients: WeightedClient[] = activeClients
     .map((client) => ({

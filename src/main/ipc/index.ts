@@ -1,12 +1,12 @@
 import { ipcMain } from 'electron'
 import type { AppPingResponse, IpcResult } from '@shared/types/ipc'
 import { initializeDatabase } from '../db/connection'
-import {
-  registerClientHandlers,
-  registerDatabaseHandlers,
-  registerProtectedBlockHandlers,
-} from './clientHandlers'
+import { registerClientHandlers, registerDatabaseHandlers, registerProtectedBlockHandlers } from './clientHandlers'
 import { registerSettingsHandlers } from './settingsHandlers'
+import { registerTaskHandlers } from './taskHandlers'
+import { registerDailyHandlers } from './dailyHandlers'
+import { registerScheduleHandlers } from './scheduleHandlers'
+import { registerBreakHandlers } from './breakHandlers'
 
 let databaseReady = false
 
@@ -35,4 +35,8 @@ export function registerIpcHandlers(): void {
   registerClientHandlers()
   registerProtectedBlockHandlers()
   registerSettingsHandlers()
+  registerTaskHandlers()
+  registerDailyHandlers()
+  registerScheduleHandlers()
+  registerBreakHandlers()
 }

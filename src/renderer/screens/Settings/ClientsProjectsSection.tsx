@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { ClientProjectRow } from '@shared/types/db'
+import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import { ConfirmDialog } from '@renderer/components/ui/ConfirmDialog'
 import { SettingsSectionCard } from '@renderer/components/ui/SettingsSectionCard'
 import { Toggle } from '@renderer/components/ui/Toggle'
@@ -22,14 +23,17 @@ export function ClientsProjectsSection({
   const [deactivating, setDeactivating] = useState<ClientProjectRow | null>(null)
 
   const visibleClients = useMemo(
-    () => clients.filter((client) => showInactive || client.is_active === 1),
+    () =>
+      clients.filter(
+        (client) => (showInactive || client.is_active === 1) && !isSystemUnassignedClient(client.name)
+      ),
     [clients, showInactive]
   )
 
   const activeWeightTotal = useMemo(
     () =>
       clients
-        .filter((client) => client.is_active === 1)
+        .filter((client) => client.is_active === 1 && !isSystemUnassignedClient(client.name))
         .reduce((sum, client) => sum + client.weight_percent, 0),
     [clients]
   )

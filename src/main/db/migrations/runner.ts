@@ -3,6 +3,7 @@ import { INITIAL_MIGRATION_SQL } from './001_initial'
 import { applySettingsKeysMigration } from './002_settings_keys'
 import { applyDisplayPreferencesMigration } from './003_display_preferences'
 import { applyTimezoneMigration } from './004_timezone'
+import { applyUnassignedClientMigration } from './005_unassigned_client'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -39,6 +40,13 @@ const migrations: MigrationDefinition[] = [
     name: 'timezone',
     up: (db) => {
       applyTimezoneMigration(db)
+    },
+  },
+  {
+    version: 5,
+    name: 'unassigned_client',
+    up: (db) => {
+      applyUnassignedClientMigration(db)
     },
   },
 ]

@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-14: Phases 5, 6, 7, and 8 Combined (Tasks, Workspace, Schedule, Breaks)
+
+**Prompt summary:** Combined implementation of Task Matrix (7), Daily Workspace (5), Schedule + Dashboard (6), and Breaks System (8) in build order 7 → 5 → 6 → 8. Full IPC CRUD for tasks, daily_settings, daily_schedule, breaks_log; scheduleService centralizes preview/commit/reallocate; natural language quick-add; wake-time modal; micro-break and long-break flows.
+
+**Outcome:** All four phases complete. 34+ tests pass. Migration 005 seeds `__unassigned__` system client. Focus score = completed work blocks / total work blocks. Micro-break timer uses accumulated active-block time. Schedule time edits via control (drag-and-drop deferred).
+
+**Files / phases:** src/main/db/repositories/tasksRepository.ts, dailySettingsRepository.ts, dailyScheduleRepository.ts, breaksLogRepository.ts, src/main/services/scheduleService.ts, timerService.ts, stalenessService.ts, src/main/ipc/taskHandlers.ts, scheduleHandlers.ts, dailyHandlers.ts, breakHandlers.ts, src/shared/parsing/quickAddTask.ts, src/renderer/screens/TaskMatrix/, DailyWorkspace/, Schedule/, Dashboard/, context/ScheduleContext.tsx, BreakContext.tsx. Phases 5, 6, 7, 8 Complete.
+
+**Follow-ups:** Phase 9 Journal (Faith Streak live), Phase 10 Review charts.
+
 ### 2026-06-14: Phases 3 and 4 Settings + Allocation Engine
 
 **Prompt summary:** Combined Phase 3 (Settings screen with clients/projects CRUD, protected blocks config, app_settings IPC, OpenRouter key via secrets file) and Phase 4 (standalone allocation engine per ALLOCATION_ENGINE.md with Vitest coverage and main-process mapper).

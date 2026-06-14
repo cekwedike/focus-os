@@ -76,7 +76,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 ## Phase 5: Daily Workspace + Wake-Time Flow
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Morning wake-time capture and schedule generation with preview before lock-in.
 
@@ -91,9 +91,11 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** User enters wake time, previews schedule, confirms; schedule rows appear in DB and UI reflects them.
 
+**Completed 2026-06-14:** Wake-time modal, Daily Workspace with day parameters, fixed-block overrides, Auto-Assign preview via `schedule:generate`, confirm via `schedule:commit`, `daily:get`/`daily:upsert` IPC, migration 005 system unassigned client. Built after Phase 7 so allocation has real tasks.
+
 ## Phase 6: Schedule + Dashboard
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Visual timeline and active session awareness.
 
@@ -107,9 +109,11 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** User can follow schedule visually and complete blocks with persisted actuals.
 
+**Completed 2026-06-14:** Schedule timeline with start/pause/complete and edit-times control (drag-and-drop deferred). Dashboard cards for Right Now, Up Next, Focus Score, Until Next Break, Staleness Alerts. `ScheduleContext` and wired TopStatusBar. Block actions via `schedule:start-block`, `schedule:complete-block`, `schedule:update-block`.
+
 ## Phase 7: Task Matrix
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Central task management across clients.
 
@@ -122,9 +126,11 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** Tasks created in UI appear in allocation output for new schedule generations.
 
+**Completed 2026-06-14:** Full tasks IPC CRUD, Task Matrix screen with All Jobs / High / Recent filters (Recent = 48h), quick-add parser in `src/shared/parsing/quickAddTask.ts`, task cards with edit/complete/delete. Built first in combined milestone (7 → 5 → 6 → 8).
+
 ## Phase 8: Breaks System
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Micro-break popups and long break with re-allocation.
 
@@ -139,6 +145,8 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Top bar long-break button wired
 
 **Exit criteria:** Long break compresses afternoon client blocks; low-priority tasks bump; protected blocks intact; user sees re-plan summary.
+
+**Completed 2026-06-14:** `timerService` tracks accumulated active-block time; micro-break modal; long break modal with End Break → `schedule:reallocate`; `breaks_log` CRUD; `stalenessService` alerts; Replan Summary modal.
 
 ## Phase 9: Journal (Faith Log)
 
@@ -215,6 +223,8 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
                 ↓
          8 Breaks → 9 Journal → 10 Review → 11 Insight → 12 Package
 ```
+
+**Implementation note (2026-06-14):** Phases 5 through 8 were built in dependency order **7 → 5 → 6 → 8** (tasks before schedule generation). Roadmap phase numbers are unchanged.
 
 Phases 9 and 10 can partially parallelize after Phase 6; Phase 11 depends on data from 5-9.
 

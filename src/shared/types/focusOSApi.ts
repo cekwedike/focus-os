@@ -31,6 +31,21 @@ import type {
   SetOpenRouterKeyPayload,
   SettingsGetResponse,
 } from './settings'
+import type { TaskRow } from './db'
+import type { CreateTaskInput, TaskListFilters, TaskWithClient, UpdateTaskInput } from './tasks'
+import type {
+  DailyUpsertInput,
+  DayBundle,
+  ScheduleCommitPayload,
+  ScheduleGeneratePayload,
+  ScheduleGetDayPayload,
+  ScheduleReallocatePayload,
+  ScheduleUpdateBlockPayload,
+} from './schedule'
+import type { AllocationOutput } from '@shared/allocation/types'
+import type { DailyScheduleRow, DailySettingsRow } from './db'
+import type { BreakListFilters, CreateBreakInput, UpdateBreakInput } from './breaks'
+import type { BreakLogRow } from './db'
 
 export type Unsubscribe = () => void
 
@@ -51,6 +66,37 @@ export interface FocusOSApi {
     create(payload: ProtectedBlocksCreatePayload): Promise<ProtectedBlocksCreateResponse>
     update(payload: ProtectedBlocksUpdatePayload): Promise<ProtectedBlocksUpdateResponse>
     delete(payload: ProtectedBlockDeletePayload): Promise<ProtectedBlocksDeleteResponse>
+  }
+  tasks: {
+    list(filters?: TaskListFilters): Promise<TaskWithClient[]>
+    get(payload: { id: number }): Promise<TaskRow>
+    create(payload: CreateTaskInput): Promise<TaskRow>
+    update(payload: UpdateTaskInput): Promise<TaskRow>
+    delete(payload: { id: number }): Promise<{ deleted: boolean }>
+  }
+  daily: {
+    get(payload: { date: string }): Promise<{
+      settings: DailySettingsRow | null
+      yesterday: DailySettingsRow | null
+    }>
+    upsert(payload: DailyUpsertInput): Promise<DailySettingsRow>
+  }
+  schedule: {
+    generate(payload: ScheduleGeneratePayload): Promise<AllocationOutput>
+    commit(payload: ScheduleCommitPayload): Promise<DayBundle>
+    getDay(payload: ScheduleGetDayPayload): Promise<DayBundle>
+    startBlock(payload: { blockId: number }): Promise<DailyScheduleRow>
+    completeBlock(payload: { blockId: number }): Promise<DailyScheduleRow>
+    updateBlock(payload: ScheduleUpdateBlockPayload): Promise<DailyScheduleRow>
+    reallocate(payload: ScheduleReallocatePayload): Promise<
+      AllocationOutput & { replanSummary: import('@shared/allocation/types').ReplanSummary; dayBundle: DayBundle }
+    >
+  }
+  breaks: {
+    list(filters?: BreakListFilters): Promise<BreakLogRow[]>
+    create(payload: CreateBreakInput): Promise<BreakLogRow>
+    update(payload: UpdateBreakInput): Promise<BreakLogRow>
+    log(payload: CreateBreakInput): Promise<BreakLogRow>
   }
   settings: {
     get(): Promise<SettingsGetResponse>

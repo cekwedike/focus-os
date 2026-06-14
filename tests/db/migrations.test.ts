@@ -40,7 +40,7 @@ describe('database migrations', () => {
       expect(tableNames).toContain(tableName)
     }
 
-    expect(getLatestSchemaVersion(testDb)).toBe(4)
+    expect(getLatestSchemaVersion(testDb)).toBe(5)
   })
 
   it('is idempotent when migrations run multiple times', () => {
@@ -68,7 +68,7 @@ describe('database migrations', () => {
     expect(secondTableNames).toEqual(firstTableNames)
     expect(secondProtectedCount).toBe(firstProtectedCount)
     expect(secondSettingsCount).toBe(firstSettingsCount)
-    expect(getLatestSchemaVersion(testDb)).toBe(4)
+    expect(getLatestSchemaVersion(testDb)).toBe(5)
   })
 
   it('seeds protected_blocks with all 5 expected block types', () => {
@@ -135,5 +135,18 @@ describe('database migrations', () => {
 
     expect(typeof JSON.parse(timezone.value)).toBe('string')
     expect(JSON.parse(timezone.value).length).toBeGreaterThan(0)
+  })
+
+  it('seeds system unassigned client', () => {
+    dbPath = createTempDatabasePath()
+    testDb = openDatabase(dbPath)
+    runMigrations(testDb)
+
+    const row = testDb
+      .prepare('SELECT name, weight_percent FROM clients_projects WHERE name = ?')
+      .get('__unassigned__') as { name: string; weight_percent: number }
+
+    expect(row.name).toBe('__unassigned__')
+    expect(row.weight_percent).toBe(0)
   })
 })
