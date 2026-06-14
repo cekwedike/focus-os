@@ -14,12 +14,12 @@ Built for freelancers who manage dynamic, user-created clients and projects (nev
 
 - **Wake-time based scheduling**: Log your wake time each morning; the app calculates remaining hours and auto-generates the rest of your day.
 - **Hybrid allocation engine**: Protected blocks (morning routine, faith/Bible reading and prayer, meals, micro-breaks, wind-down) are placed first. Fixed client blocks with variable daily windows come next. Remaining time is distributed across active clients by weight percentage and filled with highest-priority tasks.
-- **Long break handling**: Indicate reason and duration when stepping away. On return, the engine re-allocates the remaining day while keeping protected blocks intact, compressing client blocks proportionally, and bumping low-priority tasks to the next day when blocks would fall below minimum viable size.
+- **Long break handling**: Indicate reason and expected duration when stepping away. On return, the engine re-allocates the remaining day while keeping protected blocks intact, compressing client blocks proportionally, and bumping low-priority tasks to the next day when blocks would fall below minimum viable size. You see a day re-planned summary of what changed.
 
 ### Breaks and Focus
 
 - **Micro-break popups**: Prompts every ~90 minutes with activity choices (read, walk, call someone, check messages, short doomscroll allowance).
-- **Staleness tracking**: Alerts when a client or project has not been touched within a configurable threshold.
+- **Staleness tracking**: Alerts when a client or project has not been touched within a configurable threshold. Staleness alerts never override the schedule; they surface as notifications only.
 
 ### Faith and Journal
 
@@ -35,7 +35,7 @@ Built for freelancers who manage dynamic, user-created clients and projects (nev
 ### Daily Insight
 
 - **AI daily briefing**: Synthesizes today's schedule, staleness alerts, faith streak, yesterday's planned vs actual, and suggestions.
-- **Provider routing**: OpenRouter as primary AI provider, Ollama as offline fallback. AI never auto-modifies the schedule.
+- **Provider routing**: OpenRouter as primary AI provider, Ollama as offline fallback. If neither is available, the screen degrades gracefully to raw data without AI synthesis. AI never auto-modifies the schedule.
 
 ### Settings
 
@@ -65,7 +65,7 @@ Built for freelancers who manage dynamic, user-created clients and projects (nev
 ## Prerequisites
 
 - **Node.js**: v20 LTS or later (see `DEVELOPMENT.md`)
-- **npm** or **pnpm** (project default TBD at scaffold time)
+- **npm** (default; pnpm acceptable alternative, pick one at Phase 1 scaffold)
 - **Windows** for native `.exe` builds (development may run cross-platform)
 - **Ollama** (optional): for offline Daily Insight fallback
 

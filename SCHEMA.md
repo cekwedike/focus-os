@@ -48,8 +48,6 @@ Dynamic clients and projects created by the user. A single table treats "client"
 - `idx_clients_projects_active` ON (`is_active`, `sort_order`)
 - `idx_clients_projects_last_touched` ON (`last_touched_at`) WHERE `is_active = 1`
 
----
-
 ### 2. `tasks`
 
 Central task list across all clients.
@@ -74,8 +72,6 @@ Central task list across all clients.
 - `idx_tasks_client_status` ON (`client_id`, `status`)
 - `idx_tasks_schedule_fill` ON (`status`, `priority`, `deadline_date`) WHERE `status` IN ('pending', 'in_progress')
 - `idx_tasks_deferred` ON (`deferred_to_date`)
-
----
 
 ### 3. `protected_blocks`
 
@@ -107,8 +103,6 @@ User-configurable templates for non-negotiable daily blocks. Not dated rows; eng
 **Indexes**
 
 - `idx_protected_blocks_enabled_order` ON (`is_enabled`, `sort_order`)
-
----
 
 ### 4. `daily_schedule`
 
@@ -146,8 +140,6 @@ Materialized schedule blocks for a specific calendar date. Regenerated or partia
 - Re-allocation marks future client blocks `superseded` and inserts new rows rather than silent overwrite (preserves audit for Review screen).
 - `compressed` indicates block shortened by long-break re-allocation.
 
----
-
 ### 5. `breaks_log`
 
 Log of micro-break popups and long breaks.
@@ -178,8 +170,6 @@ Log of micro-break popups and long breaks.
 - `idx_breaks_log_date_type` ON (`break_date`, `break_type`)
 - `idx_breaks_log_started` ON (`started_at`)
 
----
-
 ### 6. `faith_log`
 
 Daily Bible reading and prayer journal entries.
@@ -203,8 +193,6 @@ Daily Bible reading and prayer journal entries.
 
 Derived at query time from consecutive `entry_date` rows with non-empty `prayer_notes` or `bible_reference` per app rules (document in Journal module).
 
----
-
 ### 7. `daily_settings`
 
 Per-day settings captured at day start or when user changes day parameters.
@@ -225,8 +213,6 @@ Per-day settings captured at day start or when user changes day parameters.
 **Indexes**
 
 - `idx_daily_settings_date` ON (`settings_date`) UNIQUE
-
----
 
 ### 8. `insights_log`
 
@@ -258,8 +244,6 @@ Stored Daily Insight outputs.
 
 Multiple insights per day allowed (regenerate); UI shows latest by default.
 
----
-
 ### 9. `app_settings`
 
 Global key-value configuration.
@@ -287,8 +271,6 @@ Global key-value configuration.
 **Security note**
 
 Prefer `OPENROUTER_API_KEY` from environment at runtime. If stored locally, use OS credential store or encrypted file; never commit. See [SECURITY.md](./SECURITY.md).
-
----
 
 ## Migration Strategy
 

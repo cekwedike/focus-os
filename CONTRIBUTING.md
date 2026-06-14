@@ -107,9 +107,11 @@ Run this before every non-trivial commit or phase completion.
 ### Code Quality
 
 - [ ] TypeScript strict; no unjustified `any`
-- [ ] Files under line limits (1500 general, 800 data-heavy modules)
+- [ ] No source file exceeds 1000 lines; split at ~800 lines proactively
+- [ ] No truncated code in commits or AI-generated output
 - [ ] No duplicated logic that belongs in shared/allocation or shared utilities
 - [ ] Naming: PascalCase components, camelCase functions, snake_case DB fields
+- [ ] No em dashes or horizontal rules (`---`) in docs, comments, or generated text
 
 ### Architecture
 

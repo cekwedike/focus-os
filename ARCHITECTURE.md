@@ -22,6 +22,34 @@ Focus OS is a local-first Electron desktop application with a clear split betwee
    (focus-os.db)       (micro-breaks)        (Daily Insight only)
 ```
 
+```mermaid
+flowchart TB
+  subgraph renderer [RendererProcess]
+    UI[ScreensAndComponents]
+    Ctx[ReactContext]
+  end
+  subgraph preload [PreloadBridge]
+    API[window.focusOS]
+  end
+  subgraph main [MainProcess]
+    IPC[IPCHandlers]
+    DB[(SQLite)]
+    Engine[AllocationEngine]
+    Timers[TimerService]
+    Notify[NotificationService]
+    AI[AIService]
+  end
+  UI --> API
+  API --> IPC
+  IPC --> DB
+  IPC --> Engine
+  Engine --> DB
+  Timers --> Notify
+  IPC --> AI
+  AI --> OpenRouter[OpenRouterOptional]
+  AI --> Ollama[OllamaLocal]
+```
+
 ## Design Principles
 
 1. **Local-first**: All user data stored in SQLite on disk; app functions fully offline except optional OpenRouter calls.
@@ -29,6 +57,7 @@ Focus OS is a local-first Electron desktop application with a clear split betwee
 3. **AI advisory boundary**: AI reads snapshots and returns text insights; it never writes schedule or task rows directly.
 4. **Thin IPC, fat shared types**: Payload shapes defined in `src/shared/types/` and reused everywhere.
 5. **Testability**: Pure allocation module tested without Electron; DB layer tested with temp databases.
+6. **File size discipline**: No source file exceeds 1000 lines; split modules early per [rules.md](./rules.md).
 
 ## Main Process Responsibilities
 

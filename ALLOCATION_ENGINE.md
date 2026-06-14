@@ -1,6 +1,6 @@
 # Allocation Engine Specification
 
-The hybrid allocation engine is the deterministic core of Focus OS. It transforms wake time, user configuration, clients, tasks, and protected block templates into a ordered daily schedule. The same inputs must produce the same output. AI does not participate in this module.
+The hybrid allocation engine is the deterministic core of Focus OS. It transforms wake time, user configuration, clients, tasks, and protected block templates into an ordered daily schedule. The same inputs must produce the same output. AI does not participate in this module.
 
 ## Goals
 
@@ -108,7 +108,7 @@ Buffer is not task-fillable.
 
 1. Consider only **active** clients with `weight_percent > 0`.
 2. If sum of weights ≠ 100, **normalize**: `effective_weight = weight / sum * 100`.
-3. ` distributable_minutes = sum(free intervals after buffer)`.
+3. `distributable_minutes = sum(free intervals after buffer)`.
 4. For each client: `allocated = floor(distributable_minutes * effective_weight / 100)`.
 5. Assign minutes to free intervals in timeline order (first-fit contiguous segments):
    - Create `block_type = weighted_client` blocks per client.
@@ -193,6 +193,29 @@ On compressed/resized client blocks, re-run Step 5 fill only for affected blocks
 
 - "Schedule over-constrained after long break; N tasks deferred."
 - "Client X below minimum block size; tasks moved to tomorrow."
+
+## Day Re-Planned Summary (User-Facing)
+
+After long-break re-allocation completes, the renderer shows a modal or inline summary titled **Day re-planned**. This is display-only; the schedule has already been persisted by the main process.
+
+### Summary Contents
+
+| Section | Data source |
+|---------|-------------|
+| Return time | User-confirmed end of long break |
+| Time lost | Long break duration in minutes |
+| Blocks removed | Client blocks dropped because compressed below MVB |
+| Blocks compressed | Client blocks shortened with before/after durations |
+| Tasks bumped to tomorrow | Task titles and client names from `bumpedTaskIds` |
+| Protected blocks unchanged | Count and labels of protected blocks that were not modified |
+| New timeline preview | Ordered list of remaining blocks from return time to end of day |
+
+### UX Rules
+
+- User must acknowledge the summary before returning to the active workspace (single primary button: "Got it" or "Continue day").
+- Summary is also accessible from Schedule screen history for the current day (link: "View re-plan from [time]").
+- If no blocks were compressed and no tasks bumped, show a lighter message: "Schedule adjusted for your return. No tasks moved to tomorrow."
+- Staleness alerts may appear alongside the summary but are visually separate (notification bell, not inside the re-plan modal body).
 
 ## Micro-Breaks vs Scheduled micro_break
 

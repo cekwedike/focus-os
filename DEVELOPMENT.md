@@ -142,6 +142,48 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for module-level detail.
 - Separate tsconfigs for main, preload, renderer if bundler requires it.
 - Path aliases: `@shared/*`, `@renderer/*` for clean imports.
 
+## 1000-Line File Limit
+
+Focus OS enforces a **hard limit of 1000 lines per source file**. See [rules.md](./rules.md) for the full policy.
+
+### Why This Exists
+
+Large files are harder to review, test, and maintain across Cursor sessions. Splitting early keeps the allocation engine, IPC layer, and UI screens independently understandable.
+
+### When to Split
+
+| Signal | Action |
+|--------|--------|
+| File reaches ~800 lines | Plan the split before adding more code |
+| Screen file grows complex | Extract presentational components to `components/` |
+| Multiple unrelated exports | One primary export per file where practical |
+| IPC handler file handles 3+ domains | Split into domain-specific handler modules |
+| Allocation step logic exceeds one concern | Move to `steps/` subdirectory |
+
+### How to Split (Examples)
+
+**Renderer screen** (`DailyWorkspace.tsx` at 850 lines):
+
+- Move wake-time modal to `components/WakeTimeModal.tsx`
+- Move schedule preview card to `components/SchedulePreviewCard.tsx`
+- Move data fetching to `hooks/useDailyWorkspace.ts`
+
+**Main IPC** (`ipc/index.ts` registering everything):
+
+- Split into `scheduleHandlers.ts`, `taskHandlers.ts`, `clientHandlers.ts`
+- Keep `index.ts` as thin registration only (~50 lines)
+
+**Allocation engine** (`allocateDay.ts` growing large):
+
+- One file per pipeline step under `src/shared/allocation/steps/`
+- `index.ts` orchestrates steps only
+
+**DB layer** (`tasksRepository.ts` with many queries):
+
+- Split read queries vs write queries, or split by feature area (matrix vs schedule fill)
+
+Never split purely to game the line count (e.g. moving blank lines or imports alone). Each new file should have a clear single responsibility.
+
 ## Styling
 
 - Tailwind CSS with custom theme tokens: dark background palette, accent `#2DD4A0`.
@@ -171,7 +213,7 @@ Focus OS is designed for multi-session AI-assisted development. Follow these pra
 - Scope prompts to **one roadmap phase** or sub-feature at a time.
 - Ask Cursor to update ROADMAP phase status and append PROMPTS_LOG when a milestone completes.
 - Never let AI auto-modify schedule logic based on Daily Insight output; enforce in code review.
-- Keep files under line limits in rules.md; split modules early.
+- Keep every source file under 1000 lines; split modules at ~800 lines proactively.
 
 ### After a Session
 

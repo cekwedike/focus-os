@@ -8,12 +8,21 @@ Focus OS is an Electron + React + TypeScript desktop app for freelancers. It use
 
 ## File Size Limits
 
-| Category | Max lines |
-|----------|-----------|
-| General source files | **1500** |
-| Data-heavy modules (DB queries, large type maps, migration files) | **800** |
+**Hard limit: no source file may exceed 1000 lines.**
 
-When approaching limits, split by responsibility: extract hooks, subcomponents, query modules, or pure functions into separate files. Do not pad files with blank lines to avoid splitting.
+This applies to all TypeScript, JavaScript, TSX, JSX, SQL migration, and configuration files under `src/`. Documentation markdown in the repo root is exempt, but still avoid bloated single files when splitting improves clarity.
+
+When a file approaches **800 lines**, split proactively by responsibility:
+
+| File type | Split strategy |
+|-----------|----------------|
+| Screen components | Extract subcomponents into `components/`; move hooks to `hooks/` |
+| IPC handlers | One handler module per domain (`scheduleHandlers.ts`, `taskHandlers.ts`) |
+| Allocation engine | One module per pipeline step in `steps/` |
+| DB access | One repository module per table or aggregate |
+| Large type maps | Separate `types.ts` files by domain in `src/shared/types/` |
+
+Do not pad files with blank lines to stay under the limit. Do not disable the rule for convenience.
 
 ## Architecture Principles
 
@@ -66,7 +75,7 @@ The hybrid allocation engine is the **authoritative** system for schedule genera
 | React components | PascalCase | `TaskMatrix`, `WakeTimeModal` |
 | Functions, variables, hooks | camelCase | `calculateSchedule`, `useDailySchedule` |
 | Constants (true constants) | UPPER_SNAKE or camelCase per file pattern | `MIN_BLOCK_MINUTES`, `defaultBufferPercent` |
-| Database columns & tables | snake_case | `client_id`, `wake_time`, `breaks_log` |
+| Database columns and tables | snake_case | `client_id`, `wake_time`, `breaks_log` |
 | IPC channels | kebab or colon namespaced | `schedule:generate`, `db:tasks:list` |
 | Files (components) | PascalCase.tsx | `SidebarNav.tsx` |
 | Files (utilities) | camelCase or kebab-case matching folder | `allocationEngine.ts` |
@@ -76,7 +85,7 @@ The hybrid allocation engine is the **authoritative** system for schedule genera
 
 - Prefer self-documenting names over comments.
 - Comment **why** for non-obvious business rules (e.g. minimum viable block threshold, bump-to-next-day policy).
-- Do **not** use horizontal rules (`---`) or em dashes in generated docs, comments, or commit messages.
+- Do **not** use horizontal rules (`---`) or em dashes in generated docs, comments, commit messages, or chat responses.
 - JSDoc on public exported functions in `shared/` and allocation engine; optional elsewhere.
 
 ## Code Generation Rules for AI

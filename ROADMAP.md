@@ -4,8 +4,6 @@
 
 Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANGELOG.md)).
 
----
-
 ## Phase 1: Electron + React + TS + Tailwind Scaffold
 
 **Status:** Not Started
@@ -14,7 +12,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Deliverables**
 
-- Electron + Vite (or equivalent) + React + TypeScript project structure
+- Electron + Vite + React + TypeScript project structure
 - Tailwind configured with dark theme and mint accent `#2DD4A0`
 - Sidebar routes: Dashboard, Daily Workspace, Task Matrix, Schedule, Daily Insight, Journal, Review, Settings
 - Top status bar placeholder: time, streak badge, focus score, long-break button, notifications icon
@@ -22,8 +20,6 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - `npm run dev` starts app; empty screen components per route
 
 **Exit criteria:** App launches; navigation works; no database yet.
-
----
 
 ## Phase 2: SQLite Schema Setup
 
@@ -40,8 +36,6 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** DB file created in userData on first launch; schema version tracked.
 
----
-
 ## Phase 3: Settings Screen
 
 **Status:** Not Started
@@ -54,11 +48,9 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Protected blocks: enable/disable, duration, anchor, reorder
 - Global settings: buffer %, staleness default, notification toggles
 - OpenRouter model and Ollama endpoint fields (key from env)
-- Validation: weights warning if active sum ≠ 100
+- Validation: weights warning if active sum not equal to 100
 
 **Exit criteria:** User can create clients and configure day templates; data persists across restart.
-
----
 
 ## Phase 4: Allocation Engine (Standalone Module)
 
@@ -69,29 +61,27 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 **Deliverables**
 
 - `src/shared/allocation/` with full step pipeline and re-allocation
-- Comprehensive unit tests (Vitest/Jest)
-- Main process wrapper to map DB rows ↔ engine types (no UI yet)
+- Comprehensive unit tests (Vitest)
+- Main process wrapper to map DB rows to engine types (no UI yet)
 
 **Exit criteria:** All allocation tests pass; manual script or test fixture can print a day schedule.
-
----
 
 ## Phase 5: Daily Workspace + Wake-Time Flow
 
 **Status:** Not Started
 
-**Goal:** Morning wake-time capture and schedule generation.
+**Goal:** Morning wake-time capture and schedule generation with preview before lock-in.
 
 **Deliverables**
 
 - Wake-time modal on first open each calendar day
-- `schedule:generate` IPC persists `daily_schedule` and `daily_settings`
+- Capacity input (remaining hours awareness)
+- Allocation preview before user confirms and locks schedule
+- `schedule:generate` IPC persists `daily_schedule` and `daily_settings` on confirm
 - Daily Workspace shows current block summary and quick actions
 - Regenerate schedule control (with confirm)
 
-**Exit criteria:** User enters wake time; schedule rows appear in DB and basic UI reflects them.
-
----
+**Exit criteria:** User enters wake time, previews schedule, confirms; schedule rows appear in DB and UI reflects them.
 
 ## Phase 6: Schedule + Dashboard
 
@@ -105,11 +95,9 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Dashboard: current/next block, progress through day
 - Active block timer (planned vs elapsed)
 - Mark block complete / skip with actual times written to DB
-- Top bar wired to real streak placeholder (faith Phase 9) and focus score derived from adherence
+- Top bar wired to faith streak (placeholder until Phase 9) and focus score derived from adherence
 
 **Exit criteria:** User can follow schedule visually and complete blocks with persisted actuals.
-
----
 
 ## Phase 7: Task Matrix
 
@@ -126,8 +114,6 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** Tasks created in UI appear in allocation output for new schedule generations.
 
----
-
 ## Phase 8: Breaks System
 
 **Status:** Not Started
@@ -138,14 +124,13 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 - Timer service: ~90 min micro-break trigger
 - Micro-break modal: activity choices (read, walk, call, messages, doomscroll)
-- Long break flow: reason, duration, pause state
+- Long break flow: reason, expected duration, pause state
 - `schedule:reallocate` on return per allocation spec
+- Day re-planned summary modal after long break
 - `breaks_log` persistence
 - Top bar long-break button wired
 
-**Exit criteria:** Long break compresses afternoon client blocks; low-priority tasks bump; protected blocks intact.
-
----
+**Exit criteria:** Long break compresses afternoon client blocks; low-priority tasks bump; protected blocks intact; user sees re-plan summary.
 
 ## Phase 9: Journal (Faith Log)
 
@@ -158,12 +143,10 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Journal screen: Bible reference + prayer notes for today
 - Streak counter (consecutive days with entry)
 - Searchable history list
-- Stats: entries this month, longest streak, word count
+- Stats panel: entries this month, longest streak, word count over time
 - Top bar faith streak badge live
 
 **Exit criteria:** Entries persist; streak survives app restart; search returns past entries.
-
----
 
 ## Phase 10: Review Screen
 
@@ -175,12 +158,10 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 - Weekly view: planned vs actual hours per client (charts)
 - Historical date range selector
-- Break log analysis: micro vs long counts, total break time
+- Break log analysis: frequency, duration, reasons (micro vs long)
 - Export optional (CSV) if time permits
 
 **Exit criteria:** Charts reflect DB actuals vs planned for selected range.
-
----
 
 ## Phase 11: Daily Insight (AI)
 
@@ -191,14 +172,12 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 **Deliverables**
 
 - aiService: OpenRouter primary, Ollama fallback, source logged
-- Prompt builder from schedule, tasks, staleness, faith streak, yesterday variance
+- Prompt builder from daily snapshot (schedule, tasks, faith streak, yesterday variance)
 - Daily Insight screen renders markdown; regenerate button
-- Graceful offline/unconfigured state
+- Graceful degradation when neither provider available (raw data view)
 - **No auto-schedule mutation**
 
 **Exit criteria:** Insight generates with key configured; Ollama-only path works offline; failures degrade cleanly.
-
----
 
 ## Phase 12: Packaging (Windows exe)
 
@@ -215,8 +194,6 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Version 0.1.0 tag ready
 
 **Exit criteria:** Installable or portable exe runs without dev tooling; DB and settings persist in userData.
-
----
 
 ## Phase Dependency Graph
 
