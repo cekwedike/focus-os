@@ -46,6 +46,18 @@ import type { AllocationOutput } from '@shared/allocation/types'
 import type { DailyScheduleRow, DailySettingsRow } from './db'
 import type { BreakListFilters, CreateBreakInput, UpdateBreakInput } from './breaks'
 import type { BreakLogRow } from './db'
+import type {
+  JournalCompleteFaithBlockPayload,
+  JournalCompleteFaithBlockResponse,
+  JournalGetEntryPayload,
+  JournalGetEntryResponse,
+  JournalListRangePayload,
+  JournalListResponse,
+  JournalStatsPayload,
+  JournalStatsResponse,
+  JournalUpsertPayload,
+} from './journal'
+import type { ReviewDateRangePayload, ReviewSummary } from './review'
 
 export type Unsubscribe = () => void
 
@@ -97,6 +109,19 @@ export interface FocusOSApi {
     create(payload: CreateBreakInput): Promise<BreakLogRow>
     update(payload: UpdateBreakInput): Promise<BreakLogRow>
     log(payload: CreateBreakInput): Promise<BreakLogRow>
+  }
+  journal: {
+    getEntry(payload: JournalGetEntryPayload): Promise<JournalGetEntryResponse>
+    upsert(payload: JournalUpsertPayload): Promise<import('./db').FaithLogRow>
+    list(): Promise<JournalListResponse>
+    listRange(payload: JournalListRangePayload): Promise<JournalListResponse>
+    stats(payload: JournalStatsPayload): Promise<JournalStatsResponse>
+    completeFaithBlock(
+      payload: JournalCompleteFaithBlockPayload
+    ): Promise<JournalCompleteFaithBlockResponse>
+  }
+  review: {
+    getSummary(payload: ReviewDateRangePayload): Promise<ReviewSummary>
   }
   settings: {
     get(): Promise<SettingsGetResponse>

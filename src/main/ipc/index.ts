@@ -7,6 +7,8 @@ import { registerTaskHandlers } from './taskHandlers'
 import { registerDailyHandlers } from './dailyHandlers'
 import { registerScheduleHandlers } from './scheduleHandlers'
 import { registerBreakHandlers } from './breakHandlers'
+import { registerJournalHandlers } from './journalHandlers'
+import { registerReviewHandlers } from './reviewHandlers'
 
 let databaseReady = false
 
@@ -39,4 +41,6 @@ export function registerIpcHandlers(): void {
   registerDailyHandlers()
   registerScheduleHandlers()
   registerBreakHandlers()
+  registerJournalHandlers()
+  registerReviewHandlers()
 }

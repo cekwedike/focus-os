@@ -171,3 +171,13 @@ export interface BreakLogRow {
   schedule_block_id: number | null
   created_at: string
 }
+
+export interface FaithLogRow {
+  id: number
+  entry_date: string
+  bible_reference: string | null
+  prayer_notes: string | null
+  word_count: number
+  created_at: string
+  updated_at: string
+}

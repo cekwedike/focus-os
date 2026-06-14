@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-14: Phases 9 and 10 Journal + Review
+
+**Prompt summary:** Implement Phase 9 Journal (faith_log CRUD, streak calculation, faith-block entry flow, full Journal UI, live streak badges) and Phase 10 Review (planned vs actual aggregation, break analysis, CSS bar charts, date-range UI) per approved plan.
+
+**Outcome:** Both phases complete. Journal IPC (`journal:get-entry`, `journal:upsert`, `journal:list`, `journal:list-range`, `journal:stats`, `journal:complete-faith-block`) and Review IPC (`review:get-summary`). Faith streak pure function with unit tests. Review aggregators tested. 55 tests pass.
+
+**Files / phases:** src/shared/utils/faithStreak.ts, wordCount.ts, src/shared/review/, src/main/db/repositories/faithLogRepository.ts, reviewRepository.ts, src/main/services/journalService.ts, reviewService.ts, src/main/ipc/journalHandlers.ts, reviewHandlers.ts, src/renderer/screens/Journal/, Review/, FaithEntryModal, useFaithStreak, FaithEntryContext. Phases 9 and 10 Complete.
+
+**Follow-ups:** Phase 11 Daily Insight AI, optional Review CSV export.
+
 ### 2026-06-14: Phases 5, 6, 7, and 8 Combined (Tasks, Workspace, Schedule, Breaks)
 
 **Prompt summary:** Combined implementation of Task Matrix (7), Daily Workspace (5), Schedule + Dashboard (6), and Breaks System (8) in build order 7 → 5 → 6 → 8. Full IPC CRUD for tasks, daily_settings, daily_schedule, breaks_log; scheduleService centralizes preview/commit/reallocate; natural language quick-add; wake-time modal; micro-break and long-break flows.

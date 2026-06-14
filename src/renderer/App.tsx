@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { DisplayPreferencesProvider } from './context/DisplayPreferencesContext'
 import { ScheduleProvider } from './context/ScheduleContext'
+import { FaithEntryProvider } from './context/FaithEntryContext'
 import { BreakProvider } from './context/BreakContext'
 import { AppShell } from './components/layout/AppShell'
 import { useAppNavigationEvents } from './hooks/useAppNavigationEvents'
@@ -37,9 +38,11 @@ export default function App(): React.JSX.Element {
   return (
     <DisplayPreferencesProvider>
       <ScheduleProvider>
-        <BreakProvider>
-          <AppRoutes />
-        </BreakProvider>
+        <FaithEntryProvider>
+          <BreakProvider>
+            <AppRoutes />
+          </BreakProvider>
+        </FaithEntryProvider>
       </ScheduleProvider>
     </DisplayPreferencesProvider>
   )

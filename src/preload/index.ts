@@ -63,6 +63,12 @@ const invokeChannels: IpcInvokeChannel[] = [
   'daily:get',
   'daily:upsert',
   'journal:get-entry',
+  'journal:upsert',
+  'journal:list',
+  'journal:list-range',
+  'journal:stats',
+  'journal:complete-faith-block',
+  'review:get-summary',
   'insights:generate',
   'settings:get',
   'settings:update',
@@ -175,6 +181,18 @@ const focusOSApi: FocusOSApi = {
     create: async (payload) => unwrap(await createInvoke('breaks:create', payload)),
     update: async (payload) => unwrap(await createInvoke('breaks:update', payload)),
     log: async (payload) => unwrap(await createInvoke('breaks:log', payload)),
+  },
+  journal: {
+    getEntry: async (payload) => unwrap(await createInvoke('journal:get-entry', payload)),
+    upsert: async (payload) => unwrap(await createInvoke('journal:upsert', payload)),
+    list: async () => unwrap(await createInvoke('journal:list')),
+    listRange: async (payload) => unwrap(await createInvoke('journal:list-range', payload)),
+    stats: async (payload) => unwrap(await createInvoke('journal:stats', payload)),
+    completeFaithBlock: async (payload) =>
+      unwrap(await createInvoke('journal:complete-faith-block', payload)),
+  },
+  review: {
+    getSummary: async (payload) => unwrap(await createInvoke('review:get-summary', payload)),
   },
   settings: {
     get: async () => unwrap(await createInvoke<SettingsGetResponse>('settings:get')),

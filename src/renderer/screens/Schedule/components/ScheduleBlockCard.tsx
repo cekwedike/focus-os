@@ -4,15 +4,21 @@ import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesConte
 import { ActiveBlockTimer } from '@renderer/components/schedule/ActiveBlockTimer'
 import { TimeInput } from '@renderer/components/ui/TimeInput'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
+import { useFaithEntry } from '@renderer/context/FaithEntryContext'
 
 interface ScheduleBlockCardProps {
   block: DailyScheduleRow
   clientColor?: string
 }
 
+function isFaithBlock(block: DailyScheduleRow): boolean {
+  return block.block_type === 'protected' && block.protected_subtype === 'faith'
+}
+
 export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps): React.JSX.Element {
   const { formatHHMM } = useDisplayPreferences()
   const { refresh } = useScheduleContext()
+  const { openFaithEntry } = useFaithEntry()
   const [paused, setPaused] = useState(false)
   const [editing, setEditing] = useState(false)
   const [plannedStart, setPlannedStart] = useState(block.planned_start.slice(11, 16))
@@ -89,13 +95,23 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
             >
               {paused ? 'Resume' : 'Pause'}
             </button>
-            <button
-              type="button"
-              onClick={() => void completeBlock()}
-              className="rounded-button bg-accent-mint/20 px-3 py-1.5 text-xs font-medium text-accent-mint"
-            >
-              Complete
-            </button>
+            {isFaithBlock(block) ? (
+              <button
+                type="button"
+                onClick={openFaithEntry}
+                className="rounded-button bg-accent-mint/20 px-3 py-1.5 text-xs font-medium text-accent-mint"
+              >
+                Log Faith Time
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void completeBlock()}
+                className="rounded-button bg-accent-mint/20 px-3 py-1.5 text-xs font-medium text-accent-mint"
+              >
+                Complete
+              </button>
+            )}
           </>
         )}
         {block.status === 'planned' && (

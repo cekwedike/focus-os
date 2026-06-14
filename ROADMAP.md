@@ -105,7 +105,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Dashboard: current/next block, progress through day
 - Active block timer (planned vs elapsed)
 - Mark block complete / skip with actual times written to DB
-- Top bar wired to Faith Streak (placeholder until Phase 9) and focus score derived from adherence
+- Top bar wired to live Faith Streak and focus score derived from adherence
 
 **Exit criteria:** User can follow schedule visually and complete blocks with persisted actuals.
 
@@ -150,7 +150,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 ## Phase 9: Journal (Faith Log)
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Daily faith entries, streaks, and history.
 
@@ -164,9 +164,11 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** Entries persist; streak survives app restart; search returns past entries.
 
+**Completed 2026-06-14:** `faithLogRepository`, `journalService`, `journalHandlers`, `calculateFaithStreaks`, Journal screen with history search, `FaithEntryModal` for schedule faith blocks via `journal:complete-faith-block`, live streak in Dashboard and top bar.
+
 ## Phase 10: Review Screen
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Retrospective analytics.
 
@@ -178,6 +180,8 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 - Export optional (CSV) if time permits
 
 **Exit criteria:** Charts reflect DB actuals vs planned for selected range.
+
+**Completed 2026-06-14:** Pure review aggregators in `src/shared/review/`, `reviewRepository`, `reviewService`, Review screen with CSS flex bar charts (no new chart library), date range presets, protected block day summaries, task completion rate.
 
 ## Phase 11: Daily Insight (AI)
 

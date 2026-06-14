@@ -91,6 +91,8 @@ src/main/
 │   └── repositories/        # One module per aggregate (tasks, schedule, etc.)
 ├── services/
 │   ├── timerService.ts      # Micro-break + staleness timers
+│   ├── journalService.ts    # Faith log upsert, stats, complete-faith-block transaction
+│   ├── reviewService.ts     # Compose reviewRepository + shared/review aggregators
 │   ├── notificationService.ts
 │   └── aiService.ts         # Provider selection, prompt build, response parse
 └── allocation/
@@ -105,7 +107,7 @@ src/main/
 | Screens | Dashboard, Daily Workspace, Task Matrix, Schedule, Daily Insight, Journal, Review, Settings |
 | Forms & modals | Wake-time capture, long break, micro-break activity picker |
 | Local UI state | Selected filters, modal open state, draft form fields |
-| Display | Timelines, charts (Review), streak badges, focus score visualization |
+| Display | Timelines, CSS flex bar charts on Review (no chart library), streak badges, focus score visualization |
 | IPC client | Call preload API; subscribe to push events |
 
 ### Renderer Module Layout
@@ -180,7 +182,8 @@ window.focusOS.onMicroBreakDue(callback);
 | `schedule:complete-block` | invoke | Mark block actual end, update metrics |
 | `tasks:*` | invoke | CRUD + matrix queries |
 | `clients:*` | invoke | CRUD clients/projects |
-| `journal:*` | invoke | Faith log read/write, search |
+| `journal:*` | invoke | Faith log read/write, search, stats, complete-faith-block |
+| `review:get-summary` | invoke | Planned vs actual, breaks, task completion for date range |
 | `insights:generate` | invoke | Trigger Daily Insight |
 | `settings:*` | invoke | App and daily settings |
 | `breaks:log` | invoke | Record micro/long break |

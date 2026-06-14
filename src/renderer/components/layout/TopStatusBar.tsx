@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { useBreakContext } from '@renderer/context/BreakContext'
+import { useFaithEntry } from '@renderer/context/FaithEntryContext'
+import { useFaithStreak } from '@renderer/hooks/useFaithStreak'
 import { ActiveBlockTimer } from '@renderer/components/schedule/ActiveBlockTimer'
 
 function NotificationBellIcon(): React.JSX.Element {
@@ -28,6 +30,8 @@ export function TopStatusBar(): React.JSX.Element {
   const { formatClock } = useDisplayPreferences()
   const { activeBlock, dayBundle, refresh } = useScheduleContext()
   const { longBreakActive, longBreakStartedAt, openLongBreakModal, endLongBreak } = useBreakContext()
+  const { stats: faithStats } = useFaithStreak()
+  const { isFaithBlockActive, openFaithEntry } = useFaithEntry()
   const [currentTime, setCurrentTime] = useState(() => formatClock(new Date()))
 
   useEffect(() => {
@@ -41,6 +45,9 @@ export function TopStatusBar(): React.JSX.Element {
     dayBundle?.focusScore === null || dayBundle?.focusScore === undefined
       ? '--'
       : `${dayBundle.focusScore}%`
+
+  const faithStreakLabel =
+    faithStats === null ? '--' : `${faithStats.currentStreak} days`
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-surface-border bg-surface-card px-shell">
@@ -66,9 +73,18 @@ export function TopStatusBar(): React.JSX.Element {
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="focus-badge focus-badge-mint" title="Faith Streak placeholder">
-          Faith Streak: -- (soon)
+        <span className="focus-badge focus-badge-mint" title="Faith streak">
+          Faith Streak: {faithStreakLabel}
         </span>
+        {isFaithBlockActive && (
+          <button
+            type="button"
+            onClick={openFaithEntry}
+            className="rounded-button border border-accent-mint/40 bg-accent-mint/10 px-3 py-1.5 text-sm font-medium text-accent-mint"
+          >
+            Log Faith Time
+          </button>
+        )}
         <span className="focus-badge focus-badge-slate" title="Focus score">
           Focus: {focusLabel}
         </span>
