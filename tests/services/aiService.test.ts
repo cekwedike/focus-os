@@ -15,8 +15,11 @@ import {
 
 const baseSettings: AppSettings = {
   openrouterModel: 'openai/gpt-4o-mini',
+  openrouterFreeModels: ['google/gemma-2-9b-it:free'],
   ollamaEndpoint: 'http://localhost:11434',
   ollamaModel: 'llama3',
+  voiceInputEnabled: true,
+  voiceOutputEnabled: false,
   defaultStalenessHours: 48,
   microBreakIntervalMinutes: 90,
   minViableBlockMinutes: 15,

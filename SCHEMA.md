@@ -308,7 +308,28 @@ Stored Daily Insight outputs.
 
 Multiple insights per day allowed (regenerate); UI shows latest by default.
 
-### 9. `notifications_log`
+### 9. `chat_ai_log`
+
+Audit trail for AI-assisted chat classification (Phase 14). Separate from `insights_log`.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PK, AUTOINCREMENT | |
+| `user_message` | TEXT | NOT NULL | Truncated to 500 chars |
+| `response_mode` | TEXT | NOT NULL | `execute`, `conversational`, `unavailable`, `chain_failed` |
+| `classified_intent` | TEXT | NULL | Intent if execute mode |
+| `source` | TEXT | NOT NULL | `openrouter`, `ollama`, or `none` |
+| `model` | TEXT | NULL | Model id used |
+| `action_taken` | TEXT | NOT NULL | IPC channel summary or `none` |
+| `generation_ms` | INTEGER | NULL | Latency |
+| `error_message` | TEXT | NULL | Chain failures |
+| `created_at` | TEXT | NOT NULL | |
+
+**Indexes**
+
+- `idx_chat_ai_log_created` ON (`created_at` DESC)
+
+### 10. `notifications_log`
 
 Audit trail for the centralized notification service. Every `notify()` call inserts a row; acknowledgment sets `acknowledged_at`.
 
@@ -327,7 +348,7 @@ Audit trail for the centralized notification service. Every `notify()` call inse
 - `idx_notifications_log_created` ON (`created_at` DESC)
 - `idx_notifications_log_unacknowledged` ON (`acknowledged_at`) WHERE `acknowledged_at` IS NULL
 
-### 10. `app_settings`
+### 11. `app_settings`
 
 Global key-value configuration.
 
@@ -342,8 +363,11 @@ Global key-value configuration.
 | Key | Value shape | Description |
 |-----|-------------|-------------|
 | `openrouter_model` | string | Model id (API key from env, not stored here ideally) |
+| `openrouter_free_models` | string[] | Free-tier model ids for chat AI fallback (tried in order) |
 | `ollama_endpoint` | string | Default `http://localhost:11434` |
 | `ollama_model` | string | Local model name |
+| `voice_input_enabled` | boolean | Show mic in chat (default true) |
+| `voice_output_enabled` | boolean | Read assistant messages aloud (default false) |
 | `default_staleness_hours` | number | Default 24 |
 | `micro_break_interval_minutes` | number | Default 90 |
 | `min_viable_block_minutes` | number | Default 15 |

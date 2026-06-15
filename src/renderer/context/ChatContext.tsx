@@ -19,6 +19,7 @@ interface ChatContextValue {
   sending: boolean
   initialized: boolean
   isTyping: boolean
+  aiThinking: boolean
   greetingComplete: boolean
   deliverAssistantMessages: (messages: AssistantDeliveryInput[]) => Promise<void>
   setGreetingComplete: (complete: boolean) => void
@@ -42,15 +43,17 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
   const { isTyping, deliverAssistantMessage, deliverAssistantMessages } =
     useAssistantDelivery(appendAssistantMessage)
   const [sending, setSending] = useState(false)
+  const [aiThinking, setAiThinking] = useState(false)
   const [greetingComplete, setGreetingComplete] = useState(() => isGreetingSentThisSession())
   const { processMessage, initialized } = useChatOrchestrator({
     deliverAssistantMessage,
+    setAiThinking,
   })
 
   const sendMessage = useCallback(
     async (text: string): Promise<void> => {
       const trimmed = text.trim()
-      if (!trimmed || sending || isTyping) {
+      if (!trimmed || sending || isTyping || aiThinking) {
         return
       }
       appendUserMessage(trimmed)
@@ -61,7 +64,7 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
         setSending(false)
       }
     },
-    [appendUserMessage, processMessage, sending, isTyping]
+    [appendUserMessage, processMessage, sending, isTyping, aiThinking]
   )
 
   const deliverNotificationToChat = useCallback(
@@ -86,6 +89,7 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
       sending,
       initialized,
       isTyping,
+      aiThinking,
       greetingComplete,
       deliverAssistantMessages,
       setGreetingComplete,
@@ -96,6 +100,7 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
       sending,
       initialized,
       isTyping,
+      aiThinking,
       greetingComplete,
       deliverAssistantMessages,
     ]

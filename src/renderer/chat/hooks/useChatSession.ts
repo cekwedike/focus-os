@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { ChatMessage, QuickReplyChip } from '@shared/types/chat'
+import type { ChatMessage, QuickReplyChip, ChatAttachment } from '@shared/types/chat'
 
 const CHAT_STORAGE_KEY = 'focus-os-chat-v1'
 const MAX_MESSAGES = 80
@@ -35,6 +35,7 @@ function persistMessages(messages: ChatMessage[]): void {
 export interface AppendAssistantOptions {
   quickReplies?: QuickReplyChip[]
   notificationId?: number
+  attachments?: ChatAttachment[]
 }
 
 export function useChatSession() {
@@ -56,6 +57,7 @@ export function useChatSession() {
         content,
         timestamp: new Date().toISOString(),
         quickReplies: options?.quickReplies,
+        attachments: options?.attachments,
         notificationId: options?.notificationId,
         notificationResolved: false,
       }

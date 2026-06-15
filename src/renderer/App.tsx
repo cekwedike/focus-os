@@ -1,5 +1,6 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { DisplayPreferencesProvider } from './context/DisplayPreferencesContext'
 import { ScheduleProvider } from './context/ScheduleContext'
 import { FaithEntryProvider } from './context/FaithEntryContext'
@@ -17,11 +18,32 @@ import { JournalScreen } from './screens/Journal/JournalScreen'
 import { ReviewScreen } from './screens/Review/ReviewScreen'
 import { SettingsScreen } from './screens/Settings/SettingsScreen'
 
+function AnimatedLegacyOutlet({ children }: { children: ReactNode }): React.JSX.Element {
+  const location = useLocation()
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, x: 8 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -8 }}
+        transition={{ duration: 0.2 }}
+        className="min-h-0 min-w-0 flex-1"
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
 function LegacyScreenLayout({ children }: { children: ReactNode }): React.JSX.Element {
   return (
-    <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-3 py-4 sm:px-4 sm:py-shell md:px-shell">
-      {children}
-    </div>
+    <AnimatedLegacyOutlet>
+      <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-3 py-4 sm:px-4 sm:py-shell md:px-shell">
+        {children}
+      </div>
+    </AnimatedLegacyOutlet>
   )
 }
 

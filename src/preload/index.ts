@@ -95,6 +95,7 @@ const invokeChannels: IpcInvokeChannel[] = [
   'work:get-paused',
   'check-ins:get-due',
   'check-ins:acknowledge',
+  'chat:ai-fallback',
   'notification:list-active',
   'notification:action',
 ]
@@ -245,6 +246,9 @@ const focusOSApi: FocusOSApi = {
     getDue: async () => unwrap(await createInvoke<CheckInsGetDueResponse>('check-ins:get-due')),
     acknowledge: async (payload: { clientId: number }) =>
       unwrap(await createInvoke<CheckInsGetDueResponse>('check-ins:acknowledge', payload)),
+  },
+  chat: {
+    aiFallback: async (payload) => unwrap(await createInvoke('chat:ai-fallback', payload)),
   },
   notifications: {
     listActive: async () =>

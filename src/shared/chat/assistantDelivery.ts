@@ -1,9 +1,13 @@
-import type { QuickReplyChip } from '@shared/types/chat'
+import type { QuickReplyChip, ChatAttachment } from '@shared/types/chat'
+
+export type AssistantDeliveryMode = 'instant' | 'ai'
 
 interface ChatMessageInput {
   content: string
   quickReplies?: QuickReplyChip[]
   notificationId?: number
+  attachments?: ChatAttachment[]
+  deliveryMode?: AssistantDeliveryMode
 }
 
 export type AssistantDeliveryInput = string | ChatMessageInput
@@ -28,4 +32,16 @@ export function getAssistantQuickReplies(
 
 export function getAssistantNotificationId(input: AssistantDeliveryInput): number | undefined {
   return normalizeInput(input).notificationId
+}
+
+export function getAssistantAttachments(
+  input: AssistantDeliveryInput
+): ChatAttachment[] | undefined {
+  return normalizeInput(input).attachments
+}
+
+export function getAssistantDeliveryMode(
+  input: AssistantDeliveryInput
+): AssistantDeliveryMode {
+  return normalizeInput(input).deliveryMode ?? 'instant'
 }

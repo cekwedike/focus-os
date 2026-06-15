@@ -6,8 +6,74 @@ export interface QuickReplyChip {
   actionId?: string
 }
 
+export interface ScheduleCardBlock {
+  id: number
+  title: string
+  status: string
+  block_type: string
+  clientColor?: string | null
+  planned_start?: string
+  planned_end?: string
+}
+
+export interface ScheduleCardAttachment {
+  type: 'schedule_card'
+  blocks: ScheduleCardBlock[]
+  highlightBlockId?: number | null
+}
+
+export interface TaskSummaryItem {
+  id: number
+  title: string
+  clientName: string
+  priority: number
+  deadlineDate: string | null
+  status: string
+}
+
+export interface TaskSummaryCardAttachment {
+  type: 'task_summary_card'
+  tasks: TaskSummaryItem[]
+}
+
+export interface FaithStreakCardAttachment {
+  type: 'faith_streak_card'
+  currentStreak: number
+  longestStreak: number
+  todayLogged: boolean
+  entriesThisMonth?: number
+}
+
+export interface FocusScoreCardAttachment {
+  type: 'focus_score_card'
+  score: number | null
+  completedBlocks: number
+  totalWorkBlocks: number
+  activeBlockTitle?: string | null
+  activeBlockProgressPercent?: number | null
+}
+
+export interface PlannedActualRow {
+  id: string
+  label: string
+  plannedMinutes: number
+  actualMinutes: number
+}
+
+export interface PlannedVsActualCardAttachment {
+  type: 'planned_vs_actual_card'
+  rows: PlannedActualRow[]
+  dateLabel: string
+}
+
 export type ChatAttachment =
-  | { type: 'text'; body: string }
+  | ScheduleCardAttachment
+  | TaskSummaryCardAttachment
+  | FaithStreakCardAttachment
+  | FocusScoreCardAttachment
+  | PlannedVsActualCardAttachment
+
+export type ChatAttachmentType = ChatAttachment['type']
 
 export interface ChatMessage {
   id: string
@@ -31,6 +97,10 @@ export type ChatIntentType =
   | 'faith_log'
   | 'query_schedule'
   | 'query_streak'
+  | 'query_status'
+  | 'query_tasks'
+  | 'complete_task'
+  | 'replan_day'
   | 'acknowledge_check_in'
   | 'extend_block'
   | 'skip_block'

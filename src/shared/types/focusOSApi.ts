@@ -73,6 +73,9 @@ import type {
   InsightsListResponse,
   TestAiProvidersResponse,
 } from './insights'
+import type { ChatAiFallbackResult } from './chatAi'
+import type { RouterContext } from '@shared/chat/routerContext'
+import type { ChatRouterContextSummary } from './chatAi'
 
 export type Unsubscribe = () => void
 
@@ -164,6 +167,14 @@ export interface FocusOSApi {
   checkIns: {
     getDue(): Promise<import('./ipc').CheckInsGetDueResponse>
     acknowledge(payload: { clientId: number }): Promise<import('./ipc').CheckInsGetDueResponse>
+  }
+  chat: {
+    aiFallback(payload: {
+      userMessage: string
+      scheduleDate: string
+      routerContextSummary: ChatRouterContextSummary
+      routerContext: RouterContext
+    }): Promise<ChatAiFallbackResult>
   }
   notifications: {
     listActive(): Promise<NotificationListActiveResponse>

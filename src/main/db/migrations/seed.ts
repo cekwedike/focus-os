@@ -183,6 +183,7 @@ export const EXPECTED_TABLE_NAMES = [
   'faith_log',
   'daily_settings',
   'insights_log',
+  'chat_ai_log',
   'app_settings',
   'schema_migrations',
 ] as const

@@ -29,6 +29,7 @@ export interface RouterContext {
   defaultBufferPercent: number
   nowIso: string
   dueCheckInClients: Array<{ id: number; name: string }>
+  openTasks?: Array<{ id: number; title: string }>
 }
 
 export interface WakeTimeExtracted {
@@ -62,6 +63,11 @@ export interface AcknowledgeCheckInExtracted {
   clientName: string
 }
 
+export interface CompleteTaskExtracted {
+  taskId: number
+  title: string
+}
+
 export type IntentExtracted =
   | WakeTimeExtracted
   | AddTaskExtracted
@@ -69,6 +75,7 @@ export type IntentExtracted =
   | LongBreakExtracted
   | FaithLogExtracted
   | AcknowledgeCheckInExtracted
+  | CompleteTaskExtracted
   | Record<string, never>
 
 export interface IntentMatch {
@@ -76,13 +83,13 @@ export interface IntentMatch {
   extracted?: IntentExtracted
   ambiguousMessage?: string
   requiresIpc: boolean
+  /** Optional match strength; below 0.7 routes to AI fallback. */
+  confidence?: number
 }
 
 export const CHAT_SCREEN_LINKS: ChatScreenLink[] = [
   { path: '/', label: 'Dashboard' },
-  { path: '/daily-workspace', label: 'Daily Workspace' },
   { path: '/task-matrix', label: 'Task Matrix' },
-  { path: '/schedule', label: 'Schedule' },
   { path: '/daily-insight', label: 'Daily Insight' },
   { path: '/journal', label: 'Journal' },
   { path: '/review', label: 'Review' },

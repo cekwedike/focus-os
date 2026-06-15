@@ -69,6 +69,7 @@ flowchart TB
 | Timers | Micro-break interval (~90 min), staleness check interval, block pre-completion warnings (15/10/5 min), auto-complete + advance at `planned_end` |
 | Notifications | Desktop notifications for breaks, staleness, optional insight ready |
 | AI routing | OpenRouter HTTP (primary), Ollama HTTP (fallback), timeout and error handling |
+| Chat AI fallback | Free-model chain for unrecognized chat input; classify-and-execute or conversational reply |
 | Config | Load `.env`, merge with `app_settings`, secure API key access |
 | File paths | Resolve userData DB path, optional dev overrides |
 
@@ -104,6 +105,7 @@ src/main/
 │   ├── reviewService.ts     # Compose reviewRepository + shared/review aggregators
 │   ├── insightService.ts    # Daily snapshot + AI generation + insights_log persistence
 │   └── aiService.ts         # OpenRouter/Ollama routing with graceful fallback
+│   └── chatAiService.ts     # Chat fallback: free-model chain, structured JSON response
 └── allocation/
     └── runAllocation.ts     # Load DB state → engine → persist (orchestration)
 ```
@@ -201,12 +203,39 @@ Focus OS uses a **conversational home interface** at route `/`. Legacy screens r
 User types in ChatInputBar
   → useChatOrchestrator.processMessage()
   → classifyIntent() in src/shared/chat/intentRouter.ts (pure, deterministic)
-  → if unrecognized or ambiguous: responseTemplates only (no IPC)
-  → else: window.focusOS.* IPC calls (existing handlers, unchanged)
-  → responseTemplates build assistant text from IPC results
-  → useAssistantDelivery shows typing indicator (650-1100ms) then appends message
-  → ChatMessage persisted in sessionStorage (last 80 messages)
+  → if ambiguousMessage: clarification template (no IPC, no AI)
+  → else if definite intent: executeIntent() → existing IPC handlers
+  → else if unrecognized: chat:ai-fallback (chatAiService)
+       → execute mode: same executeIntent() path (never bypasses IPC)
+       → conversational mode: snapshot-based reply + optional attachment
+       → unavailable: honest unrecognized() template
+  → useAssistantDelivery shows typing or AiThinkingIndicator, then appends message
+  → ChatMessage (content + attachments[]) persisted in sessionStorage (last 80 messages)
 ```
+
+### Rich attachments (Phase 15)
+
+`ChatMessage.attachments` supports: `schedule_card`, `task_summary_card`, `faith_streak_card`, `focus_score_card`, `planned_vs_actual_card`. Pure shapers live in `src/shared/chat/attachments/`; React renderers in `src/renderer/chat/attachments/`. Query intents and AI conversational replies attach cards when data adds clarity.
+
+### AI chat fallback (Phase 14)
+
+Trigger: `intent === 'unrecognized'` (confidence threshold 0.70 documented for future weak matches). Main process `chatAiService` tries `openrouter_free_models` from app_settings (default four free-tier ids), then Ollama, max 5 attempts / 45s chain timeout. Every attempt logged to `chat_ai_log` with source, model, and action taken.
+
+### Voice input (Phase 16)
+
+`ChatInputBar` mic uses Web Speech API when `voice_input_enabled` is true. Transcribed text populates the input field; user must press Send (no auto-send). Optional `voice_output_enabled` reads new assistant messages via SpeechSynthesis (new message cancels in-progress speech).
+
+### Future Hook Points
+
+| Phase | Hook location | Purpose |
+|-------|---------------|---------|
+| 14 | `intentRouter.ts` after deterministic pass | AI fallback for ambiguous input |
+| 15 | `ChatMessage.attachments` + `ChatMessageBubble` | Inline rich components (schedule cards, etc.) |
+| 16 | `ChatInputBar` mic button | Voice input |
+| 17 | Chat UI components | Motion and transitions |
+| 18 | Orchestrator + router | Migrate remaining screen workflows into chat |
+
+(Phases 14-18 complete as of 2026-06-15.)
 
 ### Persistence
 
@@ -223,7 +252,7 @@ If wake time is already logged, a welcome-back message references the active blo
 
 Before each assistant message, a **typing indicator** shows for 650-1100ms (random), with a 350ms gap between sequential greeting messages. All intent-router responses use the same delivery pipeline.
 
-**Framer Motion** (limited scope, not full Phase 17): `TypingIndicator` dot animation, `AnimatedChatMessageBubble` slide-up + fade (200ms).
+**Framer Motion:** `TypingIndicator`, `AnimatedChatMessageBubble`, attachment card entrance, legacy screen route transitions, persistent banner enter/exit (200ms). AI fallback uses `AiThinkingIndicator` instead of fake typing delay.
 
 **Suggestion chips** are **inline** on assistant messages (contextual quick replies), not a persistent row below the thread. Contexts include welcome-back, pre-completion warnings, auto-progression, extend/skip confirmations, and wake-time prompts.
 
@@ -236,16 +265,6 @@ Reopening the app from the system tray does **not** re-trigger the proactive gre
 ### Conversation State
 
 The orchestrator tracks `pendingPrompt` (wake time), `longBreakActive`, and faith block context. On first open each day without `wake_time`, the assistant proactively asks for wake time and replaces the Phase 5 wake modal.
-
-### Future Hook Points
-
-| Phase | Hook location | Purpose |
-|-------|---------------|---------|
-| 14 | `intentRouter.ts` after deterministic pass | AI fallback for ambiguous input |
-| 15 | `ChatMessage.attachments` + `ChatMessageBubble` | Inline rich components (schedule cards, etc.) |
-| 16 | `ChatInputBar` mic button | Voice input |
-| 17 | Chat UI components | Motion and transitions |
-| 18 | Orchestrator + router | Migrate remaining screen workflows into chat |
 
 ## Preload and IPC Pattern
 
@@ -296,6 +315,7 @@ window.focusOS.onMicroBreakDue(callback);
 | `journal:*` | invoke | Faith log read/write, search, stats, complete-faith-block |
 | `review:get-summary` | invoke | Planned vs actual, breaks, task completion for date range |
 | `insights:generate` | invoke | Build snapshot, call AI, persist to insights_log |
+| `chat:ai-fallback` | invoke | Classify or converse on unrecognized chat input; log to chat_ai_log |
 | `insights:get-today` | invoke | Latest insight for a date |
 | `insights:list` | invoke | Insight history |
 | `settings:test-ai-providers` | invoke | Minimal OpenRouter/Ollama connectivity test |

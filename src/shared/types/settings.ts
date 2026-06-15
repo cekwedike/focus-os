@@ -12,8 +12,11 @@ export interface NotificationPreferences {
 
 export interface AppSettings {
   openrouterModel: string
+  openrouterFreeModels: string[]
   ollamaEndpoint: string
   ollamaModel: string
+  voiceInputEnabled: boolean
+  voiceOutputEnabled: boolean
   defaultStalenessHours: number
   microBreakIntervalMinutes: number
   minViableBlockMinutes: number

@@ -1,6 +1,8 @@
 import type { ChatMessage } from '@shared/types/chat'
 import type { QuickReplyChip } from '@shared/types/chat'
 import { InlineQuickReplies } from './InlineQuickReplies'
+import { ChatAttachmentRenderer } from './attachments/ChatAttachmentRenderer'
+import { motion } from 'framer-motion'
 
 interface ChatMessageBubbleProps {
   message: ChatMessage
@@ -33,6 +35,16 @@ export function ChatMessageBubble({
         >
           {!isUser && !isSystem && <p className="focus-kicker mb-1">Assistant</p>}
           {message.content}
+          {message.attachments?.map((attachment, index) => (
+            <motion.div
+              key={`${message.id}-attachment-${index}`}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChatAttachmentRenderer attachment={attachment} />
+            </motion.div>
+          ))}
         </div>
         {!isUser && message.quickReplies && message.quickReplies.length > 0 && onQuickReply ? (
           <div className="ml-1 border-l-2 border-accent-mint/25 pl-3">

@@ -1,7 +1,9 @@
 import { useCallback, useState } from 'react'
-import type { QuickReplyChip } from '@shared/types/chat'
+import type { QuickReplyChip, ChatAttachment } from '@shared/types/chat'
 import {
+  getAssistantAttachments,
   getAssistantContent,
+  getAssistantDeliveryMode,
   getAssistantNotificationId,
   getAssistantQuickReplies,
   type AssistantDeliveryInput,
@@ -20,12 +22,18 @@ export function useAssistantDelivery(
 
   const deliverAssistantMessage = useCallback(
     async (input: AssistantDeliveryInput): Promise<void> => {
-      setIsTyping(true)
-      await sleep(getTypingDelayMs())
-      setIsTyping(false)
+      const deliveryMode = getAssistantDeliveryMode(input)
+
+      if (deliveryMode === 'instant') {
+        setIsTyping(true)
+        await sleep(getTypingDelayMs())
+        setIsTyping(false)
+      }
+
       appendAssistantMessage(getAssistantContent(input), {
         quickReplies: getAssistantQuickReplies(input),
         notificationId: getAssistantNotificationId(input),
+        attachments: getAssistantAttachments(input),
       })
     },
     [appendAssistantMessage]

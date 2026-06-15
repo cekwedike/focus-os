@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-15: Phases 14 through 18 (chat AI, rich components, voice, motion, migration)
+
+**Prompt summary:** Implement Split A/B/C plan: Phase 14 AI fallback for unrecognized chat input, Phase 15 inline rich attachment cards, Phase 16 voice input/output, Phase 17 motion polish, Phase 18 screen migration and new intents.
+
+**Outcome:** `chatAiService` with free OpenRouter model chain and Ollama fallback; `chat_ai_log` table; five attachment types with inline renderers; Web Speech mic (review before send) and optional TTS; Framer Motion on banners, routes, and cards; `query_status`, `query_tasks`, `complete_task`, `replan_day` intents; Daily Workspace and Schedule removed from icon rail. 220 tests pass.
+
+**Files / phases:** Phases 14, 15, 16, 17, 18 complete. Key paths: `src/main/services/chatAiService.ts`, `src/shared/chat/attachments/`, `src/renderer/chat/executeIntent.ts`, `src/renderer/chat/hooks/useVoiceInput.ts`, migrations 012-014.
+
+**Follow-ups:** Optional `replan_day` multi-turn wizard with preview card; remove dead `WakeTimeModal` / unrouted `DashboardScreen` if confirmed unused.
+
 ### 2026-06-15: Schedule Block Timestamp Consistency Fix
 
 **Prompt summary:** Fix inconsistent `planned_start`/`planned_end` formats causing inflated buffer countdowns (~350+ min instead of ~76 min).

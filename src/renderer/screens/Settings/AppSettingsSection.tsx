@@ -128,6 +128,25 @@ export function AppSettingsSection({
             placeholder="e.g. llama3"
           />
         </FormField>
+        <FormField
+          label="Chat Fallback Free Models"
+          hint="One model ID per line. Used when chat cannot match your message. Tried in order before Ollama."
+        >
+          <textarea
+            value={settings.openrouterFreeModels.join('\n')}
+            onChange={(event) => {
+              const openrouterFreeModels = event.target.value
+                .split('\n')
+                .map((line) => line.trim())
+                .filter(Boolean)
+              onSettingsChange({ ...settings, openrouterFreeModels })
+            }}
+            onBlur={() => void patch({ openrouterFreeModels: settings.openrouterFreeModels })}
+            rows={4}
+            className="focus-input resize-y font-mono text-xs"
+            placeholder="google/gemma-2-9b-it:free"
+          />
+        </FormField>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <button
             type="button"
@@ -154,6 +173,28 @@ export function AppSettingsSection({
             </div>
           )}
         </div>
+      </SettingsSectionCard>
+
+      <SettingsSectionCard
+        title="Voice"
+        description="Optional speech-to-text in chat and text-to-speech for assistant replies. Voice input never auto-sends; review text before sending."
+      >
+        <Toggle
+          label="Show Microphone In Chat"
+          checked={settings.voiceInputEnabled}
+          onChange={(voiceInputEnabled) => void patch({ voiceInputEnabled })}
+          showState
+        />
+        <Toggle
+          label="Read Assistant Messages Aloud"
+          checked={settings.voiceOutputEnabled}
+          onChange={(voiceOutputEnabled) => void patch({ voiceOutputEnabled })}
+          showState
+        />
+        <p className="text-xs text-text-muted">
+          Text-to-speech uses your system voices. A new assistant message cancels any speech in
+          progress.
+        </p>
       </SettingsSectionCard>
 
       <SettingsSectionCard

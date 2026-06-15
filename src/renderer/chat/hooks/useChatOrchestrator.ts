@@ -1,41 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { classifyIntent, shouldInvokeIpc } from '@shared/chat/intentRouter'
+import { shouldTriggerAiFallback } from '@shared/chat/aiFallback'
 import {
   createDefaultConversationState,
-  type ConversationState,
   type RouterBlockSummary,
   type RouterContext,
 } from '@shared/chat/routerContext'
-import {
-  blockCompleted,
-  blockStarted,
-  checkInAcknowledged,
-  endBreakAcknowledged,
-  faithLogSaved,
-  faithStreakSummary,
-  longBreakStarted,
-  menuList,
-  noActiveBlockToComplete,
-  replanSummaryText,
-  scheduleOverview,
-  taskAdded,
-  unrecognized,
-  wakeTimeConfirmedSummary,
-} from '@shared/chat/responseTemplates'
+import { menuList, unrecognized } from '@shared/chat/responseTemplates'
 import { CHAT_SCREEN_LINKS } from '@shared/chat/routerContext'
-import type {
-  AddTaskExtracted,
-  BlockActionExtracted,
-  FaithLogExtracted,
-  LongBreakExtracted,
-  WakeTimeExtracted,
-  AcknowledgeCheckInExtracted,
-} from '@shared/chat/routerContext'
 import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { getTodayDateString } from '@renderer/utils/date'
+import { executeIntent, type ConversationPatch } from '@renderer/chat/executeIntent'
+import type { AssistantDeliveryInput } from '@shared/chat/assistantDelivery'
+import { buildAttachmentByType } from '@shared/chat/attachments'
+import type { ChatAttachmentType } from '@shared/types/chat'
+import type { ChatRouterContextSummary } from '@shared/types/chatAi'
 
-interface ExtendedConversationState extends ConversationState {
+interface ExtendedConversationState {
+  pendingPrompt: 'wake_time' | null
+  longBreakActive: boolean
+  activeFaithBlockId: number | null
   longBreakBreakId: number | null
   longBreakStartedAt: string | null
 }
@@ -70,18 +55,34 @@ function mapBlocks(
   }))
 }
 
+function buildRouterContextSummary(context: RouterContext): ChatRouterContextSummary {
+  return {
+    today: context.today,
+    pendingPrompt: context.conversation.pendingPrompt,
+    longBreakActive: context.conversation.longBreakActive,
+    activeFaithBlockId: context.conversation.activeFaithBlockId,
+    activeBlockId: context.activeBlockId,
+    clients: context.clients,
+    todayBlocks: context.todayBlocks,
+    dueCheckInClients: context.dueCheckInClients,
+  }
+}
+
 interface UseChatOrchestratorOptions {
-  deliverAssistantMessage: (content: string) => Promise<void>
+  deliverAssistantMessage: (input: AssistantDeliveryInput) => Promise<void>
+  setAiThinking: (thinking: boolean) => void
 }
 
 export function useChatOrchestrator({
   deliverAssistantMessage,
+  setAiThinking,
 }: UseChatOrchestratorOptions) {
   const { dayBundle, activeBlock, nextBlock, refresh } = useScheduleContext()
   const [conversation, setConversation] = useState<ExtendedConversationState>(
     createExtendedConversationState
   )
   const [clients, setClients] = useState<Array<{ id: number; name: string }>>([])
+  const [openTasks, setOpenTasks] = useState<Array<{ id: number; title: string }>>([])
   const [unassignedClientId, setUnassignedClientId] = useState(0)
   const [defaultSleepTime, setDefaultSleepTime] = useState('22:00')
   const [defaultCapacityMinutes, setDefaultCapacityMinutes] = useState(480)
@@ -91,10 +92,11 @@ export function useChatOrchestrator({
   useEffect(() => {
     void (async () => {
       const today = getTodayDateString()
-      const [clientRows, daily, settingsResponse] = await Promise.all([
+      const [clientRows, daily, settingsResponse, taskRows] = await Promise.all([
         window.focusOS.clients.list(),
         window.focusOS.daily.get({ date: today }),
         window.focusOS.settings.get(),
+        window.focusOS.tasks.list(),
       ])
 
       const unassigned = clientRows.find((client) => isSystemUnassignedClient(client.name))
@@ -103,6 +105,11 @@ export function useChatOrchestrator({
         clientRows
           .filter((client) => !isSystemUnassignedClient(client.name))
           .map((client) => ({ id: client.id, name: client.name }))
+      )
+      setOpenTasks(
+        taskRows
+          .filter((task) => task.status === 'pending' || task.status === 'in_progress')
+          .map((task) => ({ id: task.id, title: task.title }))
       )
 
       const yesterday = daily.yesterday
@@ -131,6 +138,17 @@ export function useChatOrchestrator({
     })()
   }, [])
 
+  const applyConversationPatch = useCallback((patch: ConversationPatch | undefined): void => {
+    if (!patch) {
+      return
+    }
+
+    setConversation((current) => ({
+      ...current,
+      ...patch,
+    }))
+  }, [])
+
   const routerContextBase: Omit<RouterContext, 'dueCheckInClients'> = useMemo(
     () => ({
       today: getTodayDateString(),
@@ -140,6 +158,7 @@ export function useChatOrchestrator({
         activeFaithBlockId: conversation.activeFaithBlockId,
       },
       clients,
+      openTasks,
       todayBlocks: mapBlocks(dayBundle?.blocks ?? []),
       activeBlockId: activeBlock?.id ?? null,
       unassignedClientId,
@@ -151,6 +170,7 @@ export function useChatOrchestrator({
     [
       conversation,
       clients,
+      openTasks,
       dayBundle,
       activeBlock,
       unassignedClientId,
@@ -160,54 +180,92 @@ export function useChatOrchestrator({
     ]
   )
 
-  const executeWakeTime = useCallback(
-    async (extracted: WakeTimeExtracted): Promise<string> => {
-      const today = getTodayDateString()
-      await window.focusOS.daily.upsert({
-        settings_date: today,
-        wake_time: extracted.wakeTime,
-        sleep_target_time: defaultSleepTime,
-        remaining_minutes_at_wake: defaultCapacityMinutes,
-        buffer_percent: defaultBufferPercent,
-      })
-
-      const preview = await window.focusOS.schedule.generate({
-        scheduleDate: today,
-        wakeTime: extracted.wakeTime,
-        sleepTargetTime: defaultSleepTime,
-        bufferPercent: defaultBufferPercent,
-        capacityMinutes: defaultCapacityMinutes,
-      })
-
-      const committed = await window.focusOS.schedule.commit({
-        scheduleDate: today,
-        settings: {
-          settings_date: today,
-          wake_time: extracted.wakeTime,
-          sleep_target_time: defaultSleepTime,
-          buffer_percent: defaultBufferPercent,
-          remaining_minutes_at_wake: defaultCapacityMinutes,
-        },
-        blocks: preview.blocks,
-      })
-
-      await refresh()
-      setConversation((current) => ({
-        ...current,
-        pendingPrompt: null,
-      }))
-
-      return wakeTimeConfirmedSummary(
-        extracted.wakeTime,
-        mapBlocks(committed.blocks)
-      )
-    },
-    [
+  const executionDeps = useMemo(
+    () => ({
+      today: getTodayDateString(),
+      clients,
+      unassignedClientId,
       defaultSleepTime,
       defaultCapacityMinutes,
       defaultBufferPercent,
+      conversation: {
+        longBreakBreakId: conversation.longBreakBreakId,
+        longBreakStartedAt: conversation.longBreakStartedAt,
+      },
+      nextBlock,
+      activeBlock,
+      refresh,
+      mapBlocks,
+    }),
+    [
+      clients,
+      unassignedClientId,
+      defaultSleepTime,
+      defaultCapacityMinutes,
+      defaultBufferPercent,
+      conversation.longBreakBreakId,
+      conversation.longBreakStartedAt,
+      nextBlock,
+      activeBlock,
       refresh,
     ]
+  )
+
+  const runIntent = useCallback(
+    async (match: ReturnType<typeof classifyIntent>, aiReplyText?: string): Promise<void> => {
+      const result = await executeIntent(match, executionDeps, aiReplyText)
+      applyConversationPatch(result.conversationPatch)
+
+      if (result.skipDelivery) {
+        return
+      }
+
+      if (result.content) {
+        await deliverAssistantMessage({
+          content: result.content,
+          attachments: result.attachments,
+        })
+      }
+    },
+    [applyConversationPatch, deliverAssistantMessage, executionDeps]
+  )
+
+  const buildSuggestedAttachment = useCallback(
+    async (type: ChatAttachmentType): Promise<Awaited<ReturnType<typeof buildAttachmentByType>>> => {
+      const today = getTodayDateString()
+      const bundle = await window.focusOS.schedule.getDay({ date: today })
+      const stats = await window.focusOS.journal.stats({ today })
+      const todayEntry = await window.focusOS.journal.getEntry({ date: today })
+      const review = await window.focusOS.review.getSummary({ startDate: today, endDate: today })
+      const tasks = await window.focusOS.tasks.list()
+      const openTasks = tasks
+        .filter((task) => task.status === 'pending' || task.status === 'in_progress')
+        .slice(0, 12)
+
+      return buildAttachmentByType(type, {
+        today,
+        blocks: mapBlocks(bundle.blocks),
+        highlightBlockId: activeBlock?.id ?? null,
+        tasks: openTasks.map((task) => ({
+          id: task.id,
+          title: task.title,
+          client_name: task.client_name,
+          priority: task.priority,
+          deadline_date: task.deadline_date,
+          status: task.status,
+        })),
+        faithStats: {
+          currentStreak: stats.currentStreak,
+          longestStreak: stats.longestStreak,
+          todayLogged: Boolean(todayEntry?.bible_reference?.trim()),
+          entriesThisMonth: stats.entriesThisMonth,
+        },
+        scheduleRows: bundle.blocks,
+        activeBlock,
+        plannedActualGroups: review.clientGroups,
+      })
+    },
+    [activeBlock]
   )
 
   const processMessage = useCallback(
@@ -228,213 +286,80 @@ export function useChatOrchestrator({
         return
       }
 
-      if (!shouldInvokeIpc(match)) {
-        if (match.intent === 'menu') {
-          await deliverAssistantMessage(menuList(CHAT_SCREEN_LINKS))
-          return
+      if (match.intent === 'menu') {
+        await deliverAssistantMessage(menuList(CHAT_SCREEN_LINKS))
+        return
+      }
+
+      if (shouldInvokeIpc(match) || match.intent === 'replan_day') {
+        try {
+          await runIntent(match)
+        } catch (error) {
+          await deliverAssistantMessage(`Something went wrong: ${String(error)}`)
         }
+        return
+      }
+
+      if (!shouldTriggerAiFallback(match)) {
         await deliverAssistantMessage(unrecognized())
         return
       }
 
+      setAiThinking(true)
       try {
-        switch (match.intent) {
-          case 'wake_time': {
-            const extracted = match.extracted as WakeTimeExtracted
-            const response = await executeWakeTime(extracted)
-            await deliverAssistantMessage(response)
-            break
-          }
-          case 'add_task': {
-            const extracted = match.extracted as AddTaskExtracted
-            const { parseResult } = extracted
-            const created = await window.focusOS.tasks.create({
-              client_id: parseResult.clientId ?? unassignedClientId,
-              title: parseResult.title,
-              priority: parseResult.priority,
-              deadline_date: parseResult.deadlineDate,
-              estimated_minutes: parseResult.estimatedMinutes,
-            })
-            const clientName =
-              clients.find((client) => client.id === created.client_id)?.name ?? 'Unassigned'
-            await deliverAssistantMessage(taskAdded(created.title, clientName))
-            break
-          }
-          case 'start_block': {
-            const extracted = match.extracted as BlockActionExtracted
-            await window.focusOS.schedule.startBlock({ blockId: extracted.blockId })
-            await refresh()
-            await deliverAssistantMessage(blockStarted(extracted.title))
-            break
-          }
-          case 'complete_block': {
-            const extracted = match.extracted as BlockActionExtracted | undefined
-            if (!extracted) {
-              await deliverAssistantMessage(noActiveBlockToComplete())
-              break
-            }
-            await window.focusOS.schedule.completeAndAdvance({
-              blockId: extracted.blockId,
-              endTime: extracted.early ? new Date().toISOString() : undefined,
-            })
-            await refresh()
-            break
-          }
-          case 'extend_block': {
-            const extracted = match.extracted as BlockActionExtracted
-            await window.focusOS.schedule.extendBlock({ blockId: extracted.blockId })
-            await refresh()
-            break
-          }
-          case 'skip_block': {
-            const extracted = match.extracted as BlockActionExtracted
-            try {
-              await window.focusOS.schedule.skipBlock({ blockId: extracted.blockId })
-              await refresh()
-            } catch {
-              await deliverAssistantMessage('That block cannot be skipped.')
-            }
-            break
-          }
-          case 'long_break': {
-            const extracted = match.extracted as LongBreakExtracted
-            const startedAt = new Date().toISOString()
-            const created = await window.focusOS.breaks.create({
-              break_date: getTodayDateString(),
-              break_type: 'long',
-              started_at: startedAt,
-              reason: extracted.reason,
-              duration_minutes: extracted.plannedMinutes,
-            })
-            setConversation((current) => ({
-              ...current,
-              longBreakActive: true,
-              longBreakBreakId: created.id,
-              longBreakStartedAt: startedAt,
-            }))
-            await deliverAssistantMessage(
-              longBreakStarted(extracted.reason, extracted.plannedMinutes)
-            )
-            break
-          }
-          case 'end_break': {
-            await deliverAssistantMessage(endBreakAcknowledged())
-            const endedAt = new Date().toISOString()
-            const startedAt = conversation.longBreakStartedAt
-            const durationMinutes = startedAt
-              ? Math.max(
-                  1,
-                  Math.round(
-                    (new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 60_000
-                  )
-                )
-              : 30
+        const aiResult = await window.focusOS.chat.aiFallback({
+          userMessage: input,
+          scheduleDate: routerContext.today,
+          routerContextSummary: buildRouterContextSummary(routerContext),
+          routerContext,
+        })
 
-            if (conversation.longBreakBreakId) {
-              await window.focusOS.breaks.update({
-                id: conversation.longBreakBreakId,
-                ended_at: endedAt,
-                duration_minutes: durationMinutes,
-              })
-            }
+        const { response } = aiResult
 
-            const result = await window.focusOS.schedule.reallocate({
-              scheduleDate: getTodayDateString(),
-              returnTime: endedAt,
-              longBreakDurationMinutes: durationMinutes,
-            })
-
-            setConversation((current) => ({
-              ...current,
-              longBreakActive: false,
-              longBreakBreakId: null,
-              longBreakStartedAt: null,
-            }))
-            await refresh()
-            await deliverAssistantMessage(replanSummaryText(result.replanSummary))
-            break
-          }
-          case 'faith_log': {
-            const extracted = match.extracted as FaithLogExtracted
-            const today = getTodayDateString()
-            if (extracted.blockId && extracted.bibleReference) {
-              await window.focusOS.journal.completeFaithBlock({
-                blockId: extracted.blockId,
-                bible_reference: extracted.bibleReference,
-                prayer_notes: extracted.prayerNotes ?? null,
-              })
-              await deliverAssistantMessage(faithLogSaved(extracted.bibleReference))
-            } else if (extracted.bibleReference) {
-              await window.focusOS.journal.upsert({
-                entry_date: today,
-                bible_reference: extracted.bibleReference,
-                prayer_notes: extracted.prayerNotes ?? null,
-              })
-              await deliverAssistantMessage(faithLogSaved(extracted.bibleReference))
-            } else if (extracted.prayerNotes) {
-              await window.focusOS.journal.upsert({
-                entry_date: today,
-                bible_reference: 'Prayer notes',
-                prayer_notes: extracted.prayerNotes,
-              })
-              await deliverAssistantMessage(`Logged prayer notes: ${extracted.prayerNotes}`)
-            }
-            await refresh()
-            break
-          }
-          case 'query_schedule': {
-            const bundle = await window.focusOS.schedule.getDay({ date: getTodayDateString() })
-            const blocks = mapBlocks(bundle.blocks)
-            const upcoming =
-              nextBlock ??
-              bundle.blocks.find((block) => block.status === 'planned') ??
-              null
-            await deliverAssistantMessage(
-              scheduleOverview(
-                blocks,
-                upcoming
-                  ? {
-                      id: upcoming.id,
-                      title: upcoming.title,
-                      status: upcoming.status,
-                      block_type: upcoming.block_type,
-                      protected_subtype: upcoming.protected_subtype,
-                      planned_start: upcoming.planned_start,
-                      planned_end: upcoming.planned_end,
-                    }
-                  : null
-              )
-            )
-            break
-          }
-          case 'query_streak': {
-            const stats = await window.focusOS.journal.stats({ today: getTodayDateString() })
-            await deliverAssistantMessage(faithStreakSummary(stats.currentStreak, stats.longestStreak))
-            break
-          }
-          case 'acknowledge_check_in': {
-            const extracted = match.extracted as AcknowledgeCheckInExtracted
-            await window.focusOS.checkIns.acknowledge({ clientId: extracted.clientId })
-            await deliverAssistantMessage(checkInAcknowledged(extracted.clientName))
-            break
-          }
-          default:
-            await deliverAssistantMessage(unrecognized())
+        if (response.mode === 'unavailable') {
+          await deliverAssistantMessage({
+            content: unrecognized(),
+            deliveryMode: 'ai',
+          })
+          return
         }
-      } catch (error) {
-        await deliverAssistantMessage(`Something went wrong: ${String(error)}`)
+
+        if (response.mode === 'conversational') {
+          const attachment = response.suggestedAttachment
+            ? await buildSuggestedAttachment(response.suggestedAttachment)
+            : undefined
+
+          await deliverAssistantMessage({
+            content: response.replyText,
+            attachments: attachment ? [attachment] : undefined,
+            deliveryMode: 'ai',
+          })
+          return
+        }
+
+        await runIntent(
+          {
+            intent: response.intent,
+            extracted: response.extracted,
+            requiresIpc: true,
+          },
+          response.replyText
+        )
+      } catch {
+        await deliverAssistantMessage({
+          content: unrecognized(),
+          deliveryMode: 'ai',
+        })
+      } finally {
+        setAiThinking(false)
       }
     },
     [
       routerContextBase,
       deliverAssistantMessage,
-      executeWakeTime,
-      unassignedClientId,
-      clients,
-      refresh,
-      conversation.longBreakBreakId,
-      conversation.longBreakStartedAt,
-      nextBlock,
+      runIntent,
+      setAiThinking,
+      buildSuggestedAttachment,
     ]
   )
 

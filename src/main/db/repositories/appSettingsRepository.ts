@@ -1,5 +1,6 @@
 import type Database from 'better-sqlite3'
 import type { AppSettings, AppSettingsUpdate } from '@shared/types/settings'
+import { DEFAULT_OPENROUTER_FREE_MODELS } from '@shared/constants/chatAi'
 import { resolveDefaultTimezone } from '@shared/constants/timezones'
 import { nowIso } from '@shared/utils/time'
 
@@ -10,8 +11,11 @@ interface SettingRow {
 
 const DEFAULT_SETTINGS: AppSettings = {
   openrouterModel: '',
+  openrouterFreeModels: [...DEFAULT_OPENROUTER_FREE_MODELS],
   ollamaEndpoint: 'http://localhost:11434',
   ollamaModel: '',
+  voiceInputEnabled: true,
+  voiceOutputEnabled: false,
   defaultStalenessHours: 24,
   microBreakIntervalMinutes: 90,
   minViableBlockMinutes: 15,
@@ -39,8 +43,11 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 const KEY_MAP: Record<keyof AppSettings, string> = {
   openrouterModel: 'openrouter_model',
+  openrouterFreeModels: 'openrouter_free_models',
   ollamaEndpoint: 'ollama_endpoint',
   ollamaModel: 'ollama_model',
+  voiceInputEnabled: 'voice_input_enabled',
+  voiceOutputEnabled: 'voice_output_enabled',
   defaultStalenessHours: 'default_staleness_hours',
   microBreakIntervalMinutes: 'micro_break_interval_minutes',
   minViableBlockMinutes: 'min_viable_block_minutes',

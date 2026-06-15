@@ -10,6 +10,9 @@ import { applyCheckInsLogMigration } from './008_check_ins_log'
 import { applyProtectedBlocksSkippableMigration } from './009_protected_blocks_skippable'
 import { applyNotificationsLogMigration } from './010_notifications_log'
 import { applyScheduleTimestampNormalizationMigration } from './011_schedule_timestamp_normalization'
+import { applyChatAiLogMigration } from './012_chat_ai_log'
+import { applyOpenRouterFreeModelsMigration } from './013_openrouter_free_models'
+import { applyVoiceSettingsMigration } from './014_voice_settings'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -95,6 +98,27 @@ const migrations: MigrationDefinition[] = [
     name: 'schedule_timestamp_normalization',
     up: (db) => {
       applyScheduleTimestampNormalizationMigration(db)
+    },
+  },
+  {
+    version: 12,
+    name: 'chat_ai_log',
+    up: (db) => {
+      applyChatAiLogMigration(db)
+    },
+  },
+  {
+    version: 13,
+    name: 'openrouter_free_models',
+    up: (db) => {
+      applyOpenRouterFreeModelsMigration(db)
+    },
+  },
+  {
+    version: 14,
+    name: 'voice_settings',
+    up: (db) => {
+      applyVoiceSettingsMigration(db)
     },
   },
 ]

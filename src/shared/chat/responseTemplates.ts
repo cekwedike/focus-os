@@ -150,3 +150,29 @@ export function noMatchingBlock(action: 'start' | 'complete'): string {
 export function checkInAcknowledged(clientName: string): string {
   return `Got it. ${clientName} check-in marked complete.`
 }
+
+export function queryStatusSummary(score: number | null): string {
+  if (score === null) {
+    return "Here's how your day is going so far. No client work blocks are on today's schedule yet."
+  }
+  return `Here's how your day is going. Your focus score is ${score}%.`
+}
+
+export function replanDayPrompt(): string {
+  return (
+    'To replan your day with custom settings, tell me your wake time, sleep target, capacity in hours, and buffer percent. ' +
+    'Example: "replan: woke at 8am, sleep at 11pm, 7 hours capacity, 15% buffer". ' +
+    'Or open Task Matrix and Daily Workspace tools from the icon rail for full control.'
+  )
+}
+
+export function taskCompleted(title: string): string {
+  return `Marked "${title}" complete.`
+}
+
+export function taskListIntro(count: number): string {
+  if (count === 0) {
+    return 'You have no open tasks right now.'
+  }
+  return `Here are your ${count} open task${count === 1 ? '' : 's'}:`
+}

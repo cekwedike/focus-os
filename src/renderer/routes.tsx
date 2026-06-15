@@ -7,25 +7,11 @@ export interface ScreenDefinition {
 
 export const screenDefinitions: ScreenDefinition[] = [
   {
-    path: '/daily-workspace',
-    label: 'Daily Workspace',
-    title: 'Daily Workspace',
-    description:
-      'Morning wake-time capture, remaining day capacity, schedule preview before lock-in, and quick actions for your active work session.',
-  },
-  {
     path: '/task-matrix',
     label: 'Task Matrix',
     title: 'Task Matrix',
     description:
       'Central task list across all clients and projects, filterable by client and priority, with natural language quick-add.',
-  },
-  {
-    path: '/schedule',
-    label: 'Schedule',
-    title: 'Schedule',
-    description:
-      "Visual timeline of today's blocks: protected routines, client windows, buffer time, and assigned tasks.",
   },
   {
     path: '/daily-insight',

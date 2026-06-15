@@ -6,6 +6,7 @@ import { matchEndBreakIntent, matchLongBreakIntent } from './intents/breakIntent
 import { matchFaithLogIntent } from './intents/faithLogIntent'
 import { matchMenuIntent } from './intents/menuIntent'
 import { matchQueryScheduleIntent, matchQueryStreakIntent } from './intents/queryIntent'
+import { matchQueryStatusIntent, matchQueryTasksIntent, matchCompleteTaskIntent, matchReplanDayIntent } from './intents/statusAndTaskIntent'
 import { buildUnrecognizedMatch } from './intents/unrecognizedIntent'
 import { matchWakeTimeIntent } from './intents/wakeTimeIntent'
 import type { IntentMatch, RouterContext } from './routerContext'
@@ -26,6 +27,10 @@ const INTENT_MATCHERS: IntentMatcher[] = [
   matchAddTaskIntent,
   matchQueryScheduleIntent,
   matchQueryStreakIntent,
+  matchQueryStatusIntent,
+  matchQueryTasksIntent,
+  (input, context) => matchCompleteTaskIntent(input, { tasks: context.openTasks ?? [] }),
+  matchReplanDayIntent,
 ]
 
 export function classifyIntent(input: string, context: RouterContext): IntentMatch {

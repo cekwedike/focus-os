@@ -245,33 +245,43 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 ## Phase 14: AI Fallback for Chat
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** When deterministic intent matching fails, route ambiguous input through the existing AI provider chain (OpenRouter free models, Ollama fallback) to classify intent or generate a helpful reply.
 
+**Completed 2026-06-15:** `chatAiService` with config-driven free-model chain (0.70 confidence threshold), `chat:ai-fallback` IPC, `chat_ai_log` audit table, classify-and-execute plus conversational modes, `AiThinkingIndicator`, 25 new tests (220 total).
+
 ## Phase 15: Inline Rich Components
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Render schedule cards, task summaries, and other structured data as inline message attachments instead of plain text only.
 
+**Completed 2026-06-15:** Five attachment types (`schedule_card`, `task_summary_card`, `faith_streak_card`, `focus_score_card`, `planned_vs_actual_card`), shared shapers, inline React renderers in message bubbles, sessionStorage serialization tests.
+
 ## Phase 16: Voice Input
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Wire the chat input bar mic button to speech-to-text for hands-free commands.
 
+**Completed 2026-06-15:** Web Speech API mic in `ChatInputBar`, interim/final transcript population (no auto-send), 3s silence auto-stop, permission/unsupported graceful disable, `voice_input_enabled` / `voice_output_enabled` settings toggles, optional SpeechSynthesis for assistant messages.
+
 ## Phase 17: Motion and Transitions
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Polish chat and shell animations for a more responsive, automatic feel.
 
+**Completed 2026-06-15:** Framer Motion on attachment cards, legacy screen route transitions (`AnimatePresence`), persistent banner enter/exit, distinct AI thinking state vs typing indicator (200ms transitions).
+
 ## Phase 18: Remaining Screen Migration
 
-**Status:** Not Started
+**Status:** Complete
 
 **Goal:** Move remaining Daily Workspace, Settings, and other screen workflows into chat-first flows where appropriate.
+
+**Completed 2026-06-15:** New intents `query_status`, `query_tasks`, `complete_task`, `replan_day`; Daily Workspace and Schedule removed from icon rail (routes remain for deep links); Settings/Review/Journal history stay as dedicated screens; `executeIntent` extraction for shared IPC path.
 
 ## Follow-up Work (not yet scheduled as phases)
 
