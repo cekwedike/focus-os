@@ -90,12 +90,17 @@ src/main/
 │   ├── migrations/
 │   └── repositories/        # One module per aggregate (tasks, schedule, etc.)
 ├── services/
-│   ├── timerService.ts      # Micro-break + staleness timers
+│   ├── timerService.ts      # Micro-break accumulator
+│   ├── stalenessService.ts  # Client staleness alerts
+│   ├── clientReminderService.ts  # Per-client check-in reminders
+│   ├── workPauseService.ts  # Pause state from Schedule/Dashboard
+│   ├── notificationService.ts    # Desktop notifications
+│   ├── trayService.ts            # System tray
+│   ├── loginItemService.ts       # Windows auto-launch
 │   ├── journalService.ts    # Faith log upsert, stats, complete-faith-block transaction
 │   ├── reviewService.ts     # Compose reviewRepository + shared/review aggregators
 │   ├── insightService.ts    # Daily snapshot + AI generation + insights_log persistence
-│   ├── aiService.ts         # OpenRouter/Ollama routing with graceful fallback
-│   └── notificationService.ts
+│   └── aiService.ts         # OpenRouter/Ollama routing with graceful fallback
 └── allocation/
     └── runAllocation.ts     # Load DB state → engine → persist (orchestration)
 ```
@@ -201,6 +206,12 @@ Before each assistant message, a **typing indicator** shows for 650-1100ms (rand
 **Framer Motion** (limited scope, not full Phase 17): `TypingIndicator` dot animation, `AnimatedChatMessageBubble` slide-up + fade (200ms).
 
 **Suggestion chips** below the thread (above input) are contextual: wake shortcuts, day-ready actions, or long-break actions. Chips call the same `sendMessage` path as typed input.
+
+### Main-process assistant messages
+
+The main process can push text into the chat thread via IPC event `chat:assistant-message`. `ChatContext` subscribes and routes through `useAssistantDelivery` (typing pipeline). Used for per-client recurring check-in reminders when a client's schedule block is active.
+
+Reopening the app from the system tray does **not** re-trigger the proactive greeting; `focus-os-greeting-sent-v1` persists for the app session until restart.
 
 ### Conversation State
 
@@ -336,25 +347,39 @@ UI shows last cached insight, partial template, or friendly offline message. Sch
 
 ## Notification System
 
-`notificationService.ts` wraps Electron `Notification` API (or node-notifier if needed cross-platform during dev).
+`notificationService.ts` wraps Electron `Notification` API.
 
 | Trigger | Source |
 |---------|--------|
 | Micro-break due | timerService (~90 min focus elapsed) |
-| Staleness warning | timerService periodic check |
+| Staleness warning | stalenessService periodic check |
+| Client check-in | clientReminderService while client's block is active |
+| Tray close tip | index.ts first hide-to-tray (one-time) |
 | Daily Insight ready | aiService completion (optional) |
 
-Respects `app_settings` notification preferences (enable/disable per category).
+Respects `app_settings.notifications` (per category, including `clientReminder`). Desktop notifications fire when the window is hidden or unfocused; in-app chat delivery always runs when the renderer is loaded.
 
 ## Timer System
 
 `timerService.ts` runs in main process:
 
-- **Focus timer**: Tracks elapsed time in current work block; resets on block change or micro-break.
-- **Micro-break scheduler**: Fires ~90 minutes after last micro-break or day start (configurable later).
-- **Staleness checker**: Interval (e.g. every 15 min) compares `last_touched_at` per active client against threshold from settings; emits `staleness:alert` events.
+- **Micro-break scheduler**: Accumulates seconds only while a schedule block is `active`; fires `break:micro-break-due` at configured interval.
+- **Staleness checker**: `stalenessService.ts` compares `last_touched_at` per active client; emits `staleness:alert`.
 
-Timers pause or adjust on long break start/end per product rules (documented in ALLOCATION_ENGINE.md for schedule; timers sync wall clock with active block).
+`clientReminderService.ts` polls every second:
+
+- Loads the active `daily_schedule` block and its `clients_projects` row.
+- If `reminder_enabled` and interval set, accumulates seconds and fires `chat:assistant-message` with `[label] - [client name]`.
+- Resets on block change, completion, long break, or `work:set-paused` from Schedule/Dashboard Pause buttons.
+
+All three services keep running while the window is hidden to tray.
+
+## Background and Tray
+
+- Close (X) hides the main window; the process stays alive in the system tray.
+- Tray menu: Open Focus OS, Quit. Quit sets `appQuitting` and stops all services.
+- `launch_at_login` in app_settings (default false, opt-in) syncs via `app.setLoginItemSettings` on Windows.
+- `sidebar_expanded` persists desktop nav rail width across app restarts (default expanded).
 
 ## Data Flow Examples
 

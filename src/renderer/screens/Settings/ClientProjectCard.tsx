@@ -1,5 +1,6 @@
 import type { ClientProjectRow } from '@shared/types/db'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
+import { formatDurationLabel } from '@renderer/components/ui/DurationInput'
 
 interface ClientProjectCardProps {
   client: ClientProjectRow
@@ -16,7 +17,7 @@ export function ClientProjectCard({
 
   const fixedSummary =
     client.fixed_block_enabled && client.fixed_block_start
-      ? `Same time daily: ${formatHHMM(client.fixed_block_start)} (${client.fixed_block_duration_minutes ?? 0} min)`
+      ? `Same time daily: ${formatHHMM(client.fixed_block_start)} (${formatDurationLabel(client.fixed_block_duration_minutes ?? 0)})`
       : 'Flexible timing'
 
   return (

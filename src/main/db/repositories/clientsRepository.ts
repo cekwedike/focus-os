@@ -43,10 +43,12 @@ export function createClient(
       INSERT INTO clients_projects (
         name, color, weight_percent, is_active, fixed_block_enabled,
         fixed_block_start, fixed_block_duration_minutes, staleness_threshold_hours,
+        reminder_enabled, reminder_interval_minutes, reminder_label,
         sort_order, created_at, updated_at
       ) VALUES (
         @name, @color, @weight_percent, @is_active, @fixed_block_enabled,
         @fixed_block_start, @fixed_block_duration_minutes, @staleness_threshold_hours,
+        @reminder_enabled, @reminder_interval_minutes, @reminder_label,
         @sort_order, @created_at, @updated_at
       )
     `
@@ -60,6 +62,9 @@ export function createClient(
       fixed_block_start: input.fixed_block_start ?? null,
       fixed_block_duration_minutes: input.fixed_block_duration_minutes ?? null,
       staleness_threshold_hours: input.staleness_threshold_hours ?? null,
+      reminder_enabled: input.reminder_enabled ? 1 : 0,
+      reminder_interval_minutes: input.reminder_interval_minutes ?? null,
+      reminder_label: input.reminder_label ?? null,
       sort_order: input.sort_order ?? 0,
       created_at: timestamp,
       updated_at: timestamp,
@@ -102,6 +107,18 @@ export function updateClient(
       input.staleness_threshold_hours !== undefined
         ? input.staleness_threshold_hours
         : existing.staleness_threshold_hours,
+    reminder_enabled:
+      input.reminder_enabled === undefined
+        ? existing.reminder_enabled
+        : input.reminder_enabled
+          ? 1
+          : 0,
+    reminder_interval_minutes:
+      input.reminder_interval_minutes !== undefined
+        ? input.reminder_interval_minutes
+        : existing.reminder_interval_minutes,
+    reminder_label:
+      input.reminder_label !== undefined ? input.reminder_label : existing.reminder_label,
     sort_order: input.sort_order ?? existing.sort_order,
     updated_at: nowIso(),
   }
@@ -118,6 +135,9 @@ export function updateClient(
       fixed_block_start = @fixed_block_start,
       fixed_block_duration_minutes = @fixed_block_duration_minutes,
       staleness_threshold_hours = @staleness_threshold_hours,
+      reminder_enabled = @reminder_enabled,
+      reminder_interval_minutes = @reminder_interval_minutes,
+      reminder_label = @reminder_label,
       sort_order = @sort_order,
       updated_at = @updated_at
     WHERE id = @id

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { screenDefinitions } from '@renderer/routes'
 import { NavIcon } from '@renderer/components/layout/NavIcons'
@@ -12,9 +12,27 @@ export function ScreenIconRail({
   mobileOpen,
   onMobileClose,
 }: ScreenIconRailProps): React.JSX.Element {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(true)
+  const [hydrated, setHydrated] = useState(false)
   const location = useLocation()
   const showLabels = expanded || mobileOpen
+  const skipNextSave = useRef(false)
+
+  useEffect(() => {
+    void window.focusOS.settings.get().then((response) => {
+      skipNextSave.current = true
+      setExpanded(response.settings.sidebarExpanded)
+      setHydrated(true)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!hydrated || skipNextSave.current) {
+      skipNextSave.current = false
+      return
+    }
+    void window.focusOS.settings.update({ sidebarExpanded: expanded })
+  }, [expanded, hydrated])
 
   useEffect(() => {
     onMobileClose()
@@ -24,6 +42,10 @@ export function ScreenIconRail({
     `focus-nav-item ${isActive ? 'focus-nav-item-active' : ''} ${
       showLabels ? '' : 'justify-center px-2'
     }`
+
+  const toggleExpanded = (): void => {
+    setExpanded((current) => !current)
+  }
 
   return (
     <>
@@ -47,7 +69,7 @@ export function ScreenIconRail({
         <div className="flex items-center justify-between border-b border-surface-border p-2">
           <button
             type="button"
-            onClick={() => setExpanded((current) => !current)}
+            onClick={toggleExpanded}
             className="focus-btn-ghost hidden w-full px-2 py-2 text-xs md:inline-flex"
             aria-expanded={expanded}
             aria-label={expanded ? 'Collapse navigation rail' : 'Expand navigation rail'}

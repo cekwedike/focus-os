@@ -26,10 +26,14 @@ const DEFAULT_SETTINGS: AppSettings = {
     microBreak: true,
     staleness: true,
     insightReady: false,
+    clientReminder: true,
   },
   themeAccent: '#2DD4A0',
   onboardingComplete: false,
   userDisplayName: '',
+  sidebarExpanded: true,
+  launchAtLogin: false,
+  trayCloseTipShown: false,
 }
 
 const KEY_MAP: Record<keyof AppSettings, string> = {
@@ -50,6 +54,9 @@ const KEY_MAP: Record<keyof AppSettings, string> = {
   themeAccent: 'theme_accent',
   onboardingComplete: 'onboarding_complete',
   userDisplayName: 'user_display_name',
+  sidebarExpanded: 'sidebar_expanded',
+  launchAtLogin: 'launch_at_login',
+  trayCloseTipShown: 'tray_close_tip_shown',
 }
 
 function parseSettingValue<T>(raw: string): T {
@@ -74,7 +81,13 @@ export function getAllSettings(db: Database.Database): AppSettings {
     Object.assign(merged, rowToPartialSettings(row))
   }
 
-  return merged
+  return {
+    ...merged,
+    notifications: {
+      ...DEFAULT_SETTINGS.notifications,
+      ...merged.notifications,
+    },
+  }
 }
 
 export function getSettingValue<T>(db: Database.Database, key: string, fallback: T): T {

@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -47,6 +48,13 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
   } = useChatOrchestrator({
     deliverAssistantMessage,
   })
+
+  useEffect(() => {
+    const unsubscribe = window.focusOS.onAssistantMessage((payload) => {
+      void deliverAssistantMessage(payload.text)
+    })
+    return unsubscribe
+  }, [deliverAssistantMessage])
 
   const sendMessage = useCallback(
     async (text: string): Promise<void> => {

@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-15: Client Form, Reminders, Sidebar, Tray (Fix/Addition Pass)
+
+**Prompt summary:** Edit Client form fixes (weight label, hours/minutes duration, empty placeholders), per-client recurring reminders while block is active, persisted sidebar state, Windows auto-launch, system tray with hide-on-close background operation.
+
+**Outcome:** Fix/addition pass (not a new roadmap phase). Migration 007: `reminder_*` columns on `clients_projects`, `sidebar_expanded`, `launch_at_login`, `tray_close_tip_shown` in app_settings. `clientReminderService`, `notificationService`, `trayService`, `loginItemService`, `work:set-paused` IPC. `chat:assistant-message` for main-to-chat delivery. `DurationInput` component. Allocation excludes fixed-block clients from weighted distribution.
+
+**Files / phases:** ClientProjectForm, ScreenIconRail, index.ts, src/shared/reminders/, StartupBackgroundSection, SCHEMA.md, ARCHITECTURE.md.
+
+**Follow-ups:** None required for this pass.
+
 ### 2026-06-15: Phase 13 Gap-Fill (Proactive Greeting, Typing, Chips)
 
 **Prompt summary:** Complete missed Phase 13 requirement 1: proactive time-aware greeting on chat load, typing indicator before all assistant messages, Framer Motion message entrance animations, contextual quick-action chips. Optional user display name in Settings.

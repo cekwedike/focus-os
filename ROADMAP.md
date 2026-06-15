@@ -239,7 +239,7 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Exit criteria:** User can manage wake time, tasks, blocks, breaks, faith log, and schedule queries via chat; legacy screens accessible via rail; 99 tests pass.
 
-**Completed 2026-06-15:** ChatShell, ScreenIconRail, ChatContext, useChatOrchestrator, classifyIntent with 10 intent categories, responseTemplates module, extended quickAddTask client matching (initialism), Dashboard moved to `/dashboard`. Gap-fill (same date): time-aware proactive greeting, typing indicator, Framer Motion message animations, contextual suggestion chips, optional `user_display_name` in app_settings.
+**Completed 2026-06-15:** ChatShell, ScreenIconRail, ChatContext, useChatOrchestrator, classifyIntent with 10 intent categories, responseTemplates module, extended quickAddTask client matching (initialism), Dashboard moved to `/dashboard`. Gap-fill (same date): time-aware proactive greeting, typing indicator, Framer Motion message animations, contextual suggestion chips, optional `user_display_name` in app_settings. Fix/addition pass (same date): Edit Client form UX, per-client recurring reminders, persisted sidebar, tray background mode, Windows auto-launch toggle.
 
 ## Phase 14: AI Fallback for Chat
 

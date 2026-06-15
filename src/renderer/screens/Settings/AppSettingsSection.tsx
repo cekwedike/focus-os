@@ -199,6 +199,14 @@ export function AppSettingsSection({
           showState
         />
         <Toggle
+          label="Client Check-in Reminders"
+          checked={settings.notifications.clientReminder}
+          onChange={(clientReminder) =>
+            void patch({ notifications: { ...settings.notifications, clientReminder } })
+          }
+          showState
+        />
+        <Toggle
           label="Tell Me When Daily Insight Is Ready"
           checked={settings.notifications.insightReady}
           onChange={(insightReady) =>

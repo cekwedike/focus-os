@@ -15,6 +15,7 @@ import type {
   IpcInvokeChannel,
   IpcResult,
   AppNavigatePayload,
+  ChatAssistantMessagePayload,
   MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
   ProtectedBlockGetPayload,
@@ -82,12 +83,14 @@ const invokeChannels: IpcInvokeChannel[] = [
   'breaks:create',
   'breaks:update',
   'breaks:log',
+  'work:set-paused',
 ]
 
 const eventChannels: IpcEventChannel[] = [
   'break:micro-break-due',
   'staleness:alert',
   'app:navigate',
+  'chat:assistant-message',
 ]
 
 function createInvoke<T>(channel: IpcInvokeChannel, payload?: unknown): Promise<IpcResult<T>> {
@@ -215,11 +218,17 @@ const focusOSApi: FocusOSApi = {
     testAiProviders: async () =>
       unwrap(await createInvoke('settings:test-ai-providers')),
   },
+  work: {
+    setPaused: async (payload: { paused: boolean }) =>
+      unwrap(await createInvoke('work:set-paused', payload)),
+  },
   onMicroBreakDue: (callback) =>
     subscribeToEvent<MicroBreakDuePayload>('break:micro-break-due', callback),
   onStalenessAlert: (callback) =>
     subscribeToEvent<StalenessAlertPayload>('staleness:alert', callback),
   onNavigate: (callback) => subscribeToEvent<AppNavigatePayload>('app:navigate', callback),
+  onAssistantMessage: (callback) =>
+    subscribeToEvent<ChatAssistantMessagePayload>('chat:assistant-message', callback),
 }
 
 contextBridge.exposeInMainWorld('focusOS', focusOSApi)

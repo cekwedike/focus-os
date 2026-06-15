@@ -31,10 +31,14 @@ const baseSettings: AppSettings = {
     microBreak: true,
     staleness: true,
     insightReady: true,
+    clientReminder: true,
   },
   themeAccent: '#2DD4A0',
   onboardingComplete: false,
   userDisplayName: '',
+  sidebarExpanded: true,
+  launchAtLogin: false,
+  trayCloseTipShown: false,
 }
 
 const snapshot: DailyInsightSnapshot = {

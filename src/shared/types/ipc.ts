@@ -61,8 +61,13 @@ export type IpcInvokeChannel =
   | 'breaks:create'
   | 'breaks:update'
   | 'breaks:log'
+  | 'work:set-paused'
 
-export type IpcEventChannel = 'break:micro-break-due' | 'staleness:alert' | 'app:navigate'
+export type IpcEventChannel =
+  | 'break:micro-break-due'
+  | 'staleness:alert'
+  | 'app:navigate'
+  | 'chat:assistant-message'
 
 export interface AppNavigatePayload {
   path: string
@@ -76,6 +81,18 @@ export interface StalenessAlertPayload {
   clientId: number
   clientName: string
   hoursSinceTouch: number
+}
+
+export interface ChatAssistantMessagePayload {
+  text: string
+}
+
+export interface WorkSetPausedPayload {
+  paused: boolean
+}
+
+export interface WorkSetPausedResponse {
+  paused: boolean
 }
 
 export interface AppPingResponse {

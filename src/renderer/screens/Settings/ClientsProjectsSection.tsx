@@ -33,7 +33,12 @@ export function ClientsProjectsSection({
   const activeWeightTotal = useMemo(
     () =>
       clients
-        .filter((client) => client.is_active === 1 && !isSystemUnassignedClient(client.name))
+        .filter(
+          (client) =>
+            client.is_active === 1 &&
+            client.fixed_block_enabled !== 1 &&
+            !isSystemUnassignedClient(client.name)
+        )
         .reduce((sum, client) => sum + client.weight_percent, 0),
     [clients]
   )
@@ -51,6 +56,9 @@ export function ClientsProjectsSection({
         fixed_block_enabled: values.fixed_block_enabled,
         fixed_block_start: values.fixed_block_start,
         fixed_block_duration_minutes: values.fixed_block_duration_minutes,
+        reminder_enabled: values.reminder_enabled,
+        reminder_interval_minutes: values.reminder_interval_minutes,
+        reminder_label: values.reminder_label,
       })
       onClientsChange(clients.map((client) => (client.id === updated.id ? updated : client)))
       setEditing(null)

@@ -25,13 +25,23 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
   const [plannedEnd, setPlannedEnd] = useState(block.planned_end.slice(11, 16))
 
   const startBlock = async (): Promise<void> => {
+    await window.focusOS.work.setPaused({ paused: false })
     await window.focusOS.schedule.startBlock({ blockId: block.id })
     await refresh()
   }
 
   const completeBlock = async (): Promise<void> => {
+    await window.focusOS.work.setPaused({ paused: false })
     await window.focusOS.schedule.completeBlock({ blockId: block.id })
     await refresh()
+  }
+
+  const togglePause = (): void => {
+    setPaused((current) => {
+      const next = !current
+      void window.focusOS.work.setPaused({ paused: next })
+      return next
+    })
   }
 
   const saveTimes = async (): Promise<void> => {
@@ -90,7 +100,7 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
           <>
             <button
               type="button"
-              onClick={() => setPaused((value) => !value)}
+              onClick={togglePause}
               className="focus-btn-ghost !px-3 !py-1.5 !text-xs"
             >
               {paused ? 'Resume' : 'Pause'}

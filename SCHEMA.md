@@ -37,6 +37,9 @@ Dynamic clients and projects created by the user. A single table treats "client"
 | `fixed_block_enabled` | INTEGER | NOT NULL DEFAULT 0 | Boolean: use daily fixed window |
 | `fixed_block_start` | TEXT | NULL | `HH:MM` local time, if fixed block enabled |
 | `fixed_block_duration_minutes` | INTEGER | NULL | Duration of fixed daily window |
+| `reminder_enabled` | INTEGER | NOT NULL DEFAULT 0 | Boolean: recurring check-in while this client's block is active |
+| `reminder_interval_minutes` | INTEGER | NULL | Interval between check-ins when enabled |
+| `reminder_label` | TEXT | NULL | Custom reminder text; defaults to "Check in" at fire time if empty |
 | `last_touched_at` | TEXT | NULL | ISO 8601; updated when user works a block or completes task |
 | `staleness_threshold_hours` | INTEGER | NULL | Override global default; NULL uses app setting |
 | `sort_order` | INTEGER | NOT NULL DEFAULT 0 | Sidebar/matrix ordering |
@@ -272,6 +275,9 @@ Global key-value configuration.
 | `theme_accent` | string | Default `#2DD4A0` |
 | `onboarding_complete` | boolean | First-run flag |
 | `user_display_name` | string | Optional display name for chat greetings |
+| `sidebar_expanded` | boolean | Desktop nav rail expanded state (default true) |
+| `launch_at_login` | boolean | Register with Windows login (default false, opt-in) |
+| `tray_close_tip_shown` | boolean | One-time tray close explanation shown |
 
 **Security note**
 

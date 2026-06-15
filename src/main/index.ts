@@ -10,9 +10,18 @@ import {
 } from '@shared/constants/app'
 import { bootstrapDatabase, registerIpcHandlers } from './ipc'
 import { setApplicationMenu } from './menus/applicationMenu'
+import { getDatabase } from './db/connection'
+import { getAllSettings, upsertSettings } from './db/repositories/appSettingsRepository'
+import { isAppQuitting, setAppQuitting } from './appState'
+import { startClientReminderService, stopClientReminderService } from './services/clientReminderService'
+import { syncLaunchAtLoginFromSettings } from './services/loginItemService'
+import { showDesktopNotification } from './services/notificationService'
 import { startStalenessService, stopStalenessService } from './services/stalenessService'
 import { startTimerService, stopTimerService } from './services/timerService'
+import { createTray, destroyTray } from './services/trayService'
 import { configureWindowChrome } from './window/windowChrome'
+
+let mainWindow: BrowserWindow | null = null
 
 function resolveWindowIcon(): string | undefined {
   const candidates = [
@@ -23,8 +32,24 @@ function resolveWindowIcon(): string | undefined {
   return candidates.find((candidate) => existsSync(candidate))
 }
 
+function showTrayCloseTipOnce(): void {
+  const db = getDatabase()
+  const settings = getAllSettings(db)
+  if (settings.trayCloseTipShown) {
+    return
+  }
+
+  showDesktopNotification({
+    title: 'Focus OS is still running',
+    body: 'Closing the window keeps Focus OS in the system tray. Right-click the tray icon to quit.',
+    category: 'clientReminder',
+  })
+
+  upsertSettings(db, { trayCloseTipShown: true })
+}
+
 function createWindow(): void {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: DEFAULT_WINDOW_WIDTH,
     height: DEFAULT_WINDOW_HEIGHT,
     minWidth: MIN_WINDOW_WIDTH,
@@ -41,10 +66,19 @@ function createWindow(): void {
     },
   })
 
+  mainWindow.on('close', (event) => {
+    if (!isAppQuitting()) {
+      event.preventDefault()
+      mainWindow?.hide()
+      showTrayCloseTipOnce()
+    }
+  })
+
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-    startTimerService(mainWindow)
-    startStalenessService(mainWindow)
+    mainWindow?.show()
+    startTimerService(mainWindow!)
+    startStalenessService(mainWindow!)
+    startClientReminderService(mainWindow!)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -64,21 +98,39 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   bootstrapDatabase()
+  const settings = getAllSettings(getDatabase())
+  syncLaunchAtLoginFromSettings(settings.launchAtLogin)
   registerIpcHandlers()
   setApplicationMenu()
   createWindow()
+  createTray(() => mainWindow)
 
   app.on('activate', () => {
+    if (mainWindow) {
+      mainWindow.show()
+      mainWindow.focus()
+      return
+    }
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow()
     }
   })
 })
 
-app.on('window-all-closed', () => {
+app.on('before-quit', () => {
+  setAppQuitting(true)
   stopTimerService()
   stopStalenessService()
-  if (process.platform !== 'darwin') {
-    app.quit()
+  stopClientReminderService()
+  destroyTray()
+})
+
+app.on('window-all-closed', () => {
+  if (process.platform === 'darwin' && !isAppQuitting()) {
+    return
   }
+  if (!isAppQuitting()) {
+    return
+  }
+  app.quit()
 })

@@ -5,6 +5,7 @@ import { applyDisplayPreferencesMigration } from './003_display_preferences'
 import { applyTimezoneMigration } from './004_timezone'
 import { applyUnassignedClientMigration } from './005_unassigned_client'
 import { applyUserDisplayNameMigration } from './006_user_display_name'
+import { applyClientRemindersAndStartupMigration } from './007_client_reminders_and_startup'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -55,6 +56,13 @@ const migrations: MigrationDefinition[] = [
     name: 'user_display_name',
     up: (db) => {
       applyUserDisplayNameMigration(db)
+    },
+  },
+  {
+    version: 7,
+    name: 'client_reminders_and_startup',
+    up: (db) => {
+      applyClientRemindersAndStartupMigration(db)
     },
   },
 ]

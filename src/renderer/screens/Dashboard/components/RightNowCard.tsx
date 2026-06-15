@@ -18,7 +18,16 @@ export function RightNowCard(): React.JSX.Element {
     )
   }
 
+  const togglePause = (): void => {
+    setPaused((current) => {
+      const next = !current
+      void window.focusOS.work.setPaused({ paused: next })
+      return next
+    })
+  }
+
   const complete = async (): Promise<void> => {
+    await window.focusOS.work.setPaused({ paused: false })
     await window.focusOS.schedule.completeBlock({ blockId: activeBlock.id })
     await refresh()
   }
@@ -46,7 +55,7 @@ export function RightNowCard(): React.JSX.Element {
         <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
           <button
             type="button"
-            onClick={() => setPaused((value) => !value)}
+            onClick={togglePause}
             className="focus-btn-ghost w-full sm:w-auto"
           >
             {paused ? 'Resume' : 'Pause'}

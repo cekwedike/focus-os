@@ -4,6 +4,7 @@ import type { AppSettingsUpdate, SetOpenRouterKeyPayload } from '@shared/types/s
 import { getDatabase } from '../db/connection'
 import { getAllSettings, upsertSettings } from '../db/repositories/appSettingsRepository'
 import { testAiProviders } from '../services/aiService'
+import { applyLaunchAtLogin } from '../services/loginItemService'
 import {
   clearOpenRouterApiKey,
   isOpenRouterKeyConfigured,
@@ -33,6 +34,9 @@ export function registerSettingsHandlers(): void {
   ipcMain.handle('settings:update', async (_event, payload: AppSettingsUpdate) => {
     try {
       const settings = upsertSettings(getDatabase(), payload)
+      if (payload.launchAtLogin !== undefined) {
+        applyLaunchAtLogin(settings.launchAtLogin)
+      }
       return success({
         settings,
         openrouterKeyConfigured: isOpenRouterKeyConfigured(),

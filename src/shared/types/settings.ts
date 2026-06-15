@@ -6,6 +6,7 @@ export interface NotificationPreferences {
   microBreak: boolean
   staleness: boolean
   insightReady: boolean
+  clientReminder: boolean
 }
 
 export interface AppSettings {
@@ -26,6 +27,9 @@ export interface AppSettings {
   themeAccent: string
   onboardingComplete: boolean
   userDisplayName: string
+  sidebarExpanded: boolean
+  launchAtLogin: boolean
+  trayCloseTipShown: boolean
 }
 
 export type AppSettingsUpdate = Partial<AppSettings>

@@ -18,6 +18,9 @@ export interface ClientProjectRow {
   fixed_block_duration_minutes: number | null
   last_touched_at: string | null
   staleness_threshold_hours: number | null
+  reminder_enabled: number
+  reminder_interval_minutes: number | null
+  reminder_label: string | null
   sort_order: number
   created_at: string
   updated_at: string
@@ -45,6 +48,9 @@ export interface CreateClientProjectInput {
   fixed_block_start?: string | null
   fixed_block_duration_minutes?: number | null
   staleness_threshold_hours?: number | null
+  reminder_enabled?: boolean
+  reminder_interval_minutes?: number | null
+  reminder_label?: string | null
   sort_order?: number
 }
 
@@ -58,6 +64,9 @@ export interface UpdateClientProjectInput {
   fixed_block_start?: string | null
   fixed_block_duration_minutes?: number | null
   staleness_threshold_hours?: number | null
+  reminder_enabled?: boolean
+  reminder_interval_minutes?: number | null
+  reminder_label?: string | null
   sort_order?: number
 }
 

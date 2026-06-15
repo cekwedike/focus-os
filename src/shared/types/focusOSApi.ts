@@ -13,6 +13,7 @@ import type {
   IpcInvokeChannel,
   IpcResult,
   AppNavigatePayload,
+  ChatAssistantMessagePayload,
   MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
   ProtectedBlockGetPayload,
@@ -145,7 +146,11 @@ export interface FocusOSApi {
     clearOpenRouterKey(): Promise<OpenRouterKeyStatusResponse>
     testAiProviders(): Promise<TestAiProvidersResponse>
   }
+  work: {
+    setPaused(payload: { paused: boolean }): Promise<{ paused: boolean }>
+  }
   onMicroBreakDue(callback: (payload: MicroBreakDuePayload) => void): Unsubscribe
   onStalenessAlert(callback: (payload: StalenessAlertPayload) => void): Unsubscribe
   onNavigate(callback: (payload: AppNavigatePayload) => void): Unsubscribe
+  onAssistantMessage(callback: (payload: ChatAssistantMessagePayload) => void): Unsubscribe
 }

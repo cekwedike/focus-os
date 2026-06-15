@@ -78,6 +78,9 @@ describe('allocateDay initial generation', () => {
     expect(fixed).toBeDefined()
     expect(fixed!.plannedStart).toContain('T10:00:00')
     expect(fixed!.plannedDurationMinutes).toBe(90)
+
+    const weighted = output.blocks.filter((block) => block.blockType === 'weighted_client')
+    expect(weighted).toHaveLength(0)
   })
 
   it('shifts overlapping protected blocks forward by sort_order', () => {

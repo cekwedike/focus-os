@@ -5,6 +5,7 @@ import { AppSettingsSection } from './AppSettingsSection'
 import { ClientsProjectsSection } from './ClientsProjectsSection'
 import { DisplayPreferencesSection } from './DisplayPreferencesSection'
 import { ProtectedBlocksSection } from './ProtectedBlocksSection'
+import { StartupBackgroundSection } from './StartupBackgroundSection'
 import { useSettingsScreen } from './hooks/useSettingsScreen'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 
@@ -60,6 +61,11 @@ export function SettingsScreen(): React.JSX.Element {
               await updateSettings(partial)
               await refreshPreferences()
             }}
+          />
+          <StartupBackgroundSection
+            settings={settings}
+            onSettingsChange={setSettings}
+            onUpdate={updateSettings}
           />
           <AppSettingsSection
             settings={settings}

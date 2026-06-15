@@ -18,7 +18,9 @@ export function distributeWeighted(
   minViableBlockMinutes: number,
   capacityMinutes?: number
 ): AllocationState {
-  const activeClients = clients.filter((client) => client.isActive && client.weightPercent > 0)
+  const activeClients = clients.filter(
+    (client) => client.isActive && client.weightPercent > 0 && !client.fixedBlockEnabled
+  )
   const blocks = [...state.blocks]
   const warnings = [...state.warnings]
   let freeIntervals = [...state.freeIntervals]
