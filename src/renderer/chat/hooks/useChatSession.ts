@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { ChatMessage } from '@shared/types/chat'
+import type { ChatMessage, QuickReplyChip } from '@shared/types/chat'
 
 const CHAT_STORAGE_KEY = 'focus-os-chat-v1'
 const MAX_MESSAGES = 80
@@ -39,19 +39,28 @@ export function useChatSession() {
     persistMessages(messages)
   }, [messages])
 
-  const appendMessage = useCallback((role: ChatMessage['role'], content: string): ChatMessage => {
-    const message: ChatMessage = {
-      id: createMessageId(),
-      role,
-      content,
-      timestamp: new Date().toISOString(),
-    }
-    setMessages((current) => [...current, message].slice(-MAX_MESSAGES))
-    return message
-  }, [])
+  const appendMessage = useCallback(
+    (
+      role: ChatMessage['role'],
+      content: string,
+      quickReplies?: QuickReplyChip[]
+    ): ChatMessage => {
+      const message: ChatMessage = {
+        id: createMessageId(),
+        role,
+        content,
+        timestamp: new Date().toISOString(),
+        quickReplies,
+      }
+      setMessages((current) => [...current, message].slice(-MAX_MESSAGES))
+      return message
+    },
+    []
+  )
 
   const appendAssistantMessage = useCallback(
-    (content: string): ChatMessage => appendMessage('assistant', content),
+    (content: string, quickReplies?: QuickReplyChip[]): ChatMessage =>
+      appendMessage('assistant', content, quickReplies),
     [appendMessage]
   )
 

@@ -1,6 +1,7 @@
 import { matchAcknowledgeCheckInIntent } from './intents/acknowledgeCheckInIntent'
 import { matchAddTaskIntent } from './intents/addTaskIntent'
 import { matchCompleteBlockIntent, matchStartBlockIntent } from './intents/blockActionIntent'
+import { matchExtendBlockIntent, matchSkipBlockIntent } from './intents/blockProgressionIntent'
 import { matchEndBreakIntent, matchLongBreakIntent } from './intents/breakIntent'
 import { matchFaithLogIntent } from './intents/faithLogIntent'
 import { matchMenuIntent } from './intents/menuIntent'
@@ -18,8 +19,10 @@ const INTENT_MATCHERS: IntentMatcher[] = [
   matchLongBreakIntent,
   matchFaithLogIntent,
   matchStartBlockIntent,
-  matchCompleteBlockIntent,
   matchAcknowledgeCheckInIntent,
+  matchCompleteBlockIntent,
+  matchExtendBlockIntent,
+  matchSkipBlockIntent,
   matchAddTaskIntent,
   matchQueryScheduleIntent,
   matchQueryStreakIntent,

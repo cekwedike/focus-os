@@ -39,6 +39,7 @@ import type { CreateTaskInput, TaskListFilters, TaskWithClient, UpdateTaskInput 
 import type {
   DailyUpsertInput,
   DayBundle,
+  BlockProgressionResult,
   ScheduleCommitPayload,
   ScheduleGeneratePayload,
   ScheduleGetDayPayload,
@@ -111,6 +112,12 @@ export interface FocusOSApi {
     getDay(payload: ScheduleGetDayPayload): Promise<DayBundle>
     startBlock(payload: { blockId: number }): Promise<DailyScheduleRow>
     completeBlock(payload: { blockId: number }): Promise<DailyScheduleRow>
+    completeAndAdvance(payload: {
+      blockId: number
+      endTime?: string
+    }): Promise<BlockProgressionResult>
+    extendBlock(payload: { blockId: number; minutes?: number }): Promise<DailyScheduleRow>
+    skipBlock(payload: { blockId: number }): Promise<BlockProgressionResult>
     updateBlock(payload: ScheduleUpdateBlockPayload): Promise<DailyScheduleRow>
     reallocate(payload: ScheduleReallocatePayload): Promise<
       AllocationOutput & { replanSummary: import('@shared/allocation/types').ReplanSummary; dayBundle: DayBundle }
@@ -150,6 +157,7 @@ export interface FocusOSApi {
   }
   work: {
     setPaused(payload: { paused: boolean }): Promise<{ paused: boolean }>
+    getPaused(): Promise<{ paused: boolean }>
   }
   checkIns: {
     getDue(): Promise<import('./ipc').CheckInsGetDueResponse>

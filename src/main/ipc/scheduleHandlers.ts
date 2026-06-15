@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 import type { IpcResult } from '@shared/types/ipc'
 import type {
   ScheduleCommitPayload,
@@ -17,6 +17,11 @@ import {
   startBlock,
   updateBlockTimes,
 } from '../services/scheduleService'
+import {
+  completeAndAdvance,
+  extendActiveBlock,
+  skipBlock,
+} from '../services/blockProgressionService'
 
 function success<T>(data: T): IpcResult<T> {
   return { ok: true, data }
@@ -24,6 +29,17 @@ function success<T>(data: T): IpcResult<T> {
 
 function failure(code: string, message: string): IpcResult<never> {
   return { ok: false, error: { code, message } }
+}
+
+function emitScheduleBlockChanged(payload: {
+  scheduleDate: string
+  blockId: number
+  nextBlockId: number | null
+  reason: 'manual_completed' | 'skipped' | 'extended'
+}): void {
+  for (const window of BrowserWindow.getAllWindows()) {
+    window.webContents.send('schedule:block-changed', payload)
+  }
 }
 
 export function registerScheduleHandlers(): void {
@@ -67,6 +83,64 @@ export function registerScheduleHandlers(): void {
       return success(completeBlock(getDatabase(), payload.blockId))
     } catch (error) {
       return failure('SCHEDULE_COMPLETE_BLOCK_FAILED', String(error))
+    }
+  })
+
+  ipcMain.handle(
+    'schedule:complete-and-advance',
+    async (_event, payload: { blockId: number; endTime?: string }) => {
+      try {
+        const result = completeAndAdvance(getDatabase(), payload.blockId, {
+          endTime: payload.endTime,
+          reason: 'manual_completed',
+        })
+        emitScheduleBlockChanged({
+          scheduleDate: result.completedBlock?.schedule_date ?? new Date().toISOString().slice(0, 10),
+          blockId: payload.blockId,
+          nextBlockId: result.nextBlock?.id ?? null,
+          reason: 'manual_completed',
+        })
+        return success(result)
+      } catch (error) {
+        return failure('SCHEDULE_COMPLETE_ADVANCE_FAILED', String(error))
+      }
+    }
+  )
+
+  ipcMain.handle(
+    'schedule:extend-block',
+    async (_event, payload: { blockId: number; minutes?: number }) => {
+      try {
+        const updated = extendActiveBlock(
+          getDatabase(),
+          payload.blockId,
+          payload.minutes ?? 5
+        )
+        emitScheduleBlockChanged({
+          scheduleDate: updated.schedule_date,
+          blockId: updated.id,
+          nextBlockId: null,
+          reason: 'extended',
+        })
+        return success(updated)
+      } catch (error) {
+        return failure('SCHEDULE_EXTEND_BLOCK_FAILED', String(error))
+      }
+    }
+  )
+
+  ipcMain.handle('schedule:skip-block', async (_event, payload: { blockId: number }) => {
+    try {
+      const result = skipBlock(getDatabase(), payload.blockId)
+      emitScheduleBlockChanged({
+        scheduleDate: result.completedBlock?.schedule_date ?? new Date().toISOString().slice(0, 10),
+        blockId: payload.blockId,
+        nextBlockId: result.nextBlock?.id ?? null,
+        reason: 'skipped',
+      })
+      return success(result)
+    } catch (error) {
+      return failure('SCHEDULE_SKIP_BLOCK_FAILED', String(error))
     }
   })
 

@@ -27,6 +27,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     staleness: true,
     insightReady: false,
     clientReminder: true,
+    blockReminder: true,
   },
   themeAccent: '#2DD4A0',
   onboardingComplete: false,

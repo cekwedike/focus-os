@@ -35,6 +35,7 @@ import {
   listTasksForAllocation,
 } from '../db/repositories/tasksRepository'
 import { shouldAutoCompleteBlock } from '@shared/schedule/blockAutoComplete'
+import { activateFirstBlockIfNone } from './blockProgressionService'
 
 function addDays(dateStr: string, days: number): string {
   const date = new Date(`${dateStr}T12:00:00`)
@@ -95,6 +96,7 @@ export function commitDaySchedule(
   })
 
   commit()
+  activateFirstBlockIfNone(db, payload.scheduleDate)
   return getDayBundle(db, payload.scheduleDate)
 }
 

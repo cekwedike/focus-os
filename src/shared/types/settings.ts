@@ -7,6 +7,7 @@ export interface NotificationPreferences {
   staleness: boolean
   insightReady: boolean
   clientReminder: boolean
+  blockReminder: boolean
 }
 
 export interface AppSettings {

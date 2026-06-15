@@ -4,10 +4,14 @@ import { ChatMessageBubble } from './ChatMessageBubble'
 
 interface AnimatedChatMessageBubbleProps {
   message: ChatMessage
+  onQuickReply?: (text: string) => void
+  quickRepliesDisabled?: boolean
 }
 
 export function AnimatedChatMessageBubble({
   message,
+  onQuickReply,
+  quickRepliesDisabled = false,
 }: AnimatedChatMessageBubbleProps): React.JSX.Element {
   return (
     <motion.div
@@ -15,7 +19,11 @@ export function AnimatedChatMessageBubble({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
     >
-      <ChatMessageBubble message={message} />
+      <ChatMessageBubble
+        message={message}
+        onQuickReply={onQuickReply}
+        quickRepliesDisabled={quickRepliesDisabled}
+      />
     </motion.div>
   )
 }

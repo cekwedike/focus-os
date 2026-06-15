@@ -58,6 +58,9 @@ const invokeChannels: IpcInvokeChannel[] = [
   'schedule:get-day',
   'schedule:start-block',
   'schedule:complete-block',
+  'schedule:complete-and-advance',
+  'schedule:extend-block',
+  'schedule:skip-block',
   'schedule:update-block',
   'tasks:list',
   'tasks:get',
@@ -87,6 +90,7 @@ const invokeChannels: IpcInvokeChannel[] = [
   'breaks:update',
   'breaks:log',
   'work:set-paused',
+  'work:get-paused',
   'check-ins:get-due',
   'check-ins:acknowledge',
 ]
@@ -186,6 +190,10 @@ const focusOSApi: FocusOSApi = {
     getDay: async (payload) => unwrap(await createInvoke('schedule:get-day', payload)),
     startBlock: async (payload) => unwrap(await createInvoke('schedule:start-block', payload)),
     completeBlock: async (payload) => unwrap(await createInvoke('schedule:complete-block', payload)),
+    completeAndAdvance: async (payload) =>
+      unwrap(await createInvoke('schedule:complete-and-advance', payload)),
+    extendBlock: async (payload) => unwrap(await createInvoke('schedule:extend-block', payload)),
+    skipBlock: async (payload) => unwrap(await createInvoke('schedule:skip-block', payload)),
     updateBlock: async (payload) => unwrap(await createInvoke('schedule:update-block', payload)),
     reallocate: async (payload) => unwrap(await createInvoke('schedule:reallocate', payload)),
   },
@@ -228,6 +236,7 @@ const focusOSApi: FocusOSApi = {
   work: {
     setPaused: async (payload: { paused: boolean }) =>
       unwrap(await createInvoke('work:set-paused', payload)),
+    getPaused: async () => unwrap(await createInvoke<{ paused: boolean }>('work:get-paused')),
   },
   checkIns: {
     getDue: async () => unwrap(await createInvoke<CheckInsGetDueResponse>('check-ins:get-due')),

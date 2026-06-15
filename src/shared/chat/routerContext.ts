@@ -43,6 +43,7 @@ export interface AddTaskExtracted {
 export interface BlockActionExtracted {
   blockId: number
   title: string
+  early?: boolean
 }
 
 export interface LongBreakExtracted {
@@ -78,7 +79,7 @@ export interface IntentMatch {
 }
 
 export const CHAT_SCREEN_LINKS: ChatScreenLink[] = [
-  { path: '/dashboard', label: 'Dashboard' },
+  { path: '/', label: 'Dashboard' },
   { path: '/daily-workspace', label: 'Daily Workspace' },
   { path: '/task-matrix', label: 'Task Matrix' },
   { path: '/schedule', label: 'Schedule' },

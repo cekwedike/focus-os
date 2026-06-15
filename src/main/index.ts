@@ -18,6 +18,7 @@ import { syncLaunchAtLoginFromSettings } from './services/loginItemService'
 import { showDesktopNotification } from './services/notificationService'
 import { startStalenessService, stopStalenessService } from './services/stalenessService'
 import { startTimerService, stopTimerService } from './services/timerService'
+import { setChatAssistantWindow } from './services/chatAssistantBridge'
 import { createTray, destroyTray } from './services/trayService'
 import { configureWindowChrome } from './window/windowChrome'
 
@@ -76,6 +77,7 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow?.show()
+    setChatAssistantWindow(mainWindow!)
     startTimerService(mainWindow!)
     startStalenessService(mainWindow!)
     startCheckInService(mainWindow!)
@@ -122,6 +124,7 @@ app.on('before-quit', () => {
   stopTimerService()
   stopStalenessService()
   stopCheckInService()
+  setChatAssistantWindow(null)
   destroyTray()
 })
 

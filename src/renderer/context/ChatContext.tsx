@@ -7,16 +7,12 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import type { SuggestionChip } from '@shared/chat/suggestionChips'
-import {
-  getSuggestionChips,
-  resolveSuggestionChipState,
-} from '@shared/chat/suggestionChips'
-import { isGreetingSentThisSession } from '@shared/chat/proactiveGreetingSession'
+import type { ChatAssistantMessagePayload } from '@shared/types/ipc'
 import { useAssistantDelivery } from '@renderer/chat/hooks/useAssistantDelivery'
 import { useChatOrchestrator } from '@renderer/chat/hooks/useChatOrchestrator'
 import { useChatSession } from '@renderer/chat/hooks/useChatSession'
-import { useScheduleContext } from '@renderer/context/ScheduleContext'
+import type { AssistantDeliveryInput } from '@shared/chat/assistantDelivery'
+import { isGreetingSentThisSession } from '@shared/chat/proactiveGreetingSession'
 
 interface ChatContextValue {
   messages: ReturnType<typeof useChatSession>['messages']
@@ -24,9 +20,8 @@ interface ChatContextValue {
   sending: boolean
   initialized: boolean
   isTyping: boolean
-  suggestionChips: SuggestionChip[]
   greetingComplete: boolean
-  deliverAssistantMessages: (messages: string[]) => Promise<void>
+  deliverAssistantMessages: (messages: AssistantDeliveryInput[]) => Promise<void>
   setGreetingComplete: (complete: boolean) => void
 }
 
@@ -38,20 +33,16 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
     useAssistantDelivery(appendAssistantMessage)
   const [sending, setSending] = useState(false)
   const [greetingComplete, setGreetingComplete] = useState(() => isGreetingSentThisSession())
-  const { dayBundle } = useScheduleContext()
-
-  const {
-    processMessage,
-    initialized,
-    pendingWakePrompt,
-    longBreakActive,
-  } = useChatOrchestrator({
+  const { processMessage, initialized } = useChatOrchestrator({
     deliverAssistantMessage,
   })
 
   useEffect(() => {
-    const unsubscribe = window.focusOS.onAssistantMessage((payload) => {
-      void deliverAssistantMessage(payload.text)
+    const unsubscribe = window.focusOS.onAssistantMessage((payload: ChatAssistantMessagePayload) => {
+      void deliverAssistantMessage({
+        content: payload.text,
+        quickReplies: payload.quickReplies,
+      })
     })
     return unsubscribe
   }, [deliverAssistantMessage])
@@ -73,27 +64,6 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
     [appendUserMessage, processMessage, sending, isTyping]
   )
 
-  const suggestionChips = useMemo(() => {
-    const state = resolveSuggestionChipState({
-      wakeTimeLogged: !pendingWakePrompt,
-      hasSchedule: (dayBundle?.blocks.length ?? 0) > 0,
-      longBreakActive,
-      isTyping,
-      greetingComplete,
-    })
-    return getSuggestionChips({
-      state,
-      isTyping,
-      greetingComplete,
-    })
-  }, [
-    pendingWakePrompt,
-    dayBundle?.blocks.length,
-    longBreakActive,
-    isTyping,
-    greetingComplete,
-  ])
-
   const value = useMemo(
     () => ({
       messages,
@@ -101,7 +71,6 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
       sending,
       initialized,
       isTyping,
-      suggestionChips,
       greetingComplete,
       deliverAssistantMessages,
       setGreetingComplete,
@@ -112,7 +81,6 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
       sending,
       initialized,
       isTyping,
-      suggestionChips,
       greetingComplete,
       deliverAssistantMessages,
     ]

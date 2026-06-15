@@ -1,4 +1,5 @@
 import type { AllocationOutput, ReallocationOutput } from '@shared/allocation/types'
+import type { BlockProgressionReason } from '@shared/schedule/blockProgressionMessages'
 import type { DailyScheduleRow, DailySettingsRow } from './db'
 
 export interface FixedBlockOverride {
@@ -68,3 +69,9 @@ export type ScheduleGenerateResponse = AllocationOutput
 export type ScheduleCommitResponse = DayBundle
 export type ScheduleGetDayResponse = DayBundle
 export type ScheduleReallocateResponse = ReallocationOutput & { dayBundle: DayBundle }
+
+export interface BlockProgressionResult {
+  completedBlock: DailyScheduleRow | null
+  nextBlock: DailyScheduleRow | null
+  reason: BlockProgressionReason
+}

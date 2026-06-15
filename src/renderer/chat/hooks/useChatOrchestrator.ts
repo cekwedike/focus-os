@@ -271,9 +271,27 @@ export function useChatOrchestrator({
               await deliverAssistantMessage(noActiveBlockToComplete())
               break
             }
-            await window.focusOS.schedule.completeBlock({ blockId: extracted.blockId })
+            await window.focusOS.schedule.completeAndAdvance({
+              blockId: extracted.blockId,
+              endTime: extracted.early ? new Date().toISOString() : undefined,
+            })
             await refresh()
-            await deliverAssistantMessage(blockCompleted(extracted.title))
+            break
+          }
+          case 'extend_block': {
+            const extracted = match.extracted as BlockActionExtracted
+            await window.focusOS.schedule.extendBlock({ blockId: extracted.blockId })
+            await refresh()
+            break
+          }
+          case 'skip_block': {
+            const extracted = match.extracted as BlockActionExtracted
+            try {
+              await window.focusOS.schedule.skipBlock({ blockId: extracted.blockId })
+              await refresh()
+            } catch {
+              await deliverAssistantMessage('That block cannot be skipped.')
+            }
             break
           }
           case 'long_break': {

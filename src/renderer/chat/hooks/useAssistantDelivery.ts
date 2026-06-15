@@ -1,4 +1,10 @@
 import { useCallback, useState } from 'react'
+import type { QuickReplyChip } from '@shared/types/chat'
+import {
+  getAssistantContent,
+  getAssistantQuickReplies,
+  type AssistantDeliveryInput,
+} from '@shared/chat/assistantDelivery'
 import {
   GREETING_MESSAGE_GAP_MS,
   getTypingDelayMs,
@@ -6,27 +12,27 @@ import {
 } from '@shared/chat/typingDelay'
 
 export function useAssistantDelivery(
-  appendAssistantMessage: (content: string) => void
+  appendAssistantMessage: (content: string, quickReplies?: QuickReplyChip[]) => void
 ) {
   const [isTyping, setIsTyping] = useState(false)
 
   const deliverAssistantMessage = useCallback(
-    async (content: string): Promise<void> => {
+    async (input: AssistantDeliveryInput): Promise<void> => {
       setIsTyping(true)
       await sleep(getTypingDelayMs())
       setIsTyping(false)
-      appendAssistantMessage(content)
+      appendAssistantMessage(getAssistantContent(input), getAssistantQuickReplies(input))
     },
     [appendAssistantMessage]
   )
 
   const deliverAssistantMessages = useCallback(
-    async (contents: string[]): Promise<void> => {
-      for (let index = 0; index < contents.length; index += 1) {
+    async (inputs: AssistantDeliveryInput[]): Promise<void> => {
+      for (let index = 0; index < inputs.length; index += 1) {
         if (index > 0) {
           await sleep(GREETING_MESSAGE_GAP_MS)
         }
-        await deliverAssistantMessage(contents[index])
+        await deliverAssistantMessage(inputs[index])
       }
     },
     [deliverAssistantMessage]

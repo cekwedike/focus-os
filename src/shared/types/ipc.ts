@@ -33,6 +33,9 @@ export type IpcInvokeChannel =
   | 'schedule:get-day'
   | 'schedule:start-block'
   | 'schedule:complete-block'
+  | 'schedule:complete-and-advance'
+  | 'schedule:extend-block'
+  | 'schedule:skip-block'
   | 'schedule:update-block'
   | 'tasks:list'
   | 'tasks:get'
@@ -62,6 +65,7 @@ export type IpcInvokeChannel =
   | 'breaks:update'
   | 'breaks:log'
   | 'work:set-paused'
+  | 'work:get-paused'
   | 'check-ins:get-due'
   | 'check-ins:acknowledge'
 
@@ -89,6 +93,12 @@ export interface StalenessAlertPayload {
 
 export interface ChatAssistantMessagePayload {
   text: string
+  quickReplies?: import('./chat').QuickReplyChip[]
+  chipContext?: string
+}
+
+export interface WorkGetPausedResponse {
+  paused: boolean
 }
 
 export interface WorkSetPausedPayload {
@@ -118,7 +128,8 @@ export interface CheckInStateChangedPayload {
 export interface ScheduleBlockChangedPayload {
   scheduleDate: string
   blockId: number
-  reason: 'auto_completed'
+  nextBlockId?: number | null
+  reason: 'auto_completed' | 'manual_completed' | 'skipped' | 'extended'
 }
 
 export interface AppPingResponse {

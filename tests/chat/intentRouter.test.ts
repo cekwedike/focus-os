@@ -119,6 +119,44 @@ describe('intentRouter queries', () => {
   })
 })
 
+describe('intentRouter check-in disambiguation', () => {
+  it('routes done with client check to acknowledge_check_in', () => {
+    const context = createTestContext({
+      dueCheckInClients: [{ id: 1, name: 'PLNITUDE' }],
+      todayBlocks: [
+        {
+          id: 10,
+          title: 'PLNITUDE',
+          status: 'active',
+          block_type: 'fixed_client',
+          protected_subtype: null,
+        },
+      ],
+      activeBlockId: 10,
+    })
+
+    expect(classifyIntent('done with PLNITUDE check', context).intent).toBe('acknowledge_check_in')
+  })
+
+  it('routes bare done to complete_block when a block is active', () => {
+    const context = createTestContext({
+      dueCheckInClients: [{ id: 1, name: 'PLNITUDE' }],
+      todayBlocks: [
+        {
+          id: 10,
+          title: 'Client work',
+          status: 'active',
+          block_type: 'weighted_client',
+          protected_subtype: null,
+        },
+      ],
+      activeBlockId: 10,
+    })
+
+    expect(classifyIntent("I'm done", context).intent).toBe('complete_block')
+  })
+})
+
 describe('intentRouter unrecognized', () => {
   it('falls through to unrecognized for gibberish', () => {
     const context = createTestContext()

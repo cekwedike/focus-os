@@ -7,13 +7,6 @@ export interface ScreenDefinition {
 
 export const screenDefinitions: ScreenDefinition[] = [
   {
-    path: '/dashboard',
-    label: 'Dashboard',
-    title: 'Dashboard',
-    description:
-      'Day-at-a-glance view with current and next block, progress through your schedule, and quick status indicators.',
-  },
-  {
     path: '/daily-workspace',
     label: 'Daily Workspace',
     title: 'Daily Workspace',
@@ -32,7 +25,7 @@ export const screenDefinitions: ScreenDefinition[] = [
     label: 'Schedule',
     title: 'Schedule',
     description:
-      'Visual timeline of today\'s blocks: protected routines, client windows, buffer time, and assigned tasks.',
+      "Visual timeline of today's blocks: protected routines, client windows, buffer time, and assigned tasks.",
   },
   {
     path: '/daily-insight',
@@ -63,3 +56,11 @@ export const screenDefinitions: ScreenDefinition[] = [
       'Set up who you work for, your daily routines, scheduling preferences, optional AI insights, and reminders.',
   },
 ]
+
+export const homeScreenDefinition: ScreenDefinition = {
+  path: '/',
+  label: 'Dashboard',
+  title: 'Dashboard',
+  description:
+    'Home view with the Focus Assistant chat and day-at-a-glance panel: current block, up next, focus score, and status widgets.',
+}

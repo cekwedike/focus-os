@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import type { IpcResult } from '@shared/types/ipc'
-import { setWorkPaused } from '../services/workPauseService'
+import { getWorkPausedState, setWorkPaused } from '../services/workPauseService'
 
 function success<T>(data: T): IpcResult<T> {
   return { ok: true, data }
@@ -17,6 +17,14 @@ export function registerWorkHandlers(): void {
       return success({ paused: Boolean(payload?.paused) })
     } catch (error) {
       return failure('WORK_PAUSE_FAILED', String(error))
+    }
+  })
+
+  ipcMain.handle('work:get-paused', async () => {
+    try {
+      return success({ paused: getWorkPausedState() })
+    } catch (error) {
+      return failure('WORK_GET_PAUSED_FAILED', String(error))
     }
   })
 }

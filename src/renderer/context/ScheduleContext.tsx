@@ -8,7 +8,8 @@ import {
   type ReactNode,
 } from 'react'
 import type { DayBundle } from '@shared/types/schedule'
-import type { DailyScheduleRow } from '@shared/types/db'
+import type { DailyScheduleRow, ProtectedBlockRow } from '@shared/types/db'
+import { isBlockSkippable } from '@shared/schedule/blockSkippable'
 import { getTodayDateString } from '@renderer/utils/date'
 
 interface ScheduleContextValue {
@@ -18,6 +19,8 @@ interface ScheduleContextValue {
   error: string | null
   activeBlock: DailyScheduleRow | null
   nextBlock: DailyScheduleRow | null
+  protectedBlocks: ProtectedBlockRow[]
+  isBlockSkippable: (block: DailyScheduleRow) => boolean
   refresh: () => Promise<void>
 }
 
@@ -26,6 +29,7 @@ const ScheduleContext = createContext<ScheduleContextValue | null>(null)
 export function ScheduleProvider({ children }: { children: ReactNode }): React.JSX.Element {
   const [date] = useState(getTodayDateString)
   const [dayBundle, setDayBundle] = useState<DayBundle | null>(null)
+  const [protectedBlocks, setProtectedBlocks] = useState<ProtectedBlockRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -33,8 +37,12 @@ export function ScheduleProvider({ children }: { children: ReactNode }): React.J
     setLoading(true)
     setError(null)
     try {
-      const bundle = await window.focusOS.schedule.getDay({ date })
+      const [bundle, templates] = await Promise.all([
+        window.focusOS.schedule.getDay({ date }),
+        window.focusOS.protectedBlocks.list(),
+      ])
       setDayBundle(bundle)
+      setProtectedBlocks(templates)
     } catch (refreshError) {
       setError(String(refreshError))
     } finally {
@@ -78,6 +86,11 @@ export function ScheduleProvider({ children }: { children: ReactNode }): React.J
     )
   }, [dayBundle])
 
+  const checkBlockSkippable = useCallback(
+    (block: DailyScheduleRow) => isBlockSkippable(block, protectedBlocks),
+    [protectedBlocks]
+  )
+
   const value = useMemo(
     () => ({
       date,
@@ -86,9 +99,21 @@ export function ScheduleProvider({ children }: { children: ReactNode }): React.J
       error,
       activeBlock,
       nextBlock,
+      protectedBlocks,
+      isBlockSkippable: checkBlockSkippable,
       refresh,
     }),
-    [date, dayBundle, loading, error, activeBlock, nextBlock, refresh]
+    [
+      date,
+      dayBundle,
+      loading,
+      error,
+      activeBlock,
+      nextBlock,
+      protectedBlocks,
+      checkBlockSkippable,
+      refresh,
+    ]
   )
 
   return <ScheduleContext.Provider value={value}>{children}</ScheduleContext.Provider>

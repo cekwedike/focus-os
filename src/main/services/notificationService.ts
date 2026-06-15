@@ -5,7 +5,7 @@ import { getAllSettings } from '../db/repositories/appSettingsRepository'
 export interface DesktopNotificationInput {
   title: string
   body: string
-  category: 'microBreak' | 'staleness' | 'insightReady' | 'clientReminder'
+  category: 'microBreak' | 'staleness' | 'insightReady' | 'clientReminder' | 'blockReminder'
 }
 
 function isCategoryEnabled(category: DesktopNotificationInput['category']): boolean {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { screenDefinitions } from '@renderer/routes'
+import { homeScreenDefinition, screenDefinitions } from '@renderer/routes'
 import { NavIcon } from '@renderer/components/layout/NavIcons'
 
 interface ScreenIconRailProps {
@@ -90,21 +90,14 @@ export function ScreenIconRail({
           className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-2"
           aria-label="Screen navigation"
         >
-          <NavLink to="/" end className={({ isActive }) => navLinkClass(isActive)} title="Chat">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              className="h-4 w-4 shrink-0"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8 10h8M8 14h5M6 4h12a2 2 0 012 2v10l-4-3H6a2 2 0 01-2-2V6a2 2 0 012-2z"
-              />
-            </svg>
-            {showLabels ? <span>Chat</span> : null}
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => navLinkClass(isActive)}
+            title={homeScreenDefinition.label}
+          >
+            <NavIcon path="/dashboard" />
+            {showLabels ? <span>{homeScreenDefinition.label}</span> : null}
           </NavLink>
 
           {screenDefinitions.map((screen) => (
@@ -127,7 +120,7 @@ export function ScreenIconRail({
               onClick={onMobileClose}
               className="focus-btn-ghost block w-full text-center text-xs"
             >
-              {showLabels ? 'Back to chat' : 'Chat'}
+              {showLabels ? 'Back to home' : 'Home'}
             </NavLink>
           </div>
         ) : null}

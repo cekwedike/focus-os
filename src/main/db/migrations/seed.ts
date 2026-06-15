@@ -111,20 +111,38 @@ export function seedInitialData(db: Database.Database): void {
   }
 
   if (protectedCount.count === 0) {
-    const insertProtected = db.prepare(`
-      INSERT INTO protected_blocks (
-        block_type, label, duration_minutes, anchor_type, anchor_value,
-        sort_order, is_enabled, skippable, created_at, updated_at
-      ) VALUES (
-        @block_type, @label, @duration_minutes, @anchor_type, @anchor_value,
-        @sort_order, @is_enabled, @skippable, @created_at, @updated_at
-      )
-    `)
+    const columns = db.prepare('PRAGMA table_info(protected_blocks)').all() as Array<{ name: string }>
+    const hasSkippable = columns.some((column) => column.name === 'skippable')
+
+    const insertProtected = hasSkippable
+      ? db.prepare(`
+          INSERT INTO protected_blocks (
+            block_type, label, duration_minutes, anchor_type, anchor_value,
+            sort_order, is_enabled, skippable, created_at, updated_at
+          ) VALUES (
+            @block_type, @label, @duration_minutes, @anchor_type, @anchor_value,
+            @sort_order, @is_enabled, @skippable, @created_at, @updated_at
+          )
+        `)
+      : db.prepare(`
+          INSERT INTO protected_blocks (
+            block_type, label, duration_minutes, anchor_type, anchor_value,
+            sort_order, is_enabled, created_at, updated_at
+          ) VALUES (
+            @block_type, @label, @duration_minutes, @anchor_type, @anchor_value,
+            @sort_order, @is_enabled, @created_at, @updated_at
+          )
+        `)
 
     const timestamp = nowIso()
     const insertMany = db.transaction((rows: ProtectedBlockSeed[]) => {
       for (const row of rows) {
-        insertProtected.run({ ...row, created_at: timestamp, updated_at: timestamp })
+        if (hasSkippable) {
+          insertProtected.run({ ...row, created_at: timestamp, updated_at: timestamp })
+        } else {
+          const { skippable: _skippable, ...legacyRow } = row
+          insertProtected.run({ ...legacyRow, created_at: timestamp, updated_at: timestamp })
+        }
       }
     })
 
