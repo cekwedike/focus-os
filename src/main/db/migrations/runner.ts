@@ -9,6 +9,7 @@ import { applyClientRemindersAndStartupMigration } from './007_client_reminders_
 import { applyCheckInsLogMigration } from './008_check_ins_log'
 import { applyProtectedBlocksSkippableMigration } from './009_protected_blocks_skippable'
 import { applyNotificationsLogMigration } from './010_notifications_log'
+import { applyScheduleTimestampNormalizationMigration } from './011_schedule_timestamp_normalization'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -87,6 +88,13 @@ const migrations: MigrationDefinition[] = [
     name: 'notifications_log',
     up: (db) => {
       applyNotificationsLogMigration(db)
+    },
+  },
+  {
+    version: 11,
+    name: 'schedule_timestamp_normalization',
+    up: (db) => {
+      applyScheduleTimestampNormalizationMigration(db)
     },
   },
 ]

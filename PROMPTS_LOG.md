@@ -29,6 +29,20 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-15: Schedule Block Timestamp Consistency Fix
+
+**Prompt summary:** Fix inconsistent `planned_start`/`planned_end` formats causing inflated buffer countdowns (~350+ min instead of ~76 min).
+
+**Outcome:** Audited write paths: allocation engine uses `toIsoLocal` (local wall-clock); `shiftIsoByMinutes` in block progression used `toISOString()` (UTC `Z`), corrupting subsequent blocks on extend/skip. Standardized on local `YYYY-MM-DDTHH:mm:ss` via `src/shared/utils/scheduleTimestamp.ts`. Fixed `blockTimeShift.ts`, repository normalize-on-write, migration 011 for legacy rows. Display reads use `extractLocalTimeHHMM`. 20 new/updated tests including buffer countdown regression.
+
+**Audit example (live DB 2026-06-15):** Buffer `planned_start` = `2026-06-15T20:54:00` (local), `planned_end` = `2026-06-15T20:10:00.000Z` (UTC from shift cascade). Active early with mismatched end produced ~350 min countdown for a 76 min block.
+
+**Migration:** Migration 011 normalizes existing rows on app upgrade; no manual schedule regen required.
+
+**Files / phases:** `scheduleTimestamp.ts`, `blockTimeShift.ts`, `timeline.ts`, `dailyScheduleRepository.ts`, `011_schedule_timestamp_normalization.ts`, `SCHEMA.md`, `ARCHITECTURE.md`, `ROADMAP.md`.
+
+**Follow-ups:** Capacity-aware buffer sizing (ROADMAP follow-up item retained).
+
 ### 2026-06-15: Time Formatting, Responsive Layout, and Chat Chip Fixes
 
 **Prompt summary:** Universal countdown formatting (H:MM:SS when >= 60 min), responsive merged Dashboard layout, chat contextual chip pill styling, Buffer block ~418 min investigation.

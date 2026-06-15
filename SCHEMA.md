@@ -165,8 +165,8 @@ Materialized schedule blocks for a specific calendar date. Regenerated or partia
 | `client_id` | INTEGER | NULL, FK → clients_projects.id | NULL for pure protected/buffer rows |
 | `task_id` | INTEGER | NULL, FK → tasks.id | Primary task assigned to block |
 | `title` | TEXT | NOT NULL | Display label |
-| `planned_start` | TEXT | NOT NULL | ISO 8601 local |
-| `planned_end` | TEXT | NOT NULL | ISO 8601 local |
+| `planned_start` | TEXT | NOT NULL | Local wall-clock instant: `YYYY-MM-DDTHH:mm:ss` (no `Z` or offset). See **Schedule timestamp convention** below |
+| `planned_end` | TEXT | NOT NULL | Same format as `planned_start` |
 | `planned_duration_minutes` | INTEGER | NOT NULL | |
 | `actual_start` | TEXT | NULL | Filled when user starts block |
 | `actual_end` | TEXT | NULL | Filled on completion or skip |
@@ -187,6 +187,10 @@ Materialized schedule blocks for a specific calendar date. Regenerated or partia
 | `skipped` | User skipped; unused time reclaimed by shifting later blocks earlier |
 | `compressed` | Shortened by long-break re-allocation |
 | `superseded` | Replaced on schedule regen or reallocate |
+
+**Schedule timestamp convention (`planned_start`, `planned_end`)**
+
+All planned schedule instants use **local wall-clock ISO 8601 without a timezone suffix**, for example `2026-06-15T20:54:00`. Parse and format via `src/shared/utils/scheduleTimestamp.ts`. Do not store UTC `Z`-suffixed values in these columns. `actual_start` and `actual_end` remain UTC ISO strings (`toISOString()`). Migration 011 normalizes legacy mixed-format rows on upgrade.
 
 **Extend and skip behavior**
 

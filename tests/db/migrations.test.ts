@@ -40,7 +40,7 @@ describe('database migrations', () => {
       expect(tableNames).toContain(tableName)
     }
 
-    expect(getLatestSchemaVersion(testDb)).toBe(10)
+    expect(getLatestSchemaVersion(testDb)).toBe(11)
   })
 
   it('is idempotent when migrations run multiple times', () => {
@@ -68,7 +68,7 @@ describe('database migrations', () => {
     expect(secondTableNames).toEqual(firstTableNames)
     expect(secondProtectedCount).toBe(firstProtectedCount)
     expect(secondSettingsCount).toBe(firstSettingsCount)
-    expect(getLatestSchemaVersion(testDb)).toBe(10)
+    expect(getLatestSchemaVersion(testDb)).toBe(11)
   })
 
   it('seeds protected_blocks with all 5 expected block types', () => {

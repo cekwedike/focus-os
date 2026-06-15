@@ -1,6 +1,7 @@
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 import { formatCountdownFromMinutes } from '@shared/utils/remainingTime'
+import { extractLocalTimeHHMM } from '@shared/utils/scheduleTimestamp'
 
 interface UpNextCardProps {
   variant?: 'dashboard' | 'sidebar'
@@ -27,7 +28,7 @@ export function UpNextCard({ variant = 'dashboard' }: UpNextCardProps): React.JS
             {nextBlock.title}
           </p>
           <p className="mt-2 break-words font-mono text-sm text-accent-cyan">
-            {formatHHMM(nextBlock.planned_start.slice(11, 16))}
+            {formatHHMM(extractLocalTimeHHMM(nextBlock.planned_start))}
             {' · '}
             {formatCountdownFromMinutes(nextBlock.planned_duration_minutes)}
           </p>

@@ -42,8 +42,8 @@ describe('skipBlock', () => {
         blockType: 'protected',
         protectedSubtype: 'meal',
         title: 'Lunch',
-        plannedStart: `${scheduleDate}T12:00:00.000Z`,
-        plannedEnd: `${scheduleDate}T12:30:00.000Z`,
+        plannedStart: `${scheduleDate}T12:00:00`,
+        plannedEnd: `${scheduleDate}T12:30:00`,
         plannedDurationMinutes: 30,
         priorityOrder: 0,
         status: 'planned',
@@ -53,8 +53,8 @@ describe('skipBlock', () => {
         scheduleDate,
         blockType: 'weighted_client',
         title: 'Client work',
-        plannedStart: `${scheduleDate}T12:30:00.000Z`,
-        plannedEnd: `${scheduleDate}T13:00:00.000Z`,
+        plannedStart: `${scheduleDate}T12:30:00`,
+        plannedEnd: `${scheduleDate}T13:00:00`,
         plannedDurationMinutes: 30,
         priorityOrder: 1,
         status: 'planned',
@@ -64,10 +64,10 @@ describe('skipBlock', () => {
     const rows = insertBlocks(db, scheduleDate, blocks)
     updateBlock(db, rows[0].id, {
       status: 'active',
-      actual_start: `${scheduleDate}T12:00:00.000Z`,
+      actual_start: `${scheduleDate}T12:00:00`,
     })
 
-    const nowMs = new Date(`${scheduleDate}T12:10:00.000Z`).getTime()
+    const nowMs = new Date(`${scheduleDate}T12:10:00`).getTime()
     const originalDateNow = Date.now
     Date.now = () => nowMs
 
@@ -78,8 +78,8 @@ describe('skipBlock', () => {
       expect(getActiveBlock(db, scheduleDate)?.title).toBe('Client work')
 
       const later = getBlockById(db, rows[1].id)
-      expect(later?.planned_start).toBe(`${scheduleDate}T12:10:00.000Z`)
-      expect(later?.planned_end).toBe(`${scheduleDate}T12:40:00.000Z`)
+      expect(later?.planned_start).toBe(`${scheduleDate}T12:10:00`)
+      expect(later?.planned_end).toBe(`${scheduleDate}T12:40:00`)
     } finally {
       Date.now = originalDateNow
     }
@@ -97,8 +97,8 @@ describe('skipBlock', () => {
         blockType: 'protected',
         protectedSubtype: 'faith',
         title: 'Faith and prayer',
-        plannedStart: `${scheduleDate}T08:00:00.000Z`,
-        plannedEnd: `${scheduleDate}T08:25:00.000Z`,
+        plannedStart: `${scheduleDate}T08:00:00`,
+        plannedEnd: `${scheduleDate}T08:25:00`,
         plannedDurationMinutes: 25,
         priorityOrder: 0,
         status: 'planned',
@@ -107,7 +107,7 @@ describe('skipBlock', () => {
 
     updateBlock(db, rows[0].id, {
       status: 'active',
-      actual_start: `${scheduleDate}T08:00:00.000Z`,
+      actual_start: `${scheduleDate}T08:00:00`,
     })
 
     expect(() => skipBlock(db!, rows[0].id)).toThrow('BLOCK_NOT_SKIPPABLE')

@@ -19,9 +19,9 @@ function createTempDatabasePath(): string {
 }
 
 function sampleBlocks(scheduleDate: string): ScheduleBlock[] {
-  const start = `${scheduleDate}T09:00:00.000Z`
-  const mid = `${scheduleDate}T09:30:00.000Z`
-  const end = `${scheduleDate}T10:00:00.000Z`
+  const start = `${scheduleDate}T09:00:00`
+  const mid = `${scheduleDate}T09:30:00`
+  const end = `${scheduleDate}T10:00:00`
 
   return [
     {

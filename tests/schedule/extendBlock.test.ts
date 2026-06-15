@@ -41,8 +41,8 @@ describe('extendActiveBlock', () => {
         scheduleDate,
         blockType: 'weighted_client',
         title: 'Active',
-        plannedStart: `${scheduleDate}T09:00:00.000Z`,
-        plannedEnd: `${scheduleDate}T09:30:00.000Z`,
+        plannedStart: `${scheduleDate}T09:00:00`,
+        plannedEnd: `${scheduleDate}T09:30:00`,
         plannedDurationMinutes: 30,
         priorityOrder: 0,
         status: 'planned',
@@ -52,8 +52,8 @@ describe('extendActiveBlock', () => {
         scheduleDate,
         blockType: 'weighted_client',
         title: 'Later',
-        plannedStart: `${scheduleDate}T09:30:00.000Z`,
-        plannedEnd: `${scheduleDate}T10:00:00.000Z`,
+        plannedStart: `${scheduleDate}T09:30:00`,
+        plannedEnd: `${scheduleDate}T10:00:00`,
         plannedDurationMinutes: 30,
         priorityOrder: 1,
         status: 'planned',
@@ -63,16 +63,16 @@ describe('extendActiveBlock', () => {
     const rows = insertBlocks(db, scheduleDate, blocks)
     updateBlock(db, rows[0].id, {
       status: 'active',
-      actual_start: `${scheduleDate}T09:00:00.000Z`,
+      actual_start: `${scheduleDate}T09:00:00`,
     })
 
     extendActiveBlock(db, rows[0].id, 5)
     const active = getBlockById(db, rows[0].id)
     const later = getBlockById(db, rows[1].id)
 
-    expect(active?.planned_end).toBe(`${scheduleDate}T09:35:00.000Z`)
-    expect(later?.planned_start).toBe(`${scheduleDate}T09:35:00.000Z`)
-    expect(later?.planned_end).toBe(`${scheduleDate}T10:05:00.000Z`)
+    expect(active?.planned_end).toBe(`${scheduleDate}T09:35:00`)
+    expect(later?.planned_start).toBe(`${scheduleDate}T09:35:00`)
+    expect(later?.planned_end).toBe(`${scheduleDate}T10:05:00`)
   })
 
   it('allows multiple extends to compound', () => {
@@ -86,8 +86,8 @@ describe('extendActiveBlock', () => {
         scheduleDate,
         blockType: 'weighted_client',
         title: 'Active',
-        plannedStart: `${scheduleDate}T09:00:00.000Z`,
-        plannedEnd: `${scheduleDate}T09:30:00.000Z`,
+        plannedStart: `${scheduleDate}T09:00:00`,
+        plannedEnd: `${scheduleDate}T09:30:00`,
         plannedDurationMinutes: 30,
         priorityOrder: 0,
         status: 'planned',
@@ -95,13 +95,13 @@ describe('extendActiveBlock', () => {
     ])
     updateBlock(db, rows[0].id, {
       status: 'active',
-      actual_start: `${scheduleDate}T09:00:00.000Z`,
+      actual_start: `${scheduleDate}T09:00:00`,
     })
 
     extendActiveBlock(db, rows[0].id, 5)
     extendActiveBlock(db, rows[0].id, 5)
     const active = getBlockById(db, rows[0].id)
-    expect(active?.planned_end).toBe(`${scheduleDate}T09:40:00.000Z`)
+    expect(active?.planned_end).toBe(`${scheduleDate}T09:40:00`)
     expect(active?.planned_duration_minutes).toBe(40)
   })
 })

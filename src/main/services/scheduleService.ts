@@ -34,6 +34,7 @@ import {
   bumpTasksToDate,
   listTasksForAllocation,
 } from '../db/repositories/tasksRepository'
+import { normalizeScheduleInstant } from '@shared/utils/scheduleTimestamp'
 import { shouldAutoCompleteBlock } from '@shared/schedule/blockAutoComplete'
 import { activateFirstBlockIfNone } from './blockProgressionService'
 
@@ -168,14 +169,16 @@ export function completeBlock(
 export function updateBlockTimes(
   db: Database.Database,
   blockId: number,
-  plannedStart: string,
-  plannedEnd: string
+  plannedStartInput: string,
+  plannedEndInput: string
 ): DailyScheduleRow {
   const block = getBlockById(db, blockId)
   if (!block) {
     throw new Error('BLOCK_NOT_FOUND')
   }
 
+  const plannedStart = normalizeScheduleInstant(plannedStartInput)
+  const plannedEnd = normalizeScheduleInstant(plannedEndInput)
   const startMs = new Date(plannedStart).getTime()
   const endMs = new Date(plannedEnd).getTime()
   const duration = Math.max(1, Math.round((endMs - startMs) / 60_000))

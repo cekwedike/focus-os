@@ -332,6 +332,8 @@ src/shared/allocation/
 
 Main process `runAllocation.ts` loads rows from SQLite, maps to engine types, runs engine, persists results in a transaction.
 
+**Schedule timestamps**: `planned_start` and `planned_end` on generated blocks use local wall-clock ISO strings (`YYYY-MM-DDTHH:mm:ss`, no `Z`) via `src/shared/utils/scheduleTimestamp.ts`. Extend, skip, and shift cascades must use the same helpers so UTC suffixes never mix into planned columns. See [SCHEMA.md](./SCHEMA.md) for the binding convention.
+
 Unit tests import engine directly without starting Electron.
 
 ## AI Service Layer

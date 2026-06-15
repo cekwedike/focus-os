@@ -6,6 +6,7 @@ import { TimeInput } from '@renderer/components/ui/TimeInput'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { useFaithEntry } from '@renderer/context/FaithEntryContext'
 import { formatCountdownFromMinutes } from '@shared/utils/remainingTime'
+import { buildLocalScheduleInstant, extractLocalTimeHHMM } from '@shared/utils/scheduleTimestamp'
 
 interface ScheduleBlockCardProps {
   block: DailyScheduleRow
@@ -22,8 +23,8 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
   const { openFaithEntry } = useFaithEntry()
   const [paused, setPaused] = useState(false)
   const [editing, setEditing] = useState(false)
-  const [plannedStart, setPlannedStart] = useState(block.planned_start.slice(11, 16))
-  const [plannedEnd, setPlannedEnd] = useState(block.planned_end.slice(11, 16))
+  const [plannedStart, setPlannedStart] = useState(extractLocalTimeHHMM(block.planned_start))
+  const [plannedEnd, setPlannedEnd] = useState(extractLocalTimeHHMM(block.planned_end))
 
   const startBlock = async (): Promise<void> => {
     await window.focusOS.work.setPaused({ paused: false })
@@ -49,8 +50,8 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
     const datePrefix = block.planned_start.slice(0, 10)
     await window.focusOS.schedule.updateBlock({
       blockId: block.id,
-      planned_start: `${datePrefix}T${plannedStart}:00`,
-      planned_end: `${datePrefix}T${plannedEnd}:00`,
+      planned_start: buildLocalScheduleInstant(datePrefix, plannedStart),
+      planned_end: buildLocalScheduleInstant(datePrefix, plannedEnd),
     })
     setEditing(false)
     await refresh()

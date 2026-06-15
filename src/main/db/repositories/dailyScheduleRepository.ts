@@ -2,6 +2,7 @@ import type Database from 'better-sqlite3'
 import type { ScheduleBlock } from '@shared/allocation/types'
 import type { DailyScheduleRow, ScheduleBlockStatus } from '@shared/types/db'
 import { computeShiftedBlockTimes } from '@shared/schedule/blockTimeShift'
+import { normalizeScheduleInstant } from '@shared/utils/scheduleTimestamp'
 import { nowIso } from '@shared/utils/time'
 
 export function listBlocksForDate(
@@ -57,8 +58,8 @@ export function mapEngineBlockToRow(
     client_id: block.clientId ?? null,
     task_id: block.taskId ?? null,
     title: block.title,
-    planned_start: block.plannedStart,
-    planned_end: block.plannedEnd,
+    planned_start: normalizeScheduleInstant(block.plannedStart),
+    planned_end: normalizeScheduleInstant(block.plannedEnd),
     planned_duration_minutes: block.plannedDurationMinutes,
     actual_start: null,
     actual_end: null,
@@ -162,6 +163,13 @@ export function updateBlock(
     return null
   }
 
+  const normalizedStart = patch.planned_start
+    ? normalizeScheduleInstant(patch.planned_start)
+    : existing.planned_start
+  const normalizedEnd = patch.planned_end
+    ? normalizeScheduleInstant(patch.planned_end)
+    : existing.planned_end
+
   db.prepare(
     `
     UPDATE daily_schedule SET
@@ -178,8 +186,8 @@ export function updateBlock(
   `
   ).run({
     id,
-    planned_start: patch.planned_start ?? existing.planned_start,
-    planned_end: patch.planned_end ?? existing.planned_end,
+    planned_start: normalizedStart,
+    planned_end: normalizedEnd,
     planned_duration_minutes:
       patch.planned_duration_minutes ?? existing.planned_duration_minutes,
     actual_start: patch.actual_start !== undefined ? patch.actual_start : existing.actual_start,
