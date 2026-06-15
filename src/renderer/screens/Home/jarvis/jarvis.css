@@ -1,0 +1,154 @@
+/* Holographic HUD layer */
+
+.hud-shell {
+  --hud-cyan: #22d3ee;
+  --hud-mint: #00e5a8;
+  --hud-amber: #fbbf24;
+  --hud-panel: rgba(6, 14, 28, 0.82);
+  --hud-border: rgba(34, 211, 238, 0.22);
+  --hud-glow: rgba(0, 229, 168, 0.35);
+  position: relative;
+  isolation: isolate;
+}
+
+.hud-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(34, 211, 238, 0.04) 0%, transparent 35%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(34, 211, 238, 0.03) 2px,
+      rgba(34, 211, 238, 0.03) 3px
+    );
+  opacity: 0.55;
+  z-index: 0;
+}
+
+.hud-shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0, 229, 168, 0.08), transparent 60%);
+  z-index: 0;
+}
+
+.hud-corner-bracket {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--hud-cyan);
+  border-style: solid;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.hud-corner-tl {
+  top: 8px;
+  left: 8px;
+  border-width: 1px 0 0 1px;
+}
+
+.hud-corner-tr {
+  top: 8px;
+  right: 8px;
+  border-width: 1px 1px 0 0;
+}
+
+.hud-corner-bl {
+  bottom: 8px;
+  left: 8px;
+  border-width: 0 0 1px 1px;
+}
+
+.hud-corner-br {
+  bottom: 8px;
+  right: 8px;
+  border-width: 0 1px 1px 0;
+}
+
+.hud-card {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--hud-border);
+  background: var(--hud-panel);
+  backdrop-filter: blur(16px);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.hud-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.06), transparent 45%);
+  pointer-events: none;
+}
+
+.hud-card:hover,
+.hud-card:focus-within {
+  border-color: rgba(0, 229, 168, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(0, 229, 168, 0.12),
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.hud-card-expanded {
+  border-color: rgba(0, 229, 168, 0.55);
+  box-shadow:
+    0 0 24px rgba(0, 229, 168, 0.12),
+    inset 0 0 40px rgba(34, 211, 238, 0.04);
+}
+
+.hud-kicker {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hud-cyan);
+}
+
+.hud-value {
+  font-family: Syne, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f4f7fb;
+  text-shadow: 0 0 24px var(--hud-glow);
+}
+
+.hud-orb {
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.hud-orb-active {
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.35), transparent 42%),
+    radial-gradient(circle at 70% 75%, rgba(34, 211, 238, 0.5), transparent 50%),
+    linear-gradient(145deg, rgba(0, 229, 168, 0.85), rgba(34, 211, 238, 0.35));
+}
+
+.hud-orb-idle {
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.12), transparent 42%),
+    linear-gradient(145deg, rgba(100, 116, 139, 0.5), rgba(12, 18, 32, 0.9));
+  box-shadow: inset 0 -6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.hud-command-deck {
+  position: relative;
+}
+
+.hud-command-frame {
+  position: relative;
+  border: 1px solid rgba(34, 211, 238, 0.15);
+  background: linear-gradient(180deg, rgba(8, 14, 26, 0.6), rgba(5, 8, 16, 0.85));
+}

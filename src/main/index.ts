@@ -1,6 +1,14 @@
 import { app, BrowserWindow, shell } from 'electron'
 import { existsSync } from 'fs'
 import { join } from 'path'
+
+const APP_USER_MODEL_ID = 'com.focusos.app'
+
+if (process.platform === 'win32') {
+  app.setAppUserModelId(APP_USER_MODEL_ID)
+}
+
+app.setName('Focus OS')
 import {
   APP_BACKGROUND_COLOR,
   DEFAULT_WINDOW_HEIGHT,
@@ -98,9 +106,23 @@ function createWindow(): void {
 
   configureWindowChrome(mainWindow)
 
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, url) => {
+    console.error('[renderer] did-fail-load', { errorCode, errorDescription, url })
+  })
+
+  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+    if (level >= 2) {
+      console.error(`[renderer:${level}] ${message} (${sourceId}:${line})`)
+    }
+  })
+
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    console.error('[renderer] render-process-gone', details)
+  })
+
   const rendererUrl = process.env['ELECTRON_RENDERER_URL']
   if (rendererUrl) {
-    mainWindow.loadURL(rendererUrl)
+    void mainWindow.loadURL(rendererUrl)
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }

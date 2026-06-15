@@ -43,6 +43,29 @@ export const screenDefinitions: ScreenDefinition[] = [
   },
 ]
 
+/** Deep-link routes kept out of the icon rail but still registered in App.tsx. */
+export const legacyScreenDefinitions: ScreenDefinition[] = [
+  {
+    path: '/daily-workspace',
+    label: 'Daily Workspace',
+    title: 'Daily Workspace',
+    description:
+      'Wake time, capacity, and fixed blocks for today. Most day setup now lives in chat; this screen remains for direct editing.',
+  },
+  {
+    path: '/schedule',
+    label: 'Schedule',
+    title: 'Schedule',
+    description:
+      'Full timeline view of today\'s blocks with start, complete, extend, and skip controls.',
+  },
+]
+
+export const allScreenDefinitions: ScreenDefinition[] = [
+  ...screenDefinitions,
+  ...legacyScreenDefinitions,
+]
+
 export const homeScreenDefinition: ScreenDefinition = {
   path: '/',
   label: 'Dashboard',

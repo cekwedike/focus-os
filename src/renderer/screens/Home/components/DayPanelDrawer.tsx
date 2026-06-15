@@ -1,4 +1,5 @@
-import { DayPanel } from './DayPanel'
+import { motion } from 'framer-motion'
+import { JarvisTelemetryPanel } from '../jarvis/JarvisTelemetryPanel'
 
 interface DayPanelDrawerProps {
   open: boolean
@@ -14,23 +15,32 @@ export function DayPanelDrawer({ open, onClose }: DayPanelDrawerProps): React.JS
     <>
       <button
         type="button"
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm xl:hidden"
-        aria-label="Close day panel"
+        className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden"
+        aria-label="Close HUD"
         onClick={onClose}
       />
-      <div className="fixed inset-y-0 right-0 z-50 w-[min(360px,92vw)] xl:hidden">
-        <div className="flex h-full flex-col bg-surface-card shadow-panel">
-          <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
-            <h2 className="font-display text-lg font-bold text-text-primary">Day Panel</h2>
+      <motion.div
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+        className="fixed inset-y-0 right-0 z-50 w-[min(420px,94vw)] lg:hidden"
+      >
+        <div className="flex h-full flex-col shadow-panel-active">
+          <div className="flex items-center justify-between border-b border-accent-cyan/20 bg-surface-card/95 px-4 py-3">
+            <div>
+              <p className="jarvis-kicker">Telemetry</p>
+              <h2 className="font-display text-lg font-bold text-text-primary">HUD Panel</h2>
+            </div>
             <button type="button" className="focus-btn-ghost text-xs" onClick={onClose}>
               Close
             </button>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <DayPanel />
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <JarvisTelemetryPanel />
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   )
 }
