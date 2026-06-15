@@ -18,7 +18,11 @@ import { ReviewScreen } from './screens/Review/ReviewScreen'
 import { SettingsScreen } from './screens/Settings/SettingsScreen'
 
 function LegacyScreenLayout({ children }: { children: ReactNode }): React.JSX.Element {
-  return <div className="min-h-0 flex-1 overflow-y-auto p-shell">{children}</div>
+  return (
+    <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-3 py-4 sm:px-4 sm:py-shell md:px-shell">
+      {children}
+    </div>
+  )
 }
 
 function AppRoutes(): React.JSX.Element {

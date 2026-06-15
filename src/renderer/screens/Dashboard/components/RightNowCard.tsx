@@ -43,11 +43,19 @@ export function RightNowCard(): React.JSX.Element {
             </div>
           )}
         </div>
-        <div className="flex gap-2">
-          <button type="button" onClick={() => setPaused((value) => !value)} className="focus-btn-ghost">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
+          <button
+            type="button"
+            onClick={() => setPaused((value) => !value)}
+            className="focus-btn-ghost w-full sm:w-auto"
+          >
             {paused ? 'Resume' : 'Pause'}
           </button>
-          <button type="button" onClick={() => void complete()} className="focus-btn-primary">
+          <button
+            type="button"
+            onClick={() => void complete()}
+            className="focus-btn-primary w-full sm:w-auto"
+          >
             Complete Block
           </button>
         </div>

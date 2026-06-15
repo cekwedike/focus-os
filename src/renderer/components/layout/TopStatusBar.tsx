@@ -26,7 +26,20 @@ function NotificationBellIcon(): React.JSX.Element {
   )
 }
 
-export function TopStatusBar(): React.JSX.Element {
+function MenuIcon(): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-4 w-4">
+      <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  )
+}
+
+interface TopStatusBarProps {
+  onToggleNav: () => void
+  navOpen: boolean
+}
+
+export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React.JSX.Element {
   const { formatClock } = useDisplayPreferences()
   const { activeBlock, dayBundle, refresh } = useScheduleContext()
   const { longBreakActive, longBreakStartedAt, openLongBreakModal, endLongBreak } = useBreakContext()
@@ -51,63 +64,96 @@ export function TopStatusBar(): React.JSX.Element {
 
   const isLive = Boolean(activeBlock) || longBreakActive
 
+  const blockTitle = longBreakActive
+    ? 'Long break'
+    : activeBlock?.title ?? 'Awaiting schedule'
+
   return (
     <header className="focus-status-rail relative z-20">
-      <div className="flex items-center gap-5">
-        <div className="flex items-center gap-3">
-          {isLive ? <span className="focus-live-dot" aria-hidden="true" /> : <span className="focus-live-dot-idle" aria-hidden="true" />}
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+        <button
+          type="button"
+          onClick={onToggleNav}
+          className={`focus-btn-ghost !px-2.5 !py-2 md:hidden ${navOpen ? 'border-accent-mint/40' : ''}`}
+          aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={navOpen}
+        >
+          <MenuIcon />
+        </button>
+
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          {isLive ? (
+            <span className="focus-live-dot shrink-0" aria-hidden="true" />
+          ) : (
+            <span className="focus-live-dot-idle shrink-0" aria-hidden="true" />
+          )}
           <time
-            className="font-mono text-base font-medium tabular-nums tracking-wide text-text-primary"
+            className="shrink-0 font-mono text-sm font-medium tabular-nums tracking-wide text-text-primary sm:text-base"
             dateTime={new Date().toISOString()}
           >
             {currentTime}
           </time>
         </div>
-        <div className="hidden h-5 w-px bg-surface-border sm:block" aria-hidden="true" />
-        <div className="hidden min-w-0 sm:block">
+
+        <div className="hidden h-5 w-px shrink-0 bg-surface-border lg:block" aria-hidden="true" />
+
+        <div className="hidden min-w-0 lg:block">
           <p className="focus-metric-label">Current block</p>
-          <p className="truncate text-sm font-medium text-text-primary">
-            {longBreakActive
-              ? 'Long break in progress'
-              : activeBlock?.title ?? 'Awaiting schedule'}
-          </p>
+          <p className="truncate text-sm font-medium text-text-primary">{blockTitle}</p>
         </div>
-        {longBreakActive && longBreakStartedAt && (
-          <ActiveBlockTimer startedAt={longBreakStartedAt} />
-        )}
-        {activeBlock?.status === 'active' && activeBlock.actual_start && !longBreakActive && (
-          <ActiveBlockTimer startedAt={activeBlock.actual_start} />
-        )}
+
+        {longBreakActive && longBreakStartedAt ? (
+          <div className="hidden shrink-0 sm:block">
+            <ActiveBlockTimer startedAt={longBreakStartedAt} />
+          </div>
+        ) : null}
+        {activeBlock?.status === 'active' && activeBlock.actual_start && !longBreakActive ? (
+          <div className="hidden shrink-0 sm:block">
+            <ActiveBlockTimer startedAt={activeBlock.actual_start} />
+          </div>
+        ) : null}
       </div>
 
-      <div className="flex items-center gap-2">
-        <span className="focus-badge focus-badge-mint" title="Faith streak">
-          Streak {faithStreakLabel}
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
+        <span className="focus-badge focus-badge-mint !px-2 !py-0.5 text-[11px] sm:!px-2.5 sm:text-xs" title="Faith streak">
+          <span className="hidden sm:inline">Streak </span>
+          {faithStreakLabel}
         </span>
-        <span className="focus-badge focus-badge-slate" title="Focus score">
-          Focus {focusLabel}
+        <span className="focus-badge focus-badge-slate !px-2 !py-0.5 text-[11px] sm:!px-2.5 sm:text-xs" title="Focus score">
+          <span className="hidden sm:inline">Focus </span>
+          {focusLabel}
         </span>
-        {isFaithBlockActive && (
-          <button type="button" onClick={openFaithEntry} className="focus-btn-primary hidden sm:inline-flex">
-            Log Faith
+        {isFaithBlockActive ? (
+          <button
+            type="button"
+            onClick={openFaithEntry}
+            className="focus-btn-primary hidden !px-2.5 !py-1.5 text-xs sm:inline-flex sm:!px-4 sm:!py-2 sm:text-sm"
+          >
+            Faith
           </button>
-        )}
+        ) : null}
         {longBreakActive ? (
           <button
             type="button"
             onClick={() => void endLongBreak().then(() => refresh())}
-            className="focus-btn-danger"
+            className="focus-btn-danger !px-2.5 !py-1.5 text-xs sm:!px-4 sm:!py-2 sm:text-sm"
           >
-            End Break
+            <span className="sm:hidden">Back</span>
+            <span className="hidden sm:inline">End Break</span>
           </button>
         ) : (
-          <button type="button" onClick={openLongBreakModal} className="focus-btn-primary">
-            Long Break
+          <button
+            type="button"
+            onClick={openLongBreakModal}
+            className="focus-btn-primary !px-2.5 !py-1.5 text-xs sm:!px-4 sm:!py-2 sm:text-sm"
+          >
+            <span className="sm:hidden">Break</span>
+            <span className="hidden sm:inline">Long Break</span>
           </button>
         )}
         <button
           type="button"
-          className="focus-btn-ghost !px-2.5 !py-2"
+          className="focus-btn-ghost !px-2 !py-1.5 sm:!px-2.5 sm:!py-2"
           aria-label="Notifications"
         >
           <NotificationBellIcon />

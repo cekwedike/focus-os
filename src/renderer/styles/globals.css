@@ -52,7 +52,7 @@
 
   .focus-card,
   .focus-panel {
-    @apply relative overflow-hidden rounded-panel border border-surface-border bg-surface-card p-card shadow-panel backdrop-blur-xl;
+    @apply relative overflow-hidden rounded-panel border border-surface-border bg-surface-card p-4 shadow-panel backdrop-blur-xl sm:p-card;
   }
 
   .focus-card::before,
@@ -76,15 +76,15 @@
   }
 
   .focus-page-header {
-    @apply animate-fade-up mb-8;
+    @apply animate-fade-up mb-4 sm:mb-8;
   }
 
   .focus-kicker {
-    @apply font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-accent-mint;
+    @apply font-mono text-[10px] font-medium uppercase tracking-[0.15em] text-accent-mint sm:tracking-[0.2em];
   }
 
   .focus-page-title {
-    @apply mt-2 font-display text-3xl font-bold tracking-tight text-text-primary;
+    @apply mt-1 font-display text-2xl font-bold tracking-tight text-text-primary sm:mt-2 sm:text-3xl;
   }
 
   .focus-page-desc {
@@ -109,7 +109,7 @@
   }
 
   .focus-status-rail {
-    @apply relative flex h-[52px] shrink-0 items-center justify-between border-b border-surface-border bg-surface-card/80 px-shell backdrop-blur-xl;
+    @apply relative flex min-h-[48px] shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-2 border-b border-surface-border bg-surface-card/80 px-3 py-2 backdrop-blur-xl sm:min-h-[52px] sm:gap-x-3 sm:px-shell sm:py-0;
   }
 
   .focus-status-rail::after {
@@ -180,7 +180,7 @@
   }
 
   .focus-hero-panel {
-    @apply focus-panel focus-panel-active col-span-full p-6 md:p-8;
+    @apply focus-panel focus-panel-active col-span-full p-4 sm:p-6 md:p-8;
   }
 
   .focus-subpanel {
@@ -188,11 +188,11 @@
   }
 
   .focus-modal-backdrop {
-    @apply fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm;
+    @apply fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 backdrop-blur-sm sm:items-center sm:p-4;
   }
 
   .focus-modal {
-    @apply focus-panel w-full max-w-md p-5 shadow-panel-active;
+    @apply focus-panel max-h-[min(90vh,720px)] w-full max-w-md overflow-y-auto p-4 shadow-panel-active sm:p-5;
   }
 
   .prose-invert.prose-sm {

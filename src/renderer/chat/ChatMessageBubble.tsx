@@ -18,7 +18,7 @@ export function ChatMessageBubble({ message }: ChatMessageBubbleProps): React.JS
   return (
     <div className={`flex ${alignment}`}>
       <div
-        className={`max-w-[85%] whitespace-pre-wrap rounded-panel border px-4 py-3 text-sm leading-relaxed shadow-panel ${bubbleClass}`}
+        className={`max-w-[min(100%,32rem)] whitespace-pre-wrap break-words rounded-panel border px-3 py-2.5 text-sm leading-relaxed shadow-panel sm:max-w-[85%] sm:px-4 sm:py-3 ${bubbleClass}`}
       >
         {!isUser && !isSystem && (
           <p className="focus-kicker mb-1">Assistant</p>

@@ -11,7 +11,7 @@ export function ChatThread(): React.JSX.Element {
   }, [messages])
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-6 md:px-8">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 py-4 sm:px-4 sm:py-6 md:px-8">
       {!initialized && (
         <p className="text-sm text-text-muted">Starting assistant...</p>
       )}
