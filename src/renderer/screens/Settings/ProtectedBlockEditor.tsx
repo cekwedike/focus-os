@@ -52,7 +52,7 @@ export function ProtectedBlockEditor({
   }
 
   return (
-    <article className="rounded-button border border-surface-border bg-surface-elevated p-4">
+    <article className="focus-panel p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h4 className="font-medium text-text-primary">{heading}</h4>
@@ -77,7 +77,7 @@ export function ProtectedBlockEditor({
           <select
             value={anchorType}
             onChange={(event) => setAnchorType(event.target.value as ProtectedAnchorType)}
-            className="w-full rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-text-primary"
+            className="focus-input"
           >
             {SCHEDULE_TIMING_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -104,7 +104,7 @@ export function ProtectedBlockEditor({
           type="button"
           disabled={saving}
           onClick={() => void handleSave()}
-          className="rounded-button bg-accent-mint/20 px-4 py-2 text-sm font-medium text-accent-mint hover:bg-accent-mint/30 disabled:opacity-50"
+          className="focus-btn-primary disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Save Changes'}
         </button>

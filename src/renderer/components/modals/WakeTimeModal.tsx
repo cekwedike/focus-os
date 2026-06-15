@@ -48,9 +48,9 @@ export function WakeTimeModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-button border border-surface-border bg-surface-card p-5">
-        <h3 className="text-lg font-semibold text-text-primary">Good Morning</h3>
+    <div className="focus-modal-backdrop">
+      <div className="focus-modal">
+        <h3 className="font-display text-lg font-semibold text-text-primary">Good Morning</h3>
         <p className="mt-2 text-sm text-text-muted">
           Set today&apos;s wake time and day boundaries before planning your schedule.
         </p>
@@ -69,7 +69,7 @@ export function WakeTimeModal({
           type="button"
           disabled={saving}
           onClick={() => void handleConfirm()}
-          className="mt-5 w-full rounded-button bg-accent-mint/20 px-4 py-2 text-sm font-medium text-accent-mint disabled:opacity-50"
+          className="focus-btn-primary mt-5 w-full disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Start My Day'}
         </button>

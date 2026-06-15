@@ -18,7 +18,7 @@ export function DailyInsightScreen(): React.JSX.Element {
           type="button"
           disabled={loading || generating}
           onClick={() => void refreshToday()}
-          className="rounded-button bg-accent-mint/20 px-4 py-2 text-sm font-medium text-accent-mint disabled:opacity-50"
+          className="focus-btn-primary disabled:opacity-50"
         >
           {generating ? 'Refreshing...' : 'Refresh'}
         </button>

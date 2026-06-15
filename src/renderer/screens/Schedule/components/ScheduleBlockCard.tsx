@@ -47,12 +47,12 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
 
   return (
     <article
-      className="rounded-button border border-surface-border bg-surface-elevated p-4"
+      className={`focus-panel p-4 ${block.status === 'active' ? 'focus-panel-active' : ''}`}
       style={clientColor ? { borderLeftColor: clientColor, borderLeftWidth: 4 } : undefined}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-medium text-text-primary">{block.title}</h3>
+          <h3 className="font-display font-semibold text-text-primary">{block.title}</h3>
           <p className="mt-1 text-xs text-text-muted capitalize">
             {block.block_type.replace('_', ' ')} · {block.status}
           </p>
@@ -81,7 +81,7 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
           <button
             type="button"
             onClick={() => void startBlock()}
-            className="rounded-button bg-accent-mint/20 px-3 py-1.5 text-xs font-medium text-accent-mint"
+            className="focus-btn-primary !px-3 !py-1.5 !text-xs"
           >
             Start
           </button>
@@ -91,7 +91,7 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
             <button
               type="button"
               onClick={() => setPaused((value) => !value)}
-              className="rounded-button border border-surface-border px-3 py-1.5 text-xs text-text-secondary"
+              className="focus-btn-ghost !px-3 !py-1.5 !text-xs"
             >
               {paused ? 'Resume' : 'Pause'}
             </button>
@@ -99,7 +99,7 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
               <button
                 type="button"
                 onClick={openFaithEntry}
-                className="rounded-button bg-accent-mint/20 px-3 py-1.5 text-xs font-medium text-accent-mint"
+                className="focus-btn-primary !px-3 !py-1.5 !text-xs"
               >
                 Log Faith Time
               </button>
@@ -107,7 +107,7 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
               <button
                 type="button"
                 onClick={() => void completeBlock()}
-                className="rounded-button bg-accent-mint/20 px-3 py-1.5 text-xs font-medium text-accent-mint"
+                className="focus-btn-primary !px-3 !py-1.5 !text-xs"
               >
                 Complete
               </button>
@@ -118,7 +118,7 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="rounded-button border border-surface-border px-3 py-1.5 text-xs text-text-muted"
+            className="focus-btn-ghost !px-3 !py-1.5 !text-xs !text-text-muted"
           >
             Edit Times
           </button>

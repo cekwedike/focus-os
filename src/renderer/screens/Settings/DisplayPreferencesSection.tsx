@@ -79,7 +79,7 @@ export function DisplayPreferencesSection({
         <select
           value={display.timezone}
           onChange={(event) => void patch({ timezone: event.target.value })}
-          className="w-full rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-mint/60"
+          className="focus-input"
         >
           {!TIMEZONE_OPTIONS.some((option) => option.value === display.timezone) && (
             <option value={display.timezone}>{getTimezoneLabel(display.timezone)}</option>
@@ -105,7 +105,7 @@ export function DisplayPreferencesSection({
         />
       </FormField>
 
-      <div className="rounded-button border border-surface-border bg-surface-card/40 px-3 py-2 text-sm text-text-secondary">
+      <div className="focus-panel/40 px-3 py-2 text-sm text-text-secondary">
         <span className="font-medium text-text-primary">Today: </span>
         {formatDateLabel(previewDate, display.dateFormat, display.timezone)}
       </div>

@@ -30,7 +30,7 @@ export function TaskFilters({
           const value = event.target.value
           onClientFilterChange(value === 'all' ? 'all' : Number(value))
         }}
-        className="rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-text-primary"
+        className="focus-input"
       >
         <option value="all">All Jobs</option>
         {clients.map((client) => (

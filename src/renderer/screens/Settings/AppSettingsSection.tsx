@@ -92,7 +92,7 @@ export function AppSettingsSection({
           <select
             value={settings.openrouterModel}
             onChange={(event) => void patch({ openrouterModel: event.target.value })}
-            className="w-full rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-text-primary"
+            className="focus-input"
           >
             <option value="">Choose a model</option>
             {OPENROUTER_MODELS.map((model) => (
@@ -143,7 +143,7 @@ export function AppSettingsSection({
                 }
               })()
             }}
-            className="rounded-button border border-surface-border px-3 py-2 text-sm text-text-secondary"
+            className="focus-btn-ghost"
           >
             {testingAi ? 'Testing...' : 'Test Connection'}
           </button>

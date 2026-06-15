@@ -52,9 +52,9 @@ export function AppShell({ children }: AppShellProps): React.JSX.Element {
   }
 
   return (
-    <div className="flex h-screen min-h-screen flex-col bg-surface">
+    <div className="focus-app-bg flex h-screen min-h-screen flex-col">
       <TopStatusBar />
-      <div className="flex min-h-0 flex-1">
+      <div className="relative z-10 flex min-h-0 flex-1">
         <SidebarNav />
         <main className="min-w-0 flex-1 overflow-y-auto p-shell">{children}</main>
       </div>

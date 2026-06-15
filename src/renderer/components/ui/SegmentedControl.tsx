@@ -22,7 +22,7 @@ export function SegmentedControl<T extends string>({
     <div
       role="group"
       aria-label={ariaLabel}
-      className="flex w-full gap-1 rounded-button border border-surface-border bg-surface p-1"
+      className="flex w-full gap-1 focus-subpanel p-1 backdrop-blur-sm"
     >
       {options.map((option) => {
         const isActive = option.value === value
@@ -38,10 +38,10 @@ export function SegmentedControl<T extends string>({
                 onChange(option.value)
               }
             }}
-            className={`flex-1 rounded-button px-3 py-2.5 text-sm font-semibold transition-all duration-150 disabled:opacity-50 ${
+            className={`flex-1 rounded-button px-3 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-50 ${
               isActive
-                ? 'bg-accent-mint text-surface shadow-md ring-2 ring-accent-mint/80 ring-offset-2 ring-offset-surface'
-                : 'bg-surface-elevated text-text-secondary hover:bg-surface-card hover:text-text-primary'
+                ? 'bg-accent-mint/20 text-accent-mint shadow-glow-sm ring-1 ring-accent-mint/40'
+                : 'text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
             }`}
           >
             {option.label}

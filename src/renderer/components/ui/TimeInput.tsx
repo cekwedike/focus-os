@@ -23,8 +23,7 @@ function TwelveHourTimeInput({
     onChange(from12HourParts(nextHour12, nextMinutes, nextPeriod))
   }
 
-  const selectClassName =
-    'rounded-button border border-surface-border bg-surface-elevated px-2 py-2 text-sm text-text-primary outline-none focus:border-accent-mint/60 disabled:opacity-50'
+  const selectClassName = 'focus-input !w-auto'
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -82,7 +81,7 @@ export function TimeInput({ value, onChange, disabled = false }: TimeInputProps)
       value={safeValue}
       disabled={disabled}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-mint/60 disabled:opacity-50"
+      className="focus-input"
     />
   )
 }

@@ -48,7 +48,7 @@ export function DailyWorkspaceScreen(): React.JSX.Element {
       {loading && <p className="text-sm text-text-muted">Loading day settings...</p>}
       {error && <p className="text-sm text-red-400">{error}</p>}
 
-      <section className="rounded-button border border-surface-border bg-surface-card p-4 space-y-3">
+      <section className="focus-panel p-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">Day Parameters</h3>
         <div className="grid gap-3 sm:grid-cols-2">
           <FormField label="Wake Time">
@@ -67,7 +67,7 @@ export function DailyWorkspaceScreen(): React.JSX.Element {
       </section>
 
       {fixedClients.length > 0 && (
-        <section className="rounded-button border border-surface-border bg-surface-card p-4 space-y-3">
+        <section className="focus-panel p-4 space-y-3">
           <h3 className="text-sm font-semibold text-text-primary">Today&apos;s Fixed Blocks</h3>
           {fixedClients.map((client) => {
             const override = fixedOverrides.find((entry) => entry.clientId === client.id)
@@ -101,7 +101,7 @@ export function DailyWorkspaceScreen(): React.JSX.Element {
           type="button"
           disabled={generating}
           onClick={() => void autoAssign()}
-          className="rounded-button bg-accent-mint/20 px-4 py-2 text-sm font-medium text-accent-mint disabled:opacity-50"
+          className="focus-btn-primary disabled:opacity-50"
         >
           {generating ? 'Generating...' : 'Auto-Assign'}
         </button>

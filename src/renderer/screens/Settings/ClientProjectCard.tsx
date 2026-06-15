@@ -20,7 +20,7 @@ export function ClientProjectCard({
       : 'Flexible timing'
 
   return (
-    <article className="rounded-button border border-surface-border bg-surface-elevated p-4">
+    <article className="focus-panel p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <span
@@ -45,7 +45,7 @@ export function ClientProjectCard({
         <button
           type="button"
           onClick={() => onEdit(client)}
-          className="rounded-button border border-surface-border px-3 py-1.5 text-xs text-text-secondary hover:bg-surface-card"
+          className="focus-btn-ghost !px-3 !py-1.5 !text-xs hover:bg-surface-card"
         >
           Edit
         </button>

@@ -14,7 +14,7 @@ function NotificationBellIcon(): React.JSX.Element {
       fill="none"
       stroke="currentColor"
       strokeWidth="1.75"
-      className="h-5 w-5"
+      className="h-4 w-4"
       aria-hidden="true"
     >
       <path
@@ -47,67 +47,67 @@ export function TopStatusBar(): React.JSX.Element {
       : `${dayBundle.focusScore}%`
 
   const faithStreakLabel =
-    faithStats === null ? '--' : `${faithStats.currentStreak} days`
+    faithStats === null ? '--' : `${faithStats.currentStreak}d`
+
+  const isLive = Boolean(activeBlock) || longBreakActive
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b border-surface-border bg-surface-card px-shell">
-      <div className="flex items-center gap-6">
-        <time
-          className="font-mono text-sm font-medium tabular-nums text-text-primary"
-          dateTime={new Date().toISOString()}
-        >
-          {currentTime}
-        </time>
+    <header className="focus-status-rail relative z-20">
+      <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3">
+          {isLive ? <span className="focus-live-dot" aria-hidden="true" /> : <span className="focus-live-dot-idle" aria-hidden="true" />}
+          <time
+            className="font-mono text-base font-medium tabular-nums tracking-wide text-text-primary"
+            dateTime={new Date().toISOString()}
+          >
+            {currentTime}
+          </time>
+        </div>
         <div className="hidden h-5 w-px bg-surface-border sm:block" aria-hidden="true" />
-        <p className="hidden text-sm text-text-secondary sm:block">
-          Active block:{' '}
-          <span className="text-text-primary">
+        <div className="hidden min-w-0 sm:block">
+          <p className="focus-metric-label">Current block</p>
+          <p className="truncate text-sm font-medium text-text-primary">
             {longBreakActive
-              ? 'On long break'
-              : activeBlock?.title ?? 'Not scheduled yet'}
-          </span>
-        </p>
+              ? 'Long break in progress'
+              : activeBlock?.title ?? 'Awaiting schedule'}
+          </p>
+        </div>
         {longBreakActive && longBreakStartedAt && (
           <ActiveBlockTimer startedAt={longBreakStartedAt} />
         )}
+        {activeBlock?.status === 'active' && activeBlock.actual_start && !longBreakActive && (
+          <ActiveBlockTimer startedAt={activeBlock.actual_start} />
+        )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <span className="focus-badge focus-badge-mint" title="Faith streak">
-          Faith Streak: {faithStreakLabel}
+          Streak {faithStreakLabel}
+        </span>
+        <span className="focus-badge focus-badge-slate" title="Focus score">
+          Focus {focusLabel}
         </span>
         {isFaithBlockActive && (
-          <button
-            type="button"
-            onClick={openFaithEntry}
-            className="rounded-button border border-accent-mint/40 bg-accent-mint/10 px-3 py-1.5 text-sm font-medium text-accent-mint"
-          >
-            Log Faith Time
+          <button type="button" onClick={openFaithEntry} className="focus-btn-primary hidden sm:inline-flex">
+            Log Faith
           </button>
         )}
-        <span className="focus-badge focus-badge-slate" title="Focus score">
-          Focus: {focusLabel}
-        </span>
         {longBreakActive ? (
           <button
             type="button"
             onClick={() => void endLongBreak().then(() => refresh())}
-            className="rounded-button border border-amber-400/40 bg-amber-400/10 px-3 py-1.5 text-sm font-medium text-amber-200"
+            className="focus-btn-danger"
           >
             End Break
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={openLongBreakModal}
-            className="rounded-button border border-accent-mint/40 bg-accent-mint/10 px-3 py-1.5 text-sm font-medium text-accent-mint transition-colors hover:bg-accent-mint/20"
-          >
-            Take A Long Break
+          <button type="button" onClick={openLongBreakModal} className="focus-btn-primary">
+            Long Break
           </button>
         )}
         <button
           type="button"
-          className="rounded-button border border-surface-border bg-surface-elevated p-2 text-text-secondary transition-colors hover:text-text-primary"
+          className="focus-btn-ghost !px-2.5 !py-2"
           aria-label="Notifications"
         >
           <NotificationBellIcon />

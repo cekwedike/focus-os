@@ -22,14 +22,14 @@ export function UntilBreakCountdown(): React.JSX.Element {
   }, [dayBundle])
 
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-4">
-      <h3 className="text-sm font-semibold text-text-primary">Until Next Break</h3>
+    <section className="focus-panel h-full">
+      <p className="focus-metric-label">Next break</p>
       {nextMicroBreak ? (
-        <p className="mt-2 text-sm text-text-primary">
-          Scheduled micro-break at {formatHHMM(nextMicroBreak.planned_start.slice(11, 16))}
+        <p className="mt-3 font-mono text-lg text-accent-cyan">
+          {formatHHMM(nextMicroBreak.planned_start.slice(11, 16))}
         </p>
       ) : (
-        <p className="mt-2 text-sm text-text-muted">No scheduled micro-break slot today.</p>
+        <p className="mt-3 text-sm text-text-muted">No micro-break slot scheduled.</p>
       )}
     </section>
   )

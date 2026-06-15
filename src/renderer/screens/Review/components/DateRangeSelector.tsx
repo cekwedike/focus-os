@@ -26,7 +26,7 @@ export function DateRangeSelector({
   onCustomRangeChange,
 }: DateRangeSelectorProps): React.JSX.Element {
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-5">
+    <section className="focus-panel p-5">
       <h3 className="text-sm font-semibold text-text-primary">Date Range</h3>
       <div className="mt-3">
         <SegmentedControl

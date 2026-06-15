@@ -12,8 +12,8 @@ export function SettingsSectionCard({
   children,
 }: SettingsSectionCardProps): React.JSX.Element {
   return (
-    <section className="focus-card">
-      <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
+    <section className="focus-panel">
+      <h3 className="font-display text-lg font-semibold text-text-primary">{title}</h3>
       <p className="mt-1 text-sm text-text-secondary">{description}</p>
       <div className="mt-4 space-y-4">{children}</div>
     </section>

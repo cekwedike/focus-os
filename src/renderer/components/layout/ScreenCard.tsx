@@ -8,19 +8,11 @@ interface ScreenCardProps {
 
 export function ScreenCard({ title, description, children }: ScreenCardProps): React.JSX.Element {
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="focus-card">
-        <h2 className="text-2xl font-semibold text-text-primary">{title}</h2>
-        <p className="mt-3 text-base leading-relaxed text-text-secondary">{description}</p>
-        {children}
-      </div>
-      {!children && (
-        <div className="focus-card-dashed mt-4">
-          <p className="text-sm text-text-muted">
-            Screen content will be built in a later roadmap phase. Navigation and shell are live.
-          </p>
-        </div>
-      )}
-    </div>
+    <header className="focus-page-header">
+      <span className="focus-kicker">Active module</span>
+      <h1 className="focus-page-title">{title}</h1>
+      <p className="focus-page-desc">{description}</p>
+      {children}
+    </header>
   )
 }

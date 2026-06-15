@@ -26,7 +26,7 @@ export function QuickAddBar({ onSubmit }: QuickAddBarProps): React.JSX.Element {
   }
 
   return (
-    <div className="rounded-button border border-surface-border bg-surface-card p-4">
+    <div className="focus-panel p-4">
       <label className="mb-2 block text-sm font-medium text-text-primary">Quick Add</label>
       <p className="mb-3 text-xs text-text-muted">
         Try: &quot;Write proposal for Acme 2h by Friday&quot; or &quot;Review emails 30 min tomorrow&quot;
@@ -41,13 +41,13 @@ export function QuickAddBar({ onSubmit }: QuickAddBarProps): React.JSX.Element {
             }
           }}
           placeholder="Describe a task in plain language..."
-          className="flex-1 rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-mint/60"
+          className="focus-input flex-1"
         />
         <button
           type="button"
           disabled={saving}
           onClick={() => void handleSubmit()}
-          className="rounded-button bg-accent-mint/20 px-4 py-2 text-sm font-medium text-accent-mint disabled:opacity-50"
+          className="focus-btn-primary disabled:opacity-50"
         >
           {saving ? 'Adding...' : 'Add Task'}
         </button>

@@ -25,7 +25,7 @@ export function ActiveBlockTimer({
   const seconds = elapsed % 60
 
   return (
-    <span className="font-mono text-sm tabular-nums text-accent-mint">
+    <span className="focus-timer">
       {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
     </span>
   )

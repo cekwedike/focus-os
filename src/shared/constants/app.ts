@@ -1,4 +1,4 @@
-export const APP_BACKGROUND_COLOR = '#0A0E14'
+export const APP_BACKGROUND_COLOR = '#050810'
 
 export const MIN_WINDOW_WIDTH = 1280
 export const MIN_WINDOW_HEIGHT = 800

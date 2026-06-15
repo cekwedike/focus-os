@@ -23,7 +23,7 @@ export function TextInput({
       disabled={disabled}
       onChange={(event) => onChange(event.target.value)}
       onBlur={onBlur}
-      className="w-full rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-mint/60 disabled:opacity-50"
+      className="focus-input disabled:opacity-50"
     />
   )
 }

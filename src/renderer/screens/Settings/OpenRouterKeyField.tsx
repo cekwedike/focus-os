@@ -45,7 +45,7 @@ export function OpenRouterKeyField({
   }
 
   return (
-    <div className="space-y-2 rounded-button border border-surface-border bg-surface-card/40 p-4">
+    <div className="space-y-2 focus-panel/40 p-4">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium text-text-primary">Cloud AI API Key</span>
         <span className={`focus-badge ${configured ? 'focus-badge-mint' : ''}`}>
@@ -70,7 +70,7 @@ export function OpenRouterKeyField({
           type="button"
           disabled={saving}
           onClick={() => void handleSave()}
-          className="rounded-button bg-accent-mint/20 px-3 py-2 text-sm font-medium text-accent-mint disabled:opacity-50"
+          className="focus-btn-primary disabled:opacity-50"
         >
           Save Key
         </button>
@@ -79,7 +79,7 @@ export function OpenRouterKeyField({
             type="button"
             disabled={saving}
             onClick={() => void handleClear()}
-            className="rounded-button border border-surface-border px-3 py-2 text-sm text-text-secondary disabled:opacity-50"
+            className="focus-btn-ghost disabled:opacity-50"
           >
             Remove Key
           </button>

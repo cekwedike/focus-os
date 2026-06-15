@@ -36,6 +36,9 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/syne": "^5.2.7",
     "better-sqlite3": "^11.10.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

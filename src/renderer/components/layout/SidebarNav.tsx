@@ -1,14 +1,23 @@
 import { NavLink } from 'react-router-dom'
 import { screenDefinitions } from '@renderer/routes'
+import { NavIcon } from './NavIcons'
 
 export function SidebarNav(): React.JSX.Element {
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-surface-border bg-surface-card">
+    <aside className="relative z-10 flex w-[220px] shrink-0 flex-col border-r border-surface-border bg-surface-card/60 backdrop-blur-xl">
       <div className="border-b border-surface-border px-shell py-5">
-        <p className="text-xs font-semibold uppercase tracking-widest text-text-muted">Focus OS</p>
-        <h1 className="mt-1 text-lg font-semibold text-text-primary">Executive Assistant</h1>
+        <div className="flex items-center gap-2">
+          <span className="focus-live-dot" aria-hidden="true" />
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-accent-mint">
+            System Online
+          </p>
+        </div>
+        <h1 className="mt-2 font-display text-xl font-bold tracking-tight text-text-primary">
+          Focus OS
+        </h1>
+        <p className="mt-0.5 text-xs text-text-muted">Automated day orchestration</p>
       </div>
-      <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Main navigation">
+      <nav className="flex flex-1 flex-col gap-0.5 p-3" aria-label="Main navigation">
         {screenDefinitions.map((screen) => (
           <NavLink
             key={screen.path}
@@ -18,14 +27,14 @@ export function SidebarNav(): React.JSX.Element {
               `focus-nav-item ${isActive ? 'focus-nav-item-active' : ''}`
             }
           >
-            <span
-              className="h-2 w-2 shrink-0 rounded-full bg-current opacity-60"
-              aria-hidden="true"
-            />
+            <NavIcon path={screen.path} />
             {screen.label}
           </NavLink>
         ))}
       </nav>
+      <div className="border-t border-surface-border p-4">
+        <p className="font-mono text-[10px] text-text-muted">v0.1.0 · Local engine</p>
+      </div>
     </aside>
   )
 }

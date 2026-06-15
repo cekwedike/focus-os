@@ -42,14 +42,20 @@ export function StalenessAlertList(): React.JSX.Element {
   }, [])
 
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-4">
-      <h3 className="text-sm font-semibold text-text-primary">Staleness Alerts</h3>
+    <section className="focus-panel h-full">
+      <p className="focus-metric-label">Staleness radar</p>
       {staleClients.length === 0 ? (
-        <p className="mt-2 text-sm text-text-muted">All active clients recently touched.</p>
+        <p className="mt-3 text-sm text-text-muted">All clients recently active.</p>
       ) : (
-        <ul className="mt-2 space-y-1 text-sm text-amber-200">
+        <ul className="mt-3 space-y-2">
           {staleClients.map((client) => (
-            <li key={client.id}>{client.name} has gone quiet</li>
+            <li
+              key={client.id}
+              className="flex items-center gap-2 rounded-button border border-accent-amber/20 bg-accent-amber/5 px-3 py-2 text-sm text-accent-amber"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-accent-amber" aria-hidden="true" />
+              {client.name}
+            </li>
           ))}
         </ul>
       )}

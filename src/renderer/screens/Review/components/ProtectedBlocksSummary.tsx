@@ -8,7 +8,7 @@ export function ProtectedBlocksSummary({
   summaries,
 }: ProtectedBlocksSummaryProps): React.JSX.Element {
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-5">
+    <section className="focus-panel p-5">
       <h3 className="text-sm font-semibold text-text-primary">Protected Blocks</h3>
       {summaries.length === 0 ? (
         <p className="mt-4 text-sm text-text-muted">No protected blocks in this range.</p>
@@ -17,7 +17,7 @@ export function ProtectedBlocksSummary({
           {summaries.map((summary) => (
             <li
               key={summary.protectedSubtype}
-              className="rounded-button border border-surface-border bg-surface-elevated px-4 py-3 text-sm text-text-secondary"
+              className="focus-subpanel px-4 py-3 text-sm text-text-secondary"
             >
               {summary.label} block completed {summary.daysCompleted}/{summary.daysWithBlock} days
               in range

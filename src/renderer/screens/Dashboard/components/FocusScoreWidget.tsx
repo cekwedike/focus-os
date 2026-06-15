@@ -5,12 +5,18 @@ export function FocusScoreWidget(): React.JSX.Element {
   const score = dayBundle?.focusScore
 
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-4">
-      <h3 className="text-sm font-semibold text-text-primary">Focus Score</h3>
-      <p className="mt-2 text-3xl font-semibold text-accent-mint">
+    <section className="focus-panel h-full">
+      <p className="focus-metric-label">Focus score</p>
+      <p className="focus-metric-value mt-2">
         {score === null || score === undefined ? '--' : `${score}%`}
       </p>
-      <p className="mt-1 text-xs text-text-muted">Completed work blocks vs planned for today</p>
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface-elevated">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-accent-mint to-accent-cyan transition-all duration-500"
+          style={{ width: `${score ?? 0}%` }}
+        />
+      </div>
+      <p className="mt-2 text-xs text-text-muted">Completed work blocks today</p>
     </section>
   )
 }

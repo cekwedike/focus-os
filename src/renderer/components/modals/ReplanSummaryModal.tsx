@@ -8,9 +8,9 @@ export function ReplanSummaryModal(): React.JSX.Element | null {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-lg rounded-button border border-surface-border bg-surface-card p-5">
-        <h3 className="text-lg font-semibold text-text-primary">Day Re-Planned</h3>
+    <div className="focus-modal-backdrop">
+      <div className="focus-modal max-w-lg">
+        <h3 className="font-display text-lg font-semibold text-text-primary">Day Re-Planned</h3>
         <p className="mt-2 text-sm text-text-muted">{replanSummary.message}</p>
         <div className="mt-4 space-y-2 text-sm text-text-secondary">
           <p>Time lost: {replanSummary.longBreakDurationMinutes} minutes</p>
@@ -34,7 +34,7 @@ export function ReplanSummaryModal(): React.JSX.Element | null {
         <button
           type="button"
           onClick={clearReplanSummary}
-          className="mt-5 rounded-button bg-accent-mint/20 px-4 py-2 text-sm font-medium text-accent-mint"
+          className="mt-5 focus-btn-primary"
         >
           Got It
         </button>

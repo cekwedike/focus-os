@@ -11,10 +11,10 @@ const screen = getScreenDefinition('/')
 
 export function DashboardScreen(): React.JSX.Element {
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-6xl animate-fade-up space-y-6">
       <ScreenCard title={screen.title} description={screen.description} />
-      <div className="grid gap-4 md:grid-cols-2">
-        <RightNowCard />
+      <RightNowCard />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <UpNextCard />
         <FocusScoreWidget />
         <FaithStreakWidget />

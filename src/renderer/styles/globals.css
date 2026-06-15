@@ -3,68 +3,231 @@
 @tailwind utilities;
 
 :root {
-  --color-surface: #0a0e14;
-  --color-surface-card: #131820;
-  --color-surface-elevated: #1a2030;
-  --color-surface-border: #2a3344;
-  --color-accent-mint: #2dd4a0;
+  --color-surface: #050810;
+  --color-surface-card: rgba(12, 18, 32, 0.72);
+  --color-surface-elevated: rgba(20, 28, 48, 0.85);
+  --color-surface-border: rgba(120, 160, 220, 0.12);
+  --color-accent-mint: #00e5a8;
+  --color-accent-cyan: #22d3ee;
+  --color-accent-violet: #a78bfa;
   --color-accent-slate: #6c8ef5;
-  --color-text-primary: #f0f4f8;
-  --color-text-secondary: #8b9bb4;
-  --color-text-muted: #5c6b82;
-  --radius-card: 12px;
-  --radius-button: 8px;
-  --radius-badge: 6px;
+  --color-text-primary: #f4f7fb;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+  --radius-card: 16px;
+  --radius-button: 10px;
+  --radius-badge: 9999px;
 }
 
 @layer base {
   html,
   body,
   #root {
-    @apply h-full min-h-screen bg-surface text-text-primary font-sans antialiased;
+    @apply h-full min-h-screen bg-surface font-sans text-text-primary antialiased;
   }
 
   * {
     @apply border-surface-border;
   }
+
+  ::selection {
+    @apply bg-accent-mint/30 text-text-primary;
+  }
 }
 
 @layer components {
-  .focus-card {
-    @apply rounded-card border border-surface-border bg-surface-card p-card;
+  .focus-app-bg {
+    @apply relative min-h-full bg-surface bg-mesh-gradient;
+  }
+
+  .focus-app-bg::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 bg-grid-pattern bg-grid opacity-60;
+  }
+
+  .focus-app-bg::after {
+    content: '';
+    @apply pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-surface;
+  }
+
+  .focus-card,
+  .focus-panel {
+    @apply relative overflow-hidden rounded-panel border border-surface-border bg-surface-card p-card shadow-panel backdrop-blur-xl;
+  }
+
+  .focus-card::before,
+  .focus-panel::before {
+    content: '';
+    @apply pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent;
+  }
+
+  .focus-panel-active {
+    @apply border-accent-mint/30 shadow-panel-active;
+  }
+
+  .focus-panel-active::after {
+    content: '';
+    @apply pointer-events-none absolute -inset-px rounded-panel opacity-40;
+    background: linear-gradient(135deg, rgba(0, 229, 168, 0.15), transparent 40%);
   }
 
   .focus-card-dashed {
-    @apply rounded-card border border-dashed border-surface-border bg-surface-card/50 p-card;
+    @apply rounded-panel border border-dashed border-surface-border bg-surface-card/40 p-card backdrop-blur-sm;
+  }
+
+  .focus-page-header {
+    @apply animate-fade-up mb-8;
+  }
+
+  .focus-kicker {
+    @apply font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-accent-mint;
+  }
+
+  .focus-page-title {
+    @apply mt-2 font-display text-3xl font-bold tracking-tight text-text-primary;
+  }
+
+  .focus-page-desc {
+    @apply mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary;
   }
 
   .focus-nav-item {
-    @apply flex w-full items-center gap-3 rounded-button px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors;
+    @apply relative flex w-full items-center gap-3 rounded-button px-3 py-2.5 text-sm font-medium text-text-secondary transition-all duration-200;
   }
 
   .focus-nav-item-active {
-    @apply bg-surface-elevated text-accent-mint;
+    @apply bg-accent-mint/10 text-accent-mint shadow-glow-sm;
+  }
+
+  .focus-nav-item-active::before {
+    content: '';
+    @apply absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-accent-mint shadow-glow-sm;
   }
 
   .focus-nav-item:hover:not(.focus-nav-item-active) {
-    @apply bg-surface-elevated/60 text-text-primary;
+    @apply bg-surface-elevated/80 text-text-primary;
+  }
+
+  .focus-status-rail {
+    @apply relative flex h-[52px] shrink-0 items-center justify-between border-b border-surface-border bg-surface-card/80 px-shell backdrop-blur-xl;
+  }
+
+  .focus-status-rail::after {
+    content: '';
+    @apply pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-mint/20 to-transparent;
   }
 
   .focus-badge {
-    @apply inline-flex items-center rounded-badge border border-surface-border bg-surface-elevated px-2 py-0.5 text-xs font-medium text-text-secondary;
+    @apply inline-flex items-center gap-1.5 rounded-badge border border-surface-border bg-surface-elevated/80 px-2.5 py-1 text-xs font-medium text-text-secondary backdrop-blur-sm;
   }
 
   .focus-badge-mint {
-    @apply border-accent-mint/30 bg-accent-mint/10 text-accent-mint;
+    @apply border-accent-mint/25 bg-accent-mint/10 text-accent-mint;
   }
 
   .focus-badge-slate {
-    @apply border-accent-slate/30 bg-accent-slate/10 text-accent-slate;
+    @apply border-accent-slate/25 bg-accent-slate/10 text-accent-slate;
+  }
+
+  .focus-badge-violet {
+    @apply border-accent-violet/25 bg-accent-violet/10 text-accent-violet;
+  }
+
+  .focus-live-dot {
+    @apply h-2 w-2 shrink-0 rounded-full bg-accent-mint shadow-glow-sm;
+    animation: pulse-live 2s ease-in-out infinite;
+  }
+
+  .focus-live-dot-idle {
+    @apply h-2 w-2 shrink-0 rounded-full bg-text-muted/50;
+  }
+
+  .focus-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-button px-4 py-2 text-sm font-semibold transition-all duration-200 disabled:opacity-50;
+  }
+
+  .focus-btn-primary {
+    @apply focus-btn border border-accent-mint/40 bg-accent-mint/15 text-accent-mint hover:bg-accent-mint/25 hover:shadow-glow-sm;
+  }
+
+  .focus-btn-ghost {
+    @apply focus-btn border border-surface-border bg-surface-elevated/60 text-text-secondary hover:border-surface-border hover:bg-surface-elevated hover:text-text-primary;
+  }
+
+  .focus-btn-danger {
+    @apply focus-btn border border-accent-amber/40 bg-accent-amber/10 text-accent-amber hover:bg-accent-amber/20;
+  }
+
+  .focus-input {
+    @apply w-full rounded-button border border-surface-border bg-surface-elevated/80 px-3 py-2.5 text-sm text-text-primary outline-none backdrop-blur-sm transition-colors placeholder:text-text-muted focus:border-accent-mint/50 focus:shadow-glow-sm disabled:opacity-50;
+  }
+
+  .focus-metric-value {
+    @apply font-display text-4xl font-bold tracking-tight text-accent-mint;
+  }
+
+  .focus-metric-label {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-text-muted;
+  }
+
+  .focus-section-title {
+    @apply text-xs font-semibold uppercase tracking-wider text-text-muted;
+  }
+
+  .focus-timer {
+    @apply font-mono text-lg font-medium tabular-nums tracking-wide text-accent-mint;
+    text-shadow: 0 0 20px rgba(0, 229, 168, 0.35);
+  }
+
+  .focus-hero-panel {
+    @apply focus-panel focus-panel-active col-span-full p-6 md:p-8;
+  }
+
+  .focus-subpanel {
+    @apply rounded-button border border-surface-border/80 bg-surface-elevated/50 backdrop-blur-sm transition-colors hover:border-accent-mint/20;
+  }
+
+  .focus-modal-backdrop {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm;
+  }
+
+  .focus-modal {
+    @apply focus-panel w-full max-w-md p-5 shadow-panel-active;
+  }
+
+  .prose-invert.prose-sm {
+    @apply text-text-secondary;
+  }
+
+  .prose-invert.prose-sm h1,
+  .prose-invert.prose-sm h2,
+  .prose-invert.prose-sm h3 {
+    @apply font-display font-semibold text-text-primary;
+  }
+
+  .prose-invert.prose-sm strong {
+    @apply font-semibold text-text-primary;
+  }
+
+  .prose-invert.prose-sm a {
+    @apply text-accent-mint underline decoration-accent-mint/30 underline-offset-2;
+  }
+
+  .prose-invert.prose-sm li::marker {
+    @apply text-accent-mint;
+  }
+
+  .prose-invert.prose-sm code {
+    @apply rounded bg-surface-elevated px-1.5 py-0.5 font-mono text-xs text-accent-cyan;
   }
 }
 
 @layer utilities {
   .border-dashed-action {
     @apply border-dashed border-surface-border;
+  }
+
+  .text-gradient-mint {
+    @apply bg-gradient-to-r from-accent-mint to-accent-cyan bg-clip-text text-transparent;
   }
 }

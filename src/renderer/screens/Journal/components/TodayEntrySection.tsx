@@ -39,7 +39,7 @@ export function TodayEntrySection({
 
   if (!editing && entry) {
     return (
-      <section className="rounded-button border border-surface-border bg-surface-card p-5">
+      <section className="focus-panel p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="text-sm font-semibold text-text-primary">Today ({today})</h3>
@@ -54,7 +54,7 @@ export function TodayEntrySection({
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="rounded-button border border-surface-border px-3 py-1.5 text-xs text-text-secondary"
+            className="focus-btn-ghost !px-3 !py-1.5 !text-xs"
           >
             Edit
           </button>
@@ -64,7 +64,7 @@ export function TodayEntrySection({
   }
 
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-5">
+    <section className="focus-panel p-5">
       <h3 className="text-sm font-semibold text-text-primary">Today ({today})</h3>
       <div className="mt-4 space-y-3">
         <FormField label="Bible Reading Reference" hint="Required to count toward your streak">
@@ -80,7 +80,7 @@ export function TodayEntrySection({
             onChange={(event) => setPrayerNotes(event.target.value)}
             rows={5}
             placeholder="Optional reflections or prayer notes"
-            className="w-full rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-mint/60"
+            className="focus-input"
           />
         </FormField>
       </div>
@@ -93,7 +93,7 @@ export function TodayEntrySection({
               setBibleReference(entry.bible_reference ?? '')
               setPrayerNotes(entry.prayer_notes ?? '')
             }}
-            className="rounded-button border border-surface-border px-3 py-2 text-sm text-text-secondary"
+            className="focus-btn-ghost"
           >
             Cancel
           </button>
@@ -102,7 +102,7 @@ export function TodayEntrySection({
           type="button"
           disabled={saving || !bibleReference.trim()}
           onClick={() => void handleSave()}
-          className="rounded-button bg-accent-mint/20 px-3 py-2 text-sm font-medium text-accent-mint disabled:opacity-50"
+          className="focus-btn-primary disabled:opacity-50"
         >
           Save Entry
         </button>

@@ -145,7 +145,7 @@ export function ClientProjectForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-button border border-surface-border px-3 py-2 text-sm text-text-secondary"
+          className="focus-btn-ghost"
         >
           Cancel
         </button>
@@ -153,7 +153,7 @@ export function ClientProjectForm({
           type="button"
           disabled={saving}
           onClick={() => void handleSubmit()}
-          className="rounded-button bg-accent-mint/20 px-3 py-2 text-sm font-medium text-accent-mint disabled:opacity-50"
+          className="focus-btn-primary disabled:opacity-50"
         >
           {saving ? 'Saving...' : initial ? 'Save Changes' : 'Add Client'}
         </button>

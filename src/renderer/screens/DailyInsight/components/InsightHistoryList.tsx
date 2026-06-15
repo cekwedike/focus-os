@@ -8,7 +8,7 @@ export function InsightHistoryList({ entries }: InsightHistoryListProps): React.
   const historyEntries = entries.slice(1)
 
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-5">
+    <section className="focus-panel p-5">
       <h3 className="text-sm font-semibold text-text-primary">History</h3>
       {historyEntries.length === 0 ? (
         <p className="mt-4 text-sm text-text-muted">No previous insights yet.</p>
@@ -17,7 +17,7 @@ export function InsightHistoryList({ entries }: InsightHistoryListProps): React.
           {historyEntries.map((entry) => (
             <li
               key={entry.id}
-              className="rounded-button border border-surface-border bg-surface-elevated p-4"
+              className="focus-panel p-4"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs text-text-muted">{entry.insight_date}</p>

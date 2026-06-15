@@ -8,9 +8,12 @@ export function RightNowCard(): React.JSX.Element {
 
   if (!activeBlock) {
     return (
-      <section className="rounded-button border border-surface-border bg-surface-card p-4">
-        <h3 className="text-sm font-semibold text-text-primary">Right Now</h3>
-        <p className="mt-2 text-sm text-text-muted">No active block. Start one from Schedule.</p>
+      <section className="focus-hero-panel">
+        <p className="focus-metric-label">Live execution</p>
+        <h2 className="mt-2 font-display text-2xl font-bold text-text-primary">Standby</h2>
+        <p className="mt-2 max-w-md text-sm text-text-secondary">
+          No block is running. Start your next block from Schedule to activate live tracking.
+        </p>
       </section>
     )
   }
@@ -21,29 +24,33 @@ export function RightNowCard(): React.JSX.Element {
   }
 
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-4">
-      <h3 className="text-sm font-semibold text-text-primary">Right Now</h3>
-      <p className="mt-2 text-base font-medium text-text-primary">{activeBlock.title}</p>
-      {activeBlock.actual_start && (
-        <div className="mt-2">
-          <ActiveBlockTimer startedAt={activeBlock.actual_start} paused={paused} />
+    <section className="focus-hero-panel">
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="focus-live-dot" aria-hidden="true" />
+            <p className="focus-metric-label">Live execution</p>
+          </div>
+          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-text-primary md:text-4xl">
+            {activeBlock.title}
+          </h2>
+          <p className="mt-2 text-sm capitalize text-text-muted">
+            {activeBlock.block_type.replace(/_/g, ' ')} · {activeBlock.status}
+          </p>
+          {activeBlock.actual_start && (
+            <div className="mt-4">
+              <ActiveBlockTimer startedAt={activeBlock.actual_start} paused={paused} />
+            </div>
+          )}
         </div>
-      )}
-      <div className="mt-3 flex gap-2">
-        <button
-          type="button"
-          onClick={() => setPaused((value) => !value)}
-          className="rounded-button border border-surface-border px-3 py-1.5 text-xs text-text-secondary"
-        >
-          {paused ? 'Resume' : 'Pause'}
-        </button>
-        <button
-          type="button"
-          onClick={() => void complete()}
-          className="rounded-button bg-accent-mint/20 px-3 py-1.5 text-xs font-medium text-accent-mint"
-        >
-          Complete
-        </button>
+        <div className="flex gap-2">
+          <button type="button" onClick={() => setPaused((value) => !value)} className="focus-btn-ghost">
+            {paused ? 'Resume' : 'Pause'}
+          </button>
+          <button type="button" onClick={() => void complete()} className="focus-btn-primary">
+            Complete Block
+          </button>
+        </div>
       </div>
     </section>
   )

@@ -8,7 +8,7 @@ export function WeightTotalBanner({ total }: WeightTotalBannerProps): React.JSX.
 
   if (!hasClients) {
     return (
-      <div className="rounded-button border border-surface-border bg-surface-elevated/50 px-3 py-2 text-sm text-text-secondary">
+      <div className="focus-subpanel px-3 py-2 text-sm text-text-secondary">
         When you add clients, give each a percentage of your flexible work time. Aim for 100%
         total so your day splits fairly.
       </div>

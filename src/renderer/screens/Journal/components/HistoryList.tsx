@@ -13,7 +13,7 @@ export function HistoryList({
   onSearchChange,
 }: HistoryListProps): React.JSX.Element {
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-5">
+    <section className="focus-panel p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-sm font-semibold text-text-primary">History</h3>
         <div className="w-full sm:max-w-xs">
@@ -31,7 +31,7 @@ export function HistoryList({
           {entries.map((entry) => (
             <li
               key={entry.id}
-              className="rounded-button border border-surface-border bg-surface-elevated p-4"
+              className="focus-panel p-4"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>

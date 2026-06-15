@@ -57,9 +57,9 @@ export function TaskEditDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-button border border-surface-border bg-surface-card p-5">
-        <h3 className="text-lg font-semibold text-text-primary">Edit Task</h3>
+    <div className="focus-modal-backdrop">
+      <div className="focus-modal">
+        <h3 className="font-display text-lg font-semibold text-text-primary">Edit Task</h3>
         <div className="mt-4 space-y-3">
           <FormField label="Title">
             <TextInput value={title} onChange={setTitle} />
@@ -68,7 +68,7 @@ export function TaskEditDialog({
             <select
               value={clientId}
               onChange={(event) => setClientId(Number(event.target.value))}
-              className="w-full rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm"
+              className="focus-input"
             >
               {clients.map((client) => (
                 <option key={client.id} value={client.id}>
@@ -91,7 +91,7 @@ export function TaskEditDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-button border border-surface-border px-3 py-2 text-sm text-text-secondary"
+            className="focus-btn-ghost"
           >
             Cancel
           </button>
@@ -99,7 +99,7 @@ export function TaskEditDialog({
             type="button"
             disabled={saving}
             onClick={() => void handleSave()}
-            className="rounded-button bg-accent-mint/20 px-3 py-2 text-sm font-medium text-accent-mint"
+            className="focus-btn-primary"
           >
             Save Changes
           </button>

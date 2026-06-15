@@ -10,7 +10,7 @@ export function JournalStatsPanel({
   totalWordCount,
 }: JournalStatsPanelProps): React.JSX.Element {
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-5">
+    <section className="focus-panel p-5">
       <h3 className="text-sm font-semibold text-text-primary">Stats</h3>
       <dl className="mt-4 grid gap-3 sm:grid-cols-3">
         <div>

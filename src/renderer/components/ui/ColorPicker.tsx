@@ -29,7 +29,7 @@ export function ColorPicker({ value, onChange }: ColorPickerProps): React.JSX.El
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder="#2DD4A0"
-        className="w-full rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-mint/60"
+        className="focus-input"
       />
     </div>
   )

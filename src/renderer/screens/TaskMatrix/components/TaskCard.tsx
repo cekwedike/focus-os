@@ -19,7 +19,7 @@ export function TaskCard({ task, onComplete, onEdit, onDelete }: TaskCardProps):
   const clientLabel = isSystemUnassignedClient(task.client_name) ? 'Unassigned' : task.client_name
 
   return (
-    <article className="rounded-button border border-surface-border bg-surface-elevated p-4">
+    <article className="focus-panel p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h3 className="font-medium text-text-primary">{task.title}</h3>
@@ -44,7 +44,7 @@ export function TaskCard({ task, onComplete, onEdit, onDelete }: TaskCardProps):
           <button
             type="button"
             onClick={() => onComplete(task.id)}
-            className="rounded-button bg-accent-mint/20 px-3 py-1.5 text-xs font-medium text-accent-mint"
+            className="focus-btn-primary !px-3 !py-1.5 !text-xs"
           >
             Mark Complete
           </button>
@@ -52,7 +52,7 @@ export function TaskCard({ task, onComplete, onEdit, onDelete }: TaskCardProps):
         <button
           type="button"
           onClick={() => onEdit(task)}
-          className="rounded-button border border-surface-border px-3 py-1.5 text-xs text-text-secondary"
+          className="focus-btn-ghost !px-3 !py-1.5 !text-xs"
         >
           Edit
         </button>

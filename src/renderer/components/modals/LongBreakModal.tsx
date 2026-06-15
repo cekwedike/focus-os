@@ -25,9 +25,9 @@ export function LongBreakModal(): React.JSX.Element | null {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-button border border-surface-border bg-surface-card p-5">
-        <h3 className="text-lg font-semibold text-text-primary">Take A Long Break</h3>
+    <div className="focus-modal-backdrop">
+      <div className="focus-modal">
+        <h3 className="font-display text-lg font-semibold text-text-primary">Take A Long Break</h3>
         <div className="mt-4 space-y-3">
           <FormField label="Reason">
             <TextInput value={reason} onChange={setReason} placeholder="Why are you stepping away?" />
@@ -40,7 +40,7 @@ export function LongBreakModal(): React.JSX.Element | null {
           <button
             type="button"
             onClick={closeLongBreakModal}
-            className="rounded-button border border-surface-border px-3 py-2 text-sm text-text-secondary"
+            className="focus-btn-ghost"
           >
             Cancel
           </button>
@@ -48,7 +48,7 @@ export function LongBreakModal(): React.JSX.Element | null {
             type="button"
             disabled={saving}
             onClick={() => void handleStart()}
-            className="rounded-button bg-accent-mint/20 px-3 py-2 text-sm font-medium text-accent-mint"
+            className="focus-btn-primary"
           >
             Start Break
           </button>

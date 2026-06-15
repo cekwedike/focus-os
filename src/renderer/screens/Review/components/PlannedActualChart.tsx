@@ -24,8 +24,8 @@ export function PlannedActualChart({
   )
 
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-5">
-      <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
+    <section className="focus-panel p-5">
+      <h3 className="focus-section-title">{title}</h3>
       <p className="mt-1 text-xs text-text-muted">
         Horizontal bars compare planned vs actual minutes. No chart library, CSS flex bars only.
       </p>
@@ -44,18 +44,18 @@ export function PlannedActualChart({
               <div className="mt-2 space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="w-14 text-xs text-text-muted">Planned</span>
-                  <div className="h-2 flex-1 rounded-full bg-surface-elevated">
+                  <div className="h-2 flex-1 rounded-full bg-surface-elevated/80">
                     <div
-                      className="h-2 rounded-full bg-slate-400/70"
+                      className="h-2 rounded-full bg-accent-slate/70 shadow-glow-sm"
                       style={{ width: barWidth(group.plannedMinutes, maxValue) }}
                     />
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-14 text-xs text-text-muted">Actual</span>
-                  <div className="h-2 flex-1 rounded-full bg-surface-elevated">
+                  <div className="h-2 flex-1 rounded-full bg-surface-elevated/80">
                     <div
-                      className="h-2 rounded-full bg-accent-mint/80"
+                      className="h-2 rounded-full bg-accent-mint shadow-glow-sm"
                       style={{ width: barWidth(group.actualMinutes, maxValue) }}
                     />
                   </div>

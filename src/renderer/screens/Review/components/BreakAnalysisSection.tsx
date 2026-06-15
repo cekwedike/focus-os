@@ -12,16 +12,16 @@ export function BreakAnalysisSection({
   longBreakReasons,
 }: BreakAnalysisSectionProps): React.JSX.Element {
   return (
-    <section className="rounded-button border border-surface-border bg-surface-card p-5">
+    <section className="focus-panel p-5">
       <h3 className="text-sm font-semibold text-text-primary">Break Analysis</h3>
       <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-button border border-surface-border bg-surface-elevated p-4">
+        <div className="focus-panel p-4">
           <dt className="text-xs text-text-muted">Micro Breaks</dt>
           <dd className="mt-1 text-sm text-text-primary">
             {microBreaks.count} breaks · {microBreaks.totalMinutes} minutes
           </dd>
         </div>
-        <div className="rounded-button border border-surface-border bg-surface-elevated p-4">
+        <div className="focus-panel p-4">
           <dt className="text-xs text-text-muted">Long Breaks</dt>
           <dd className="mt-1 text-sm text-text-primary">
             {longBreaks.count} breaks · {longBreaks.totalMinutes} minutes
@@ -33,7 +33,7 @@ export function BreakAnalysisSection({
           {longBreakReasons.map((reason) => (
             <li
               key={reason.reason}
-              className="flex items-center justify-between rounded-button border border-surface-border bg-surface-elevated px-3 py-2 text-sm"
+              className="flex items-center justify-between focus-subpanel px-3 py-2 text-sm"
             >
               <span className="text-text-secondary">{reason.reason}</span>
               <span className="text-xs text-text-muted">

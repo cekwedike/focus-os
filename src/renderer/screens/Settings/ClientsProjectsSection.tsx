@@ -93,7 +93,7 @@ export function ClientsProjectsSection({
             setCreating(true)
             setEditing(null)
           }}
-          className="rounded-button bg-accent-mint/20 px-3 py-2 text-sm font-medium text-accent-mint"
+          className="focus-btn-primary"
         >
           Add Client
         </button>
@@ -119,7 +119,7 @@ export function ClientsProjectsSection({
       </div>
 
       {(creating || editing) && (
-        <div className="rounded-button border border-surface-border bg-surface-card p-4">
+        <div className="focus-panel p-4">
           <h4 className="mb-3 text-sm font-semibold text-text-primary">
             {editing ? 'Edit Client' : 'New Client'}
           </h4>
