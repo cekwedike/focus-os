@@ -8,6 +8,7 @@ import { applyUserDisplayNameMigration } from './006_user_display_name'
 import { applyClientRemindersAndStartupMigration } from './007_client_reminders_and_startup'
 import { applyCheckInsLogMigration } from './008_check_ins_log'
 import { applyProtectedBlocksSkippableMigration } from './009_protected_blocks_skippable'
+import { applyNotificationsLogMigration } from './010_notifications_log'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -79,6 +80,13 @@ const migrations: MigrationDefinition[] = [
     name: 'protected_blocks_skippable',
     up: (db) => {
       applyProtectedBlocksSkippableMigration(db)
+    },
+  },
+  {
+    version: 10,
+    name: 'notifications_log',
+    up: (db) => {
+      applyNotificationsLogMigration(db)
     },
   },
 ]

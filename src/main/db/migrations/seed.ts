@@ -174,6 +174,7 @@ export const EXPECTED_PROTECTED_BLOCK_TYPES: ProtectedBlockType[] = [
 
 export const EXPECTED_TABLE_NAMES = [
   'check_ins_log',
+  'notifications_log',
   'clients_projects',
   'tasks',
   'protected_blocks',

@@ -12,6 +12,7 @@ import {
   shiftIsoByMinutes,
 } from '@shared/schedule/blockTimeShift'
 import { resolveContextualChips } from '@shared/chat/contextualChips'
+import { mapChipsToProgressionActions } from '@shared/notifications/notificationActions'
 import { nowIso } from '@shared/utils/time'
 import { shouldAutoCompleteBlock } from '@shared/schedule/blockAutoComplete'
 import {
@@ -23,7 +24,7 @@ import {
 } from '../db/repositories/dailyScheduleRepository'
 import { listProtectedBlocks } from '../db/repositories/protectedBlocksRepository'
 import { completeBlock, startBlock } from './scheduleService'
-import { emitAssistantMessage } from './chatAssistantBridge'
+import { notify } from './notificationService'
 import { resetBlockNotificationState } from './blockNotificationService'
 import { resetPauseTracking, isWorkPaused } from './workPauseService'
 
@@ -47,19 +48,32 @@ export function activateFirstBlockIfNone(
 }
 
 function postProgressionMessage(
+  db: Database.Database,
   text: string,
   chipContext:
     | 'auto_progression'
     | 'manual_complete'
     | 'extend_confirmed'
     | 'skip_confirmed'
-    | 'end_of_day'
+    | 'end_of_day',
+  notificationType: 'block_complete' | 'block_skipped'
 ): void {
-  emitAssistantMessage({
-    text,
-    quickReplies: resolveContextualChips(chipContext),
-    chipContext,
-  })
+  const chips = resolveContextualChips(chipContext)
+  const { actions, sendTextByActionId } = mapChipsToProgressionActions(chips, chipContext)
+
+  notify(
+    {
+      type: notificationType,
+      title: 'Focus OS',
+      message: text,
+      urgency: 'normal',
+      persistent: false,
+      dedupeKey: `${notificationType}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
+      actions,
+      metadata: { sendTextByActionId, chipContext },
+    },
+    db
+  )
 }
 
 export function advanceToNextBlock(
@@ -74,8 +88,10 @@ export function advanceToNextBlock(
 
   if (!next) {
     postProgressionMessage(
+      db,
       formatAutoProgressionMessage(completedTitle, null),
-      reason === 'manual_completed' ? 'manual_complete' : 'end_of_day'
+      reason === 'manual_completed' ? 'manual_complete' : 'end_of_day',
+      'block_complete'
     )
 
     return {
@@ -87,8 +103,10 @@ export function advanceToNextBlock(
 
   const started = startBlock(db, next.id)
   postProgressionMessage(
+    db,
     formatAutoProgressionMessage(completedTitle, started.title),
-    reason === 'manual_completed' ? 'manual_complete' : 'auto_progression'
+    reason === 'manual_completed' ? 'manual_complete' : 'auto_progression',
+    'block_complete'
   )
 
   return {
@@ -164,7 +182,7 @@ export function skipBlock(db: Database.Database, blockId: number): BlockProgress
 
   const next = findNextPlannedBlock(db, block.schedule_date)
   if (!next) {
-    postProgressionMessage(formatSkipMessage(skipped.title, null), 'end_of_day')
+    postProgressionMessage(db, formatSkipMessage(skipped.title, null), 'end_of_day', 'block_skipped')
     return {
       completedBlock: skipped,
       nextBlock: null,
@@ -173,7 +191,12 @@ export function skipBlock(db: Database.Database, blockId: number): BlockProgress
   }
 
   const started = startBlock(db, next.id)
-  postProgressionMessage(formatSkipMessage(skipped.title, started.title), 'skip_confirmed')
+  postProgressionMessage(
+    db,
+    formatSkipMessage(skipped.title, started.title),
+    'skip_confirmed',
+    'block_skipped'
+  )
 
   return {
     completedBlock: skipped,
@@ -211,7 +234,7 @@ export function extendActiveBlock(
   shiftSubsequentBlocks(db, block.schedule_date, block.priority_order, minutes)
   resetBlockNotificationState()
 
-  postProgressionMessage(formatExtendMessage(updated.title, minutes), 'extend_confirmed')
+  postProgressionMessage(db, formatExtendMessage(updated.title, minutes), 'extend_confirmed', 'block_complete')
 
   return updated
 }

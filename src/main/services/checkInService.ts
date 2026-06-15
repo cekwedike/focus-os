@@ -11,7 +11,7 @@ import { getDailySettings } from '../db/repositories/dailySettingsRepository'
 import {
   displayReminderLabel,
   formatCheckInDueChatMessage,
-  formatCheckInNotificationBody,
+  formatDueBannerText,
   listDueEntries,
   resolveAcknowledgedState,
   resolveCheckInTick,
@@ -24,7 +24,8 @@ import {
   parseFixedBlockOverrides,
   resolveClientFixedBlockWindow,
 } from '@shared/reminders/fixedBlockWindow'
-import { showDesktopNotification } from './notificationService'
+import { CHECK_IN_DONE_ACTION } from '@shared/notifications/notificationActions'
+import { acknowledgeNotificationByDedupeKey, notify } from './notificationService'
 
 let tickInterval: ReturnType<typeof setInterval> | null = null
 let mainWindow: BrowserWindow | null = null
@@ -33,20 +34,6 @@ const clientConfigs = new Map<number, CheckInClientConfig>()
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10)
-}
-
-function emitStateChanged(): void {
-  if (mainWindow) {
-    mainWindow.webContents.send('check-in:state-changed', {
-      due: getDueCheckIns(),
-    })
-  }
-}
-
-function emitAssistantMessage(text: string): void {
-  if (mainWindow) {
-    mainWindow.webContents.send('chat:assistant-message', { text })
-  }
 }
 
 function buildClientConfig(
@@ -109,8 +96,6 @@ function tickCheckIns(): void {
     clientConfigs.set(clientId, config)
   }
 
-  let stateChanged = false
-
   for (const [clientId, config] of configs) {
     const window = {
       scheduleDate: config.checkInDate,
@@ -132,41 +117,39 @@ function tickCheckIns(): void {
     const previous = runtimeStates.get(clientId)
     runtimeStates.set(clientId, result.nextState)
 
-    if (
-      !previous ||
-      previous.phase !== result.nextState.phase ||
-      previous.dueAtMs !== result.nextState.dueAtMs
-    ) {
-      stateChanged = true
-    }
-
     if (result.becameDue && result.dueEntry) {
       const label = displayReminderLabel(config.reminderLabel)
       if (!result.nextState.notifiedDue) {
-        emitAssistantMessage(formatCheckInDueChatMessage(label, config.clientName))
-        showDesktopNotification({
-          title: 'Focus OS',
-          body: formatCheckInNotificationBody(label, config.clientName),
-          category: 'clientReminder',
+        const { title } = formatDueBannerText(label, config.clientName, 0)
+        notify({
+          type: 'check_in_due',
+          title,
+          message: formatCheckInDueChatMessage(label, config.clientName),
+          urgency: 'high',
+          persistent: true,
+          dedupeKey: `check_in:${clientId}:${config.checkInDate}`,
+          actions: [CHECK_IN_DONE_ACTION],
+          metadata: { clientId },
         })
         runtimeStates.set(clientId, {
           ...result.nextState,
           notifiedDue: true,
         })
-        stateChanged = true
       }
+    }
+
+    if (
+      previous &&
+      (previous.phase !== result.nextState.phase || previous.dueAtMs !== result.nextState.dueAtMs)
+    ) {
+      // phase transition tracked in runtime state only
     }
   }
 
   for (const clientId of runtimeStates.keys()) {
     if (!configs.has(clientId)) {
       runtimeStates.delete(clientId)
-      stateChanged = true
     }
-  }
-
-  if (stateChanged) {
-    emitStateChanged()
   }
 }
 
@@ -207,7 +190,7 @@ export function acknowledgeCheckIn(clientId: number): DueCheckInEntry | null {
   })
   runtimeStates.set(clientId, nextState)
   clientConfigs.set(clientId, config)
-  emitStateChanged()
+  acknowledgeNotificationByDedupeKey(`check_in:${clientId}:${config.checkInDate}`)
   return null
 }
 

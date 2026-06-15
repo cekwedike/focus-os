@@ -12,6 +12,7 @@ import { registerReviewHandlers } from './reviewHandlers'
 import { registerInsightHandlers } from './insightHandlers'
 import { registerWorkHandlers } from './workHandlers'
 import { registerCheckInHandlers } from './checkInHandlers'
+import { registerNotificationHandlers } from './notificationHandlers'
 
 let databaseReady = false
 
@@ -49,4 +50,5 @@ export function registerIpcHandlers(): void {
   registerInsightHandlers()
   registerWorkHandlers()
   registerCheckInHandlers()
+  registerNotificationHandlers()
 }

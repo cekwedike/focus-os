@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import type { ClientProjectRow } from '@shared/types/db'
+import type { NotificationDispatchedPayload } from '@shared/types/notifications'
 
 export function StalenessAlertList(): React.JSX.Element {
   const [staleClients, setStaleClients] = useState<ClientProjectRow[]>([])
@@ -29,8 +30,17 @@ export function StalenessAlertList(): React.JSX.Element {
       setStaleClients(stale)
     })()
 
-    return window.focusOS.onStalenessAlert((payload) => {
-      void window.focusOS.clients.get({ id: payload.clientId }).then((client) => {
+    return window.focusOS.onNotificationDispatched((payload: NotificationDispatchedPayload) => {
+      if (payload.type !== 'staleness_alert' || payload.skippedDuplicate) {
+        return
+      }
+
+      const clientId = payload.metadata.clientId
+      if (typeof clientId !== 'number') {
+        return
+      }
+
+      void window.focusOS.clients.get({ id: clientId }).then((client) => {
         setStaleClients((current) => {
           if (current.some((entry) => entry.id === client.id)) {
             return current

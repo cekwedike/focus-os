@@ -1,11 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { DisplayPreferencesProvider } from './context/DisplayPreferencesContext'
-import { CheckInDueProvider } from './context/CheckInDueContext'
 import { ScheduleProvider } from './context/ScheduleContext'
 import { FaithEntryProvider } from './context/FaithEntryContext'
 import { BreakProvider } from './context/BreakContext'
 import { ChatProvider } from './context/ChatContext'
+import { ChatNotificationBridge } from './components/ChatNotificationBridge'
 import { AppShell } from './components/layout/AppShell'
 import { useAppNavigationEvents } from './hooks/useAppNavigationEvents'
 import { HomeDashboardScreen } from './screens/Home/HomeDashboardScreen'
@@ -98,17 +98,17 @@ function AppRoutes(): React.JSX.Element {
 export default function App(): React.JSX.Element {
   return (
     <DisplayPreferencesProvider>
-      <CheckInDueProvider>
-        <ScheduleProvider>
-          <ChatProvider>
+      <ScheduleProvider>
+        <ChatProvider>
+          <ChatNotificationBridge>
             <FaithEntryProvider>
               <BreakProvider>
                 <AppRoutes />
               </BreakProvider>
             </FaithEntryProvider>
-          </ChatProvider>
-        </ScheduleProvider>
-      </CheckInDueProvider>
+          </ChatNotificationBridge>
+        </ChatProvider>
+      </ScheduleProvider>
     </DisplayPreferencesProvider>
   )
 }

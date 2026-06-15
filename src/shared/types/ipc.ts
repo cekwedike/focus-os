@@ -68,34 +68,29 @@ export type IpcInvokeChannel =
   | 'work:get-paused'
   | 'check-ins:get-due'
   | 'check-ins:acknowledge'
+  | 'notification:list-active'
+  | 'notification:action'
 
 export type IpcEventChannel =
-  | 'break:micro-break-due'
-  | 'staleness:alert'
   | 'app:navigate'
-  | 'chat:assistant-message'
-  | 'check-in:state-changed'
   | 'schedule:block-changed'
+  | 'notification:dispatched'
+  | 'notification:state-changed'
+  | 'notification:acknowledged'
 
 export interface AppNavigatePayload {
   path: string
 }
 
-export interface MicroBreakDuePayload {
-  suggestedActivities: string[]
-}
-
-export interface StalenessAlertPayload {
-  clientId: number
-  clientName: string
-  hoursSinceTouch: number
-}
-
-export interface ChatAssistantMessagePayload {
-  text: string
-  quickReplies?: import('./chat').QuickReplyChip[]
-  chipContext?: string
-}
+export type {
+  NotificationDispatchedPayload,
+  NotificationStateChangedPayload,
+  NotificationAcknowledgedPayload,
+  NotificationActionPayload,
+  NotificationActionResponse,
+  NotificationListActiveResponse,
+  ActiveNotificationSummary,
+} from './notifications'
 
 export interface WorkGetPausedResponse {
   paused: boolean
@@ -118,10 +113,6 @@ export interface DueCheckInEntry {
 }
 
 export interface CheckInsGetDueResponse {
-  due: DueCheckInEntry[]
-}
-
-export interface CheckInStateChangedPayload {
   due: DueCheckInEntry[]
 }
 

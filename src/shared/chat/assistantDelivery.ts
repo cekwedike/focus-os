@@ -3,6 +3,7 @@ import type { QuickReplyChip } from '@shared/types/chat'
 interface ChatMessageInput {
   content: string
   quickReplies?: QuickReplyChip[]
+  notificationId?: number
 }
 
 export type AssistantDeliveryInput = string | ChatMessageInput
@@ -23,4 +24,8 @@ export function getAssistantQuickReplies(
   input: AssistantDeliveryInput
 ): QuickReplyChip[] | undefined {
   return normalizeInput(input).quickReplies
+}
+
+export function getAssistantNotificationId(input: AssistantDeliveryInput): number | undefined {
+  return normalizeInput(input).notificationId
 }

@@ -3,8 +3,11 @@ import { getDatabase } from '../db/connection'
 import { getActiveBlock } from '../db/repositories/dailyScheduleRepository'
 import { getActiveLongBreak } from '../db/repositories/breaksLogRepository'
 import { getAllSettings } from '../db/repositories/appSettingsRepository'
+import { MICRO_BREAK_NOTIFICATION_ACTIONS } from '@shared/notifications/notificationActions'
 import { autoCompleteAndAdvance } from './blockProgressionService'
 import { tickBlockNotifications } from './blockNotificationService'
+import { tickFaithReminder } from './faithReminderService'
+import { notify } from './notificationService'
 import { isWorkPaused } from './workPauseService'
 
 let activeWorkSeconds = 0
@@ -66,8 +69,14 @@ function emitMicroBreakDue(): void {
     return
   }
 
-  mainWindow.webContents.send('break:micro-break-due', {
-    suggestedActivities: ['read', 'walk', 'call', 'messages', 'doomscroll', 'skip'],
+  notify({
+    type: 'micro_break',
+    title: 'Micro-Break Time',
+    message: 'Pick a short activity for your break.',
+    urgency: 'normal',
+    persistent: false,
+    dedupeKey: `micro_break:${Date.now()}`,
+    actions: MICRO_BREAK_NOTIFICATION_ACTIONS,
   })
   activeWorkSeconds = 0
 }
@@ -96,6 +105,7 @@ function tick(): void {
 
   tickAutoComplete()
   tickActiveWork()
+  tickFaithReminder()
 }
 
 export function startTimerService(window: BrowserWindow): void {

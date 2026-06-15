@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import type { ReplanSummary } from '@shared/allocation/types'
+import { useNotifications } from '@renderer/context/NotificationContext'
 import { getTodayDateString } from '@renderer/utils/date'
 
 interface BreakContextValue {
@@ -36,6 +37,7 @@ const MICRO_ACTIVITY_MINUTES: Record<string, number> = {
 }
 
 export function BreakProvider({ children }: { children: ReactNode }): React.JSX.Element {
+  const { onMicroBreakDispatched } = useNotifications()
   const [showLongBreakModal, setShowLongBreakModal] = useState(false)
   const [longBreakActive, setLongBreakActive] = useState(false)
   const [longBreakStartedAt, setLongBreakStartedAt] = useState<string | null>(null)
@@ -99,12 +101,12 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
   }, [longBreakBreakId, longBreakStartedAt])
 
   useEffect(() => {
-    return window.focusOS.onMicroBreakDue(() => {
+    return onMicroBreakDispatched(() => {
       if (!longBreakActive) {
         setShowMicroBreakModal(true)
       }
     })
-  }, [longBreakActive])
+  }, [longBreakActive, onMicroBreakDispatched])
 
   const logMicroBreak = useCallback(async (activity: string) => {
     const planned = MICRO_ACTIVITY_MINUTES[activity] ?? 10

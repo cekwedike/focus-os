@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-15: Centralized Notification System
+
+**Prompt summary:** Build a single `notify()` service for desktop (Electron Notification) and in-app (chat + persistent banner) alerts. Add `notifications_log` table, `NotificationContext`, generalized `PersistentNotificationBanner`, refactor micro-breaks, check-ins, block warnings/progression, staleness, and faith reminders through the central service.
+
+**Outcome:** `notificationService.ts` with dedupe, desktop icon/click-focus, IPC (`notification:dispatched`, `notification:state-changed`, `notification:acknowledged`, `notification:action`, `notification:list-active`), action router, migration 010, unit tests. Replaced `CheckInDueBanner` with `PersistentNotificationBanner`. Deprecated `break:micro-break-due`, `staleness:alert`, `check-in:state-changed`, and `chat:assistant-message` event channels.
+
+**Files / phases:** `notificationService.ts`, `desktopNotification.ts`, `notificationActionRouter.ts`, `faithReminderService.ts`, `NotificationContext.tsx`, `PersistentNotificationBanner.tsx`, `010_notifications_log` migration. Foundational for Phase 8 micro-breaks, check-in banners, and block progression messages.
+
+**Follow-ups:** Optional Review screen "recent notifications" view; wire `insightReady` desktop notify when Daily Insight generation completes.
+
 ### 2026-06-15: Dashboard + Chat Merge and Auto Block Progression
 
 **Prompt summary:** Merge Chat into Dashboard as home at `/`, automatic block progression (pre-completion warnings, auto-complete + advance, extend +5, skip), contextual inline quick-reply chips on assistant messages, intent router extensions, full test coverage.

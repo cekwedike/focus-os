@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion'
 import type { ChatMessage } from '@shared/types/chat'
+import type { QuickReplyChip } from '@shared/types/chat'
 import { ChatMessageBubble } from './ChatMessageBubble'
 
 interface AnimatedChatMessageBubbleProps {
   message: ChatMessage
-  onQuickReply?: (text: string) => void
+  onQuickReply?: (message: ChatMessage, chip: QuickReplyChip) => void
   quickRepliesDisabled?: boolean
 }
 
@@ -21,7 +22,9 @@ export function AnimatedChatMessageBubble({
     >
       <ChatMessageBubble
         message={message}
-        onQuickReply={onQuickReply}
+        onQuickReply={
+          onQuickReply ? (chip) => onQuickReply(message, chip) : undefined
+        }
         quickRepliesDisabled={quickRepliesDisabled}
       />
     </motion.div>

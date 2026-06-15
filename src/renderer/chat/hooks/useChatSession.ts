@@ -32,6 +32,11 @@ function persistMessages(messages: ChatMessage[]): void {
   }
 }
 
+export interface AppendAssistantOptions {
+  quickReplies?: QuickReplyChip[]
+  notificationId?: number
+}
+
 export function useChatSession() {
   const [messages, setMessages] = useState<ChatMessage[]>(() => loadStoredMessages())
 
@@ -43,14 +48,16 @@ export function useChatSession() {
     (
       role: ChatMessage['role'],
       content: string,
-      quickReplies?: QuickReplyChip[]
+      options?: AppendAssistantOptions
     ): ChatMessage => {
       const message: ChatMessage = {
         id: createMessageId(),
         role,
         content,
         timestamp: new Date().toISOString(),
-        quickReplies,
+        quickReplies: options?.quickReplies,
+        notificationId: options?.notificationId,
+        notificationResolved: false,
       }
       setMessages((current) => [...current, message].slice(-MAX_MESSAGES))
       return message
@@ -59,8 +66,8 @@ export function useChatSession() {
   )
 
   const appendAssistantMessage = useCallback(
-    (content: string, quickReplies?: QuickReplyChip[]): ChatMessage =>
-      appendMessage('assistant', content, quickReplies),
+    (content: string, options?: AppendAssistantOptions): ChatMessage =>
+      appendMessage('assistant', content, options),
     [appendMessage]
   )
 
@@ -74,10 +81,21 @@ export function useChatSession() {
     [appendMessage]
   )
 
+  const resolveNotificationMessage = useCallback((notificationId: number): void => {
+    setMessages((current) =>
+      current.map((message) =>
+        message.notificationId === notificationId
+          ? { ...message, notificationResolved: true }
+          : message
+      )
+    )
+  }, [])
+
   return {
     messages,
     appendAssistantMessage,
     appendUserMessage,
     appendSystemMessage,
+    resolveNotificationMessage,
   }
 }

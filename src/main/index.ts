@@ -15,10 +15,11 @@ import { getAllSettings, upsertSettings } from './db/repositories/appSettingsRep
 import { isAppQuitting, setAppQuitting } from './appState'
 import { startCheckInService, stopCheckInService } from './services/checkInService'
 import { syncLaunchAtLoginFromSettings } from './services/loginItemService'
-import { showDesktopNotification } from './services/notificationService'
+import { notify, setNotificationWindow } from './services/notificationService'
+import { setAppNavigateWindow } from './services/appNavigateBridge'
+import { startFaithReminderService, stopFaithReminderService } from './services/faithReminderService'
 import { startStalenessService, stopStalenessService } from './services/stalenessService'
 import { startTimerService, stopTimerService } from './services/timerService'
-import { setChatAssistantWindow } from './services/chatAssistantBridge'
 import { createTray, destroyTray } from './services/trayService'
 import { configureWindowChrome } from './window/windowChrome'
 
@@ -40,10 +41,15 @@ function showTrayCloseTipOnce(): void {
     return
   }
 
-  showDesktopNotification({
+  notify({
+    type: 'generic',
     title: 'Focus OS is still running',
-    body: 'Closing the window keeps Focus OS in the system tray. Right-click the tray icon to quit.',
-    category: 'clientReminder',
+    message:
+      'Closing the window keeps Focus OS in the system tray. Right-click the tray icon to quit.',
+    urgency: 'normal',
+    persistent: false,
+    dedupeKey: 'tray_close_tip',
+    showInChat: false,
   })
 
   upsertSettings(db, { trayCloseTipShown: true })
@@ -77,8 +83,10 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow?.show()
-    setChatAssistantWindow(mainWindow!)
+    setNotificationWindow(mainWindow!)
+    setAppNavigateWindow(mainWindow!)
     startTimerService(mainWindow!)
+    startFaithReminderService(mainWindow!)
     startStalenessService(mainWindow!)
     startCheckInService(mainWindow!)
   })
@@ -122,9 +130,11 @@ app.whenReady().then(() => {
 app.on('before-quit', () => {
   setAppQuitting(true)
   stopTimerService()
+  stopFaithReminderService()
   stopStalenessService()
   stopCheckInService()
-  setChatAssistantWindow(null)
+  setNotificationWindow(null)
+  setAppNavigateWindow(null)
   destroyTray()
 })
 

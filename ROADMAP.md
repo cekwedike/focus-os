@@ -148,6 +148,8 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Completed 2026-06-14:** `timerService` tracks accumulated active-block time; micro-break modal; long break modal with End Break → `schedule:reallocate`; `breaks_log` CRUD; `stalenessService` alerts; Replan Summary modal.
 
+**Notification infrastructure (2026-06-15):** Micro-breaks, check-in due banners, block progression warnings, staleness alerts, and faith reminders now route through the centralized `notify()` service (see ARCHITECTURE.md Notification System). Depends on Phase 13 chat delivery pipeline for in-app messages.
+
 ## Phase 9: Journal (Faith Log)
 
 **Status:** Complete

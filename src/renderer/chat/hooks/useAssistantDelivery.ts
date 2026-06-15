@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import type { QuickReplyChip } from '@shared/types/chat'
 import {
   getAssistantContent,
+  getAssistantNotificationId,
   getAssistantQuickReplies,
   type AssistantDeliveryInput,
 } from '@shared/chat/assistantDelivery'
@@ -10,9 +11,10 @@ import {
   getTypingDelayMs,
   sleep,
 } from '@shared/chat/typingDelay'
+import type { AppendAssistantOptions } from './useChatSession'
 
 export function useAssistantDelivery(
-  appendAssistantMessage: (content: string, quickReplies?: QuickReplyChip[]) => void
+  appendAssistantMessage: (content: string, options?: AppendAssistantOptions) => void
 ) {
   const [isTyping, setIsTyping] = useState(false)
 
@@ -21,7 +23,10 @@ export function useAssistantDelivery(
       setIsTyping(true)
       await sleep(getTypingDelayMs())
       setIsTyping(false)
-      appendAssistantMessage(getAssistantContent(input), getAssistantQuickReplies(input))
+      appendAssistantMessage(getAssistantContent(input), {
+        quickReplies: getAssistantQuickReplies(input),
+        notificationId: getAssistantNotificationId(input),
+      })
     },
     [appendAssistantMessage]
   )

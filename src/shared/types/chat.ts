@@ -2,7 +2,8 @@ export type ChatRole = 'user' | 'assistant' | 'system'
 
 export interface QuickReplyChip {
   label: string
-  sendText: string
+  sendText?: string
+  actionId?: string
 }
 
 export type ChatAttachment =
@@ -15,6 +16,8 @@ export interface ChatMessage {
   timestamp: string
   attachments?: ChatAttachment[]
   quickReplies?: QuickReplyChip[]
+  notificationId?: number
+  notificationResolved?: boolean
 }
 
 export type ChatIntentType =

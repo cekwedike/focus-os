@@ -30,7 +30,7 @@ describe('database migrations', () => {
     }
   })
 
-  it('creates all 10 schema tables plus schema_migrations on a fresh database', () => {
+  it('creates all 11 schema tables plus schema_migrations on a fresh database', () => {
     dbPath = createTempDatabasePath()
     testDb = openDatabase(dbPath)
     runMigrations(testDb)
@@ -40,7 +40,7 @@ describe('database migrations', () => {
       expect(tableNames).toContain(tableName)
     }
 
-    expect(getLatestSchemaVersion(testDb)).toBe(9)
+    expect(getLatestSchemaVersion(testDb)).toBe(10)
   })
 
   it('is idempotent when migrations run multiple times', () => {
@@ -68,7 +68,7 @@ describe('database migrations', () => {
     expect(secondTableNames).toEqual(firstTableNames)
     expect(secondProtectedCount).toBe(firstProtectedCount)
     expect(secondSettingsCount).toBe(firstSettingsCount)
-    expect(getLatestSchemaVersion(testDb)).toBe(9)
+    expect(getLatestSchemaVersion(testDb)).toBe(10)
   })
 
   it('seeds protected_blocks with all 5 expected block types', () => {

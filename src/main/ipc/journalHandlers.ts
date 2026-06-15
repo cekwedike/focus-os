@@ -16,6 +16,11 @@ import {
   listJournalEntriesInRange,
   upsertJournalEntry,
 } from '../services/journalService'
+import { acknowledgeNotificationByDedupeKey } from '../services/notificationService'
+
+function clearFaithReminderForDate(entryDate: string): void {
+  acknowledgeNotificationByDedupeKey(`faith_reminder:${entryDate}`)
+}
 
 function success<T>(data: T): IpcResult<T> {
   return { ok: true, data }
@@ -36,7 +41,9 @@ export function registerJournalHandlers(): void {
 
   ipcMain.handle('journal:upsert', async (_event, payload: JournalUpsertPayload) => {
     try {
-      return success(upsertJournalEntry(getDatabase(), payload))
+      const saved = upsertJournalEntry(getDatabase(), payload)
+      clearFaithReminderForDate(payload.entry_date)
+      return success(saved)
     } catch (error) {
       return failure('JOURNAL_UPSERT_FAILED', String(error))
     }
@@ -70,7 +77,9 @@ export function registerJournalHandlers(): void {
     'journal:complete-faith-block',
     async (_event, payload: JournalCompleteFaithBlockPayload) => {
       try {
-        return success(completeFaithBlock(getDatabase(), payload))
+        const result = completeFaithBlock(getDatabase(), payload)
+        clearFaithReminderForDate(new Date().toISOString().slice(0, 10))
+        return success(result)
       } catch (error) {
         const message = String(error)
         if (message.includes('BLOCK_NOT_FOUND')) {

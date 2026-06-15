@@ -19,6 +19,7 @@ daily_schedule (many rows per date, materialized blocks)
 breaks_log ──> optional client_id, schedule block reference
 faith_log (standalone per date)
 insights_log (standalone per date)
+notifications_log (audit trail for all notify() calls)
 app_settings (key-value global config)
 ```
 
@@ -303,7 +304,26 @@ Stored Daily Insight outputs.
 
 Multiple insights per day allowed (regenerate); UI shows latest by default.
 
-### 9. `app_settings`
+### 9. `notifications_log`
+
+Audit trail for the centralized notification service. Every `notify()` call inserts a row; acknowledgment sets `acknowledged_at`.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PK, AUTOINCREMENT | |
+| `type` | TEXT | NOT NULL | Notification type (e.g. `micro_break`, `check_in_due`, `block_warning`) |
+| `title` | TEXT | NOT NULL | Desktop/banner title |
+| `message` | TEXT | NOT NULL | Body copy |
+| `created_at` | TEXT | NOT NULL | ISO 8601 when dispatched |
+| `acknowledged_at` | TEXT | NULL | ISO 8601 when user acted or dismissed |
+| `urgency` | TEXT | NOT NULL | `normal` or `high` |
+
+**Indexes**
+
+- `idx_notifications_log_created` ON (`created_at` DESC)
+- `idx_notifications_log_unacknowledged` ON (`acknowledged_at`) WHERE `acknowledged_at` IS NULL
+
+### 10. `app_settings`
 
 Global key-value configuration.
 

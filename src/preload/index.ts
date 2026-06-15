@@ -15,11 +15,14 @@ import type {
   IpcInvokeChannel,
   IpcResult,
   AppNavigatePayload,
-  ChatAssistantMessagePayload,
-  CheckInStateChangedPayload,
+  NotificationAcknowledgedPayload,
+  NotificationActionPayload,
+  NotificationActionResponse,
+  NotificationDispatchedPayload,
+  NotificationListActiveResponse,
+  NotificationStateChangedPayload,
   ScheduleBlockChangedPayload,
   CheckInsGetDueResponse,
-  MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
   ProtectedBlockGetPayload,
   ProtectedBlocksCreatePayload,
@@ -29,7 +32,6 @@ import type {
   ProtectedBlocksListResponse,
   ProtectedBlocksUpdatePayload,
   ProtectedBlocksUpdateResponse,
-  StalenessAlertPayload,
 } from '@shared/types/ipc'
 import type {
   AppSettingsUpdate,
@@ -93,15 +95,16 @@ const invokeChannels: IpcInvokeChannel[] = [
   'work:get-paused',
   'check-ins:get-due',
   'check-ins:acknowledge',
+  'notification:list-active',
+  'notification:action',
 ]
 
 const eventChannels: IpcEventChannel[] = [
-  'break:micro-break-due',
-  'staleness:alert',
   'app:navigate',
-  'chat:assistant-message',
-  'check-in:state-changed',
   'schedule:block-changed',
+  'notification:dispatched',
+  'notification:state-changed',
+  'notification:acknowledged',
 ]
 
 function createInvoke<T>(channel: IpcInvokeChannel, payload?: unknown): Promise<IpcResult<T>> {
@@ -243,15 +246,19 @@ const focusOSApi: FocusOSApi = {
     acknowledge: async (payload: { clientId: number }) =>
       unwrap(await createInvoke<CheckInsGetDueResponse>('check-ins:acknowledge', payload)),
   },
-  onMicroBreakDue: (callback) =>
-    subscribeToEvent<MicroBreakDuePayload>('break:micro-break-due', callback),
-  onStalenessAlert: (callback) =>
-    subscribeToEvent<StalenessAlertPayload>('staleness:alert', callback),
+  notifications: {
+    listActive: async () =>
+      unwrap(await createInvoke<NotificationListActiveResponse>('notification:list-active')),
+    action: async (payload: NotificationActionPayload) =>
+      unwrap(await createInvoke<NotificationActionResponse>('notification:action', payload)),
+  },
   onNavigate: (callback) => subscribeToEvent<AppNavigatePayload>('app:navigate', callback),
-  onAssistantMessage: (callback) =>
-    subscribeToEvent<ChatAssistantMessagePayload>('chat:assistant-message', callback),
-  onCheckInStateChanged: (callback) =>
-    subscribeToEvent<CheckInStateChangedPayload>('check-in:state-changed', callback),
+  onNotificationDispatched: (callback) =>
+    subscribeToEvent<NotificationDispatchedPayload>('notification:dispatched', callback),
+  onNotificationStateChanged: (callback) =>
+    subscribeToEvent<NotificationStateChangedPayload>('notification:state-changed', callback),
+  onNotificationAcknowledged: (callback) =>
+    subscribeToEvent<NotificationAcknowledgedPayload>('notification:acknowledged', callback),
   onScheduleBlockChanged: (callback) =>
     subscribeToEvent<ScheduleBlockChangedPayload>('schedule:block-changed', callback),
 }

@@ -1,7 +1,9 @@
+import type { QuickReplyChip } from '@shared/types/chat'
+
 interface InlineQuickRepliesProps {
-  chips: Array<{ label: string; sendText: string }>
+  chips: QuickReplyChip[]
   disabled?: boolean
-  onSelect: (text: string) => void
+  onSelect: (chip: QuickReplyChip) => void
 }
 
 export function InlineQuickReplies({
@@ -13,10 +15,10 @@ export function InlineQuickReplies({
     <div className="flex flex-wrap gap-2">
       {chips.map((chip) => (
         <button
-          key={`${chip.label}-${chip.sendText}`}
+          key={`${chip.label}-${chip.actionId ?? chip.sendText ?? chip.label}`}
           type="button"
           disabled={disabled}
-          onClick={() => onSelect(chip.sendText)}
+          onClick={() => onSelect(chip)}
           className="focus-chip disabled:cursor-not-allowed disabled:opacity-50"
         >
           {chip.label}

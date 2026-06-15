@@ -1,9 +1,10 @@
 import type { ChatMessage } from '@shared/types/chat'
+import type { QuickReplyChip } from '@shared/types/chat'
 import { InlineQuickReplies } from './InlineQuickReplies'
 
 interface ChatMessageBubbleProps {
   message: ChatMessage
-  onQuickReply?: (text: string) => void
+  onQuickReply?: (chip: QuickReplyChip) => void
   quickRepliesDisabled?: boolean
 }
 
@@ -14,6 +15,8 @@ export function ChatMessageBubble({
 }: ChatMessageBubbleProps): React.JSX.Element {
   const isUser = message.role === 'user'
   const isSystem = message.role === 'system'
+  const chipsDisabled =
+    quickRepliesDisabled || message.notificationResolved === true
 
   const alignment = isUser ? 'justify-end' : 'justify-start'
   const bubbleClass = isUser
@@ -34,7 +37,7 @@ export function ChatMessageBubble({
         {!isUser && message.quickReplies && message.quickReplies.length > 0 && onQuickReply ? (
           <InlineQuickReplies
             chips={message.quickReplies}
-            disabled={quickRepliesDisabled}
+            disabled={chipsDisabled}
             onSelect={onQuickReply}
           />
         ) : null}

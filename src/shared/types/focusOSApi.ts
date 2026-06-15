@@ -13,10 +13,13 @@ import type {
   IpcInvokeChannel,
   IpcResult,
   AppNavigatePayload,
-  ChatAssistantMessagePayload,
-  CheckInStateChangedPayload,
+  NotificationAcknowledgedPayload,
+  NotificationActionPayload,
+  NotificationActionResponse,
+  NotificationDispatchedPayload,
+  NotificationListActiveResponse,
+  NotificationStateChangedPayload,
   ScheduleBlockChangedPayload,
-  MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
   ProtectedBlockGetPayload,
   ProtectedBlocksCreatePayload,
@@ -26,7 +29,6 @@ import type {
   ProtectedBlocksListResponse,
   ProtectedBlocksUpdatePayload,
   ProtectedBlocksUpdateResponse,
-  StalenessAlertPayload,
 } from './ipc'
 import type {
   AppSettingsUpdate,
@@ -163,10 +165,13 @@ export interface FocusOSApi {
     getDue(): Promise<import('./ipc').CheckInsGetDueResponse>
     acknowledge(payload: { clientId: number }): Promise<import('./ipc').CheckInsGetDueResponse>
   }
-  onMicroBreakDue(callback: (payload: MicroBreakDuePayload) => void): Unsubscribe
-  onStalenessAlert(callback: (payload: StalenessAlertPayload) => void): Unsubscribe
+  notifications: {
+    listActive(): Promise<NotificationListActiveResponse>
+    action(payload: NotificationActionPayload): Promise<NotificationActionResponse>
+  }
   onNavigate(callback: (payload: AppNavigatePayload) => void): Unsubscribe
-  onAssistantMessage(callback: (payload: ChatAssistantMessagePayload) => void): Unsubscribe
-  onCheckInStateChanged(callback: (payload: CheckInStateChangedPayload) => void): Unsubscribe
+  onNotificationDispatched(callback: (payload: NotificationDispatchedPayload) => void): Unsubscribe
+  onNotificationStateChanged(callback: (payload: NotificationStateChangedPayload) => void): Unsubscribe
+  onNotificationAcknowledged(callback: (payload: NotificationAcknowledgedPayload) => void): Unsubscribe
   onScheduleBlockChanged(callback: (payload: ScheduleBlockChangedPayload) => void): Unsubscribe
 }

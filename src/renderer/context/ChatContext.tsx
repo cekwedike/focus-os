@@ -2,17 +2,16 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react'
-import type { ChatAssistantMessagePayload } from '@shared/types/ipc'
 import { useAssistantDelivery } from '@renderer/chat/hooks/useAssistantDelivery'
 import { useChatOrchestrator } from '@renderer/chat/hooks/useChatOrchestrator'
 import { useChatSession } from '@renderer/chat/hooks/useChatSession'
 import type { AssistantDeliveryInput } from '@shared/chat/assistantDelivery'
 import { isGreetingSentThisSession } from '@shared/chat/proactiveGreetingSession'
+import type { QuickReplyChip } from '@shared/types/chat'
 
 interface ChatContextValue {
   messages: ReturnType<typeof useChatSession>['messages']
@@ -25,10 +24,21 @@ interface ChatContextValue {
   setGreetingComplete: (complete: boolean) => void
 }
 
+interface ChatInternalsValue extends ChatContextValue {
+  deliverNotificationToChat: (input: {
+    content: string
+    quickReplies?: QuickReplyChip[]
+    notificationId?: number
+  }) => Promise<void>
+  resolveNotificationMessage: (notificationId: number) => void
+}
+
 const ChatContext = createContext<ChatContextValue | null>(null)
+const ChatInternalsContext = createContext<ChatInternalsValue | null>(null)
 
 export function ChatProvider({ children }: { children: ReactNode }): React.JSX.Element {
-  const { messages, appendAssistantMessage, appendUserMessage } = useChatSession()
+  const { messages, appendAssistantMessage, appendUserMessage, resolveNotificationMessage } =
+    useChatSession()
   const { isTyping, deliverAssistantMessage, deliverAssistantMessages } =
     useAssistantDelivery(appendAssistantMessage)
   const [sending, setSending] = useState(false)
@@ -36,16 +46,6 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
   const { processMessage, initialized } = useChatOrchestrator({
     deliverAssistantMessage,
   })
-
-  useEffect(() => {
-    const unsubscribe = window.focusOS.onAssistantMessage((payload: ChatAssistantMessagePayload) => {
-      void deliverAssistantMessage({
-        content: payload.text,
-        quickReplies: payload.quickReplies,
-      })
-    })
-    return unsubscribe
-  }, [deliverAssistantMessage])
 
   const sendMessage = useCallback(
     async (text: string): Promise<void> => {
@@ -64,7 +64,22 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
     [appendUserMessage, processMessage, sending, isTyping]
   )
 
-  const value = useMemo(
+  const deliverNotificationToChat = useCallback(
+    async (input: {
+      content: string
+      quickReplies?: QuickReplyChip[]
+      notificationId?: number
+    }): Promise<void> => {
+      await deliverAssistantMessage({
+        content: input.content,
+        quickReplies: input.quickReplies,
+        notificationId: input.notificationId,
+      })
+    },
+    [deliverAssistantMessage]
+  )
+
+  const publicValue = useMemo(
     () => ({
       messages,
       sendMessage,
@@ -86,13 +101,34 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
     ]
   )
 
-  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>
+  const internalsValue = useMemo(
+    () => ({
+      ...publicValue,
+      deliverNotificationToChat,
+      resolveNotificationMessage,
+    }),
+    [publicValue, deliverNotificationToChat, resolveNotificationMessage]
+  )
+
+  return (
+    <ChatInternalsContext.Provider value={internalsValue}>
+      <ChatContext.Provider value={publicValue}>{children}</ChatContext.Provider>
+    </ChatInternalsContext.Provider>
+  )
 }
 
 export function useChatContext(): ChatContextValue {
   const context = useContext(ChatContext)
   if (!context) {
     throw new Error('useChatContext must be used within ChatProvider')
+  }
+  return context
+}
+
+export function useChatInternals(): ChatInternalsValue {
+  const context = useContext(ChatInternalsContext)
+  if (!context) {
+    throw new Error('useChatInternals must be used within ChatProvider')
   }
   return context
 }

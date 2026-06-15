@@ -144,7 +144,7 @@ src/renderer/
 │   ├── ChatContext.tsx
 │   ├── ScheduleContext.tsx
 │   ├── SettingsContext.tsx
-│   └── NotificationContext.tsx
+│   └── NotificationContext.tsx   # Persistent banner + notification IPC
 ├── screens/
 │   ├── Home/                # Merged Dashboard + Chat at /
 │   ├── Dashboard/           # Shared day-panel card components
@@ -370,19 +370,59 @@ UI shows last cached insight, partial template, or friendly offline message. Sch
 
 ## Notification System
 
-`notificationService.ts` wraps Electron `Notification` API.
+Central module: `src/main/services/notificationService.ts`. All alert producers call `notify(payload)` which:
 
-| Trigger | Source |
-|---------|--------|
-| Micro-break due | timerService (~90 min focus elapsed) |
-| Staleness warning | stalenessService periodic check |
-| Client check-in due | checkInService once per due cycle |
-| Block ending soon | blockNotificationService at 15/10/5 min before `planned_end` |
-| Block auto-progression | blockProgressionService at `planned_end` (chat message) |
-| Tray close tip | index.ts first hide-to-tray (one-time) |
-| Daily Insight ready | aiService completion (optional) |
+1. Inserts a row into `notifications_log`
+2. Optionally registers persistent unacknowledged state (keyed by `dedupeKey`)
+3. Fires a desktop notification when the category is enabled in `app_settings.notifications`
+4. Emits `notification:dispatched` to the renderer for chat and/or banner handling
 
-Respects `app_settings.notifications` (per category, including `clientReminder`). Desktop notifications are dismissible by the OS and do not persist; the in-app `CheckInDueBanner` is the persistent due-state UI. One desktop notification fires per due cycle (no repeat spam while unacknowledged).
+Supporting modules: `desktopNotification.ts` (icon, click-to-focus), `notificationActionRouter.ts` (action handlers), `notificationHandlers.ts` (IPC).
+
+### `notify()` payload
+
+| Field | Purpose |
+|-------|---------|
+| `type` | `micro_break`, `check_in_due`, `block_warning`, `block_complete`, `block_skipped`, `faith_reminder`, `staleness_alert`, `generic` |
+| `title`, `message` | User-facing copy |
+| `urgency` | `normal` or `high` (stored in log) |
+| `persistent` | When true, shows in `PersistentNotificationBanner` until acknowledged |
+| `dedupeKey` | Prevents duplicate desktop/chat for the same logical event while unacknowledged |
+| `actions` | Optional buttons routed through `notification:action` |
+| `showInChat` | Default true; set false for tray-only tips |
+| `metadata` | Domain context (e.g. `clientId`, `blockId`) for action routing |
+
+### IPC channels
+
+| Channel | Direction | Purpose |
+|---------|-----------|---------|
+| `notification:dispatched` | event | Full payload + `id`, `createdAt`, `skippedDuplicate` |
+| `notification:state-changed` | event | `{ active: ActiveNotificationSummary[] }` |
+| `notification:acknowledged` | event | `{ notificationId }` clears chat chips |
+| `notification:action` | invoke | Run action handler, set `acknowledged_at` |
+| `notification:list-active` | invoke | Hydrate banner on mount |
+
+### Renderer
+
+`NotificationContext` subscribes to notification IPC, delivers chat messages via `useAssistantDelivery`, and drives `PersistentNotificationBanner` in `AppShell`. Chat messages link to notifications via `notificationId`; banner and chat action buttons share acknowledgment through the same `notifications_log` row.
+
+### Producers
+
+| Trigger | Source | `persistent` |
+|---------|--------|----------------|
+| Micro-break due | `timerService` | false |
+| Client check-in due | `checkInService` | true |
+| Block 15/10/5 min warning | `blockNotificationService` | false |
+| Block auto-complete / skip / extend | `blockProgressionService` | false |
+| Faith block without log | `faithReminderService` | true |
+| Staleness threshold | `stalenessService` | false |
+| Tray close tip | `index.ts` | false |
+
+### Desktop vs in-app
+
+Desktop notifications use `resources/icon.png`, respect per-category settings, and focus the main window on click. OS notifications cannot truly persist; the in-app banner is the persistent surface. If `Notification.isSupported()` is false or permissions are denied, in-app delivery still works.
+
+When a persistent notification is already active for a `dedupeKey`, subsequent `notify()` calls skip desktop and chat dispatch and return the existing id.
 
 ## Timer System
 

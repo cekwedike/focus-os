@@ -33,7 +33,6 @@ import type {
 } from '@shared/chat/routerContext'
 import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
-import { useCheckInDue } from '@renderer/context/CheckInDueContext'
 import { getTodayDateString } from '@renderer/utils/date'
 
 interface ExtendedConversationState extends ConversationState {
@@ -79,7 +78,6 @@ export function useChatOrchestrator({
   deliverAssistantMessage,
 }: UseChatOrchestratorOptions) {
   const { dayBundle, activeBlock, nextBlock, refresh } = useScheduleContext()
-  const { dueEntries, acknowledge: acknowledgeCheckIn } = useCheckInDue()
   const [conversation, setConversation] = useState<ExtendedConversationState>(
     createExtendedConversationState
   )
@@ -133,7 +131,7 @@ export function useChatOrchestrator({
     })()
   }, [])
 
-  const routerContext: RouterContext = useMemo(
+  const routerContextBase: Omit<RouterContext, 'dueCheckInClients'> = useMemo(
     () => ({
       today: getTodayDateString(),
       conversation: {
@@ -149,10 +147,6 @@ export function useChatOrchestrator({
       defaultCapacityMinutes,
       defaultBufferPercent,
       nowIso: new Date().toISOString(),
-      dueCheckInClients: dueEntries.map((entry) => ({
-        id: entry.clientId,
-        name: entry.clientName,
-      })),
     }),
     [
       conversation,
@@ -163,7 +157,6 @@ export function useChatOrchestrator({
       defaultSleepTime,
       defaultCapacityMinutes,
       defaultBufferPercent,
-      dueEntries,
     ]
   )
 
@@ -219,6 +212,15 @@ export function useChatOrchestrator({
 
   const processMessage = useCallback(
     async (input: string): Promise<void> => {
+      const dueResponse = await window.focusOS.checkIns.getDue()
+      const routerContext: RouterContext = {
+        ...routerContextBase,
+        dueCheckInClients: dueResponse.due.map((entry) => ({
+          id: entry.clientId,
+          name: entry.clientName,
+        })),
+      }
+
       const match = classifyIntent(input, routerContext)
 
       if (match.ambiguousMessage) {
@@ -412,7 +414,7 @@ export function useChatOrchestrator({
           }
           case 'acknowledge_check_in': {
             const extracted = match.extracted as AcknowledgeCheckInExtracted
-            await acknowledgeCheckIn(extracted.clientId)
+            await window.focusOS.checkIns.acknowledge({ clientId: extracted.clientId })
             await deliverAssistantMessage(checkInAcknowledged(extracted.clientName))
             break
           }
@@ -424,7 +426,7 @@ export function useChatOrchestrator({
       }
     },
     [
-      routerContext,
+      routerContextBase,
       deliverAssistantMessage,
       executeWakeTime,
       unassignedClientId,
@@ -433,7 +435,6 @@ export function useChatOrchestrator({
       conversation.longBreakBreakId,
       conversation.longBreakStartedAt,
       nextBlock,
-      acknowledgeCheckIn,
     ]
   )
 
