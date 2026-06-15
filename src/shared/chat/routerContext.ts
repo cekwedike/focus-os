@@ -68,6 +68,17 @@ export interface CompleteTaskExtracted {
   title: string
 }
 
+export interface DeleteTaskExtracted {
+  taskId: number
+  title: string
+}
+
+export interface UpdateTaskExtracted {
+  taskId: number
+  title: string
+  previousTitle: string
+}
+
 export type IntentExtracted =
   | WakeTimeExtracted
   | AddTaskExtracted
@@ -76,6 +87,8 @@ export type IntentExtracted =
   | FaithLogExtracted
   | AcknowledgeCheckInExtracted
   | CompleteTaskExtracted
+  | DeleteTaskExtracted
+  | UpdateTaskExtracted
   | Record<string, never>
 
 export interface IntentMatch {

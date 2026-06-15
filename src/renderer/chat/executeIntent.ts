@@ -5,6 +5,8 @@ import type {
   AcknowledgeCheckInExtracted,
   BlockActionExtracted,
   CompleteTaskExtracted,
+  DeleteTaskExtracted,
+  UpdateTaskExtracted,
   FaithLogExtracted,
   LongBreakExtracted,
   RouterBlockSummary,
@@ -24,6 +26,8 @@ import {
   scheduleOverview,
   taskAdded,
   taskCompleted,
+  taskDeleted,
+  taskUpdated,
   taskListIntro,
   wakeTimeConfirmedSummary,
 } from '@shared/chat/responseTemplates'
@@ -358,6 +362,25 @@ export async function executeIntent(
 
       return {
         content: aiReplyText ?? taskCompleted(extracted.title),
+      }
+    }
+    case 'delete_task': {
+      const extracted = match.extracted as DeleteTaskExtracted
+      await window.focusOS.tasks.delete({ id: extracted.taskId })
+
+      return {
+        content: aiReplyText ?? taskDeleted(extracted.title),
+      }
+    }
+    case 'update_task': {
+      const extracted = match.extracted as UpdateTaskExtracted
+      await window.focusOS.tasks.update({
+        id: extracted.taskId,
+        title: extracted.title,
+      })
+
+      return {
+        content: aiReplyText ?? taskUpdated(extracted.previousTitle, extracted.title),
       }
     }
     case 'acknowledge_check_in': {

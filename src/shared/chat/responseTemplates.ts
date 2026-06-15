@@ -170,6 +170,14 @@ export function taskCompleted(title: string): string {
   return `Marked "${title}" complete.`
 }
 
+export function taskDeleted(title: string): string {
+  return `Removed "${title}" from your task list.`
+}
+
+export function taskUpdated(previousTitle: string, newTitle: string): string {
+  return `Updated task from "${previousTitle}" to "${newTitle}".`
+}
+
 export function taskListIntro(count: number): string {
   if (count === 0) {
     return 'You have no open tasks right now.'

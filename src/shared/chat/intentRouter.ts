@@ -6,7 +6,7 @@ import { matchEndBreakIntent, matchLongBreakIntent } from './intents/breakIntent
 import { matchFaithLogIntent } from './intents/faithLogIntent'
 import { matchMenuIntent } from './intents/menuIntent'
 import { matchQueryScheduleIntent, matchQueryStreakIntent } from './intents/queryIntent'
-import { matchQueryStatusIntent, matchQueryTasksIntent, matchCompleteTaskIntent, matchReplanDayIntent } from './intents/statusAndTaskIntent'
+import { matchQueryStatusIntent, matchQueryTasksIntent, matchCompleteTaskIntent, matchDeleteTaskIntent, matchUpdateTaskIntent, matchReplanDayIntent } from './intents/statusAndTaskIntent'
 import { buildUnrecognizedMatch } from './intents/unrecognizedIntent'
 import { matchWakeTimeIntent } from './intents/wakeTimeIntent'
 import type { IntentMatch, RouterContext } from './routerContext'
@@ -30,6 +30,8 @@ const INTENT_MATCHERS: IntentMatcher[] = [
   matchQueryStatusIntent,
   matchQueryTasksIntent,
   (input, context) => matchCompleteTaskIntent(input, { tasks: context.openTasks ?? [] }),
+  (input, context) => matchDeleteTaskIntent(input, { tasks: context.openTasks ?? [] }),
+  (input, context) => matchUpdateTaskIntent(input, { tasks: context.openTasks ?? [] }),
   matchReplanDayIntent,
 ]
 

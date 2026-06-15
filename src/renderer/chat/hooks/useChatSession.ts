@@ -93,11 +93,21 @@ export function useChatSession() {
     )
   }, [])
 
+  const clearMessages = useCallback((): void => {
+    setMessages([])
+    try {
+      sessionStorage.removeItem(CHAT_STORAGE_KEY)
+    } catch {
+      // sessionStorage may be unavailable in some contexts
+    }
+  }, [])
+
   return {
     messages,
     appendAssistantMessage,
     appendUserMessage,
     appendSystemMessage,
     resolveNotificationMessage,
+    clearMessages,
   }
 }

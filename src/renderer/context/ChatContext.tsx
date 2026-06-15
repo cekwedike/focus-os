@@ -10,7 +10,7 @@ import { useAssistantDelivery } from '@renderer/chat/hooks/useAssistantDelivery'
 import { useChatOrchestrator } from '@renderer/chat/hooks/useChatOrchestrator'
 import { useChatSession } from '@renderer/chat/hooks/useChatSession'
 import type { AssistantDeliveryInput } from '@shared/chat/assistantDelivery'
-import { isGreetingSentThisSession } from '@shared/chat/proactiveGreetingSession'
+import { isGreetingSentThisSession, clearGreetingSentThisSession } from '@shared/chat/proactiveGreetingSession'
 import type { QuickReplyChip } from '@shared/types/chat'
 
 interface ChatContextValue {
@@ -23,6 +23,7 @@ interface ChatContextValue {
   greetingComplete: boolean
   deliverAssistantMessages: (messages: AssistantDeliveryInput[]) => Promise<void>
   setGreetingComplete: (complete: boolean) => void
+  clearChat: () => void
 }
 
 interface ChatInternalsValue extends ChatContextValue {
@@ -38,7 +39,7 @@ const ChatContext = createContext<ChatContextValue | null>(null)
 const ChatInternalsContext = createContext<ChatInternalsValue | null>(null)
 
 export function ChatProvider({ children }: { children: ReactNode }): React.JSX.Element {
-  const { messages, appendAssistantMessage, appendUserMessage, resolveNotificationMessage } =
+  const { messages, appendAssistantMessage, appendUserMessage, resolveNotificationMessage, clearMessages } =
     useChatSession()
   const { isTyping, deliverAssistantMessage, deliverAssistantMessages } =
     useAssistantDelivery(appendAssistantMessage)
@@ -82,6 +83,12 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
     [deliverAssistantMessage]
   )
 
+  const clearChat = useCallback((): void => {
+    clearMessages()
+    clearGreetingSentThisSession()
+    setGreetingComplete(false)
+  }, [clearMessages])
+
   const publicValue = useMemo(
     () => ({
       messages,
@@ -93,6 +100,7 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
       greetingComplete,
       deliverAssistantMessages,
       setGreetingComplete,
+      clearChat,
     }),
     [
       messages,
@@ -103,6 +111,7 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
       aiThinking,
       greetingComplete,
       deliverAssistantMessages,
+      clearChat,
     ]
   )
 

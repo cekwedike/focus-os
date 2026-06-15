@@ -270,9 +270,20 @@ export function useChatOrchestrator({
 
   const processMessage = useCallback(
     async (input: string): Promise<void> => {
-      const dueResponse = await window.focusOS.checkIns.getDue()
+      const [dueResponse, taskRows] = await Promise.all([
+        window.focusOS.checkIns.getDue(),
+        window.focusOS.tasks.list(),
+      ])
+
+      const freshOpenTasks = taskRows
+        .filter((task) => task.status === 'pending' || task.status === 'in_progress')
+        .map((task) => ({ id: task.id, title: task.title }))
+
+      setOpenTasks(freshOpenTasks)
+
       const routerContext: RouterContext = {
         ...routerContextBase,
+        openTasks: freshOpenTasks,
         dueCheckInClients: dueResponse.due.map((entry) => ({
           id: entry.clientId,
           name: entry.clientName,

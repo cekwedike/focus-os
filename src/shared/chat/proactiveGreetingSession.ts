@@ -16,6 +16,14 @@ export function markGreetingSentThisSession(): void {
   }
 }
 
+export function clearGreetingSentThisSession(): void {
+  try {
+    sessionStorage.removeItem(GREETING_SENT_SESSION_KEY)
+  } catch {
+    // sessionStorage may be unavailable
+  }
+}
+
 export function shouldSendProactiveGreeting(sessionFlagSent: boolean): boolean {
   return !sessionFlagSent
 }

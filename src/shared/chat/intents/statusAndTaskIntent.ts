@@ -35,13 +35,13 @@ export function matchQueryTasksIntent(input: string): IntentMatch | null {
 export function matchCompleteTaskIntent(input: string, context: { tasks: Array<{ id: number; title: string }> }): IntentMatch | null {
   const trimmed = input.trim().toLowerCase()
 
-  const completeMatch = trimmed.match(/\b(complete|finish|done with)\s+(.+)$/i)
+  const completeMatch = trimmed.match(/\b(complete|finish|done with|mark)\s+(.+)$/i)
   if (!completeMatch) {
     return null
   }
 
   const query = completeMatch[2].trim()
-  const task = context.tasks.find((entry) => entry.title.toLowerCase().includes(query))
+  const task = findTaskByQuery(context.tasks, query)
   if (!task) {
     return null
   }
@@ -50,6 +50,131 @@ export function matchCompleteTaskIntent(input: string, context: { tasks: Array<{
     intent: 'complete_task',
     requiresIpc: true,
     extracted: { taskId: task.id, title: task.title },
+  }
+}
+
+function findTaskByQuery(
+  tasks: Array<{ id: number; title: string }>,
+  query: string
+): { id: number; title: string } | null {
+  const normalized = query.trim().toLowerCase()
+  if (!normalized) {
+    return null
+  }
+
+  const direct = tasks.find((entry) => entry.title.toLowerCase().includes(normalized))
+  if (direct) {
+    return direct
+  }
+
+  const tokens = normalized.split(/\s+/).filter((token) => token.length > 2)
+  if (tokens.length === 0) {
+    return null
+  }
+
+  return (
+    tasks.find((entry) => {
+      const title = entry.title.toLowerCase()
+      return tokens.some((token) => title.includes(token))
+    }) ?? null
+  )
+}
+
+function mostRecentTask(
+  tasks: Array<{ id: number; title: string }>
+): { id: number; title: string } | null {
+  if (tasks.length === 0) {
+    return null
+  }
+  return [...tasks].sort((left, right) => right.id - left.id)[0] ?? null
+}
+
+export function matchDeleteTaskIntent(
+  input: string,
+  context: { tasks: Array<{ id: number; title: string }> }
+): IntentMatch | null {
+  const trimmed = input.trim().toLowerCase()
+
+  if (
+    /\b(delete|remove|cancel)\b/.test(trimmed) &&
+    /\b(recently added|last added|just added|recent)\b/.test(trimmed)
+  ) {
+    const task = mostRecentTask(context.tasks)
+    if (!task) {
+      return null
+    }
+    return {
+      intent: 'delete_task',
+      requiresIpc: true,
+      extracted: { taskId: task.id, title: task.title },
+    }
+  }
+
+  if (/^(delete|remove|cancel)\s+(the\s+)?task[.!?\s]*$/i.test(trimmed)) {
+    const task = mostRecentTask(context.tasks)
+    if (!task) {
+      return null
+    }
+    return {
+      intent: 'delete_task',
+      requiresIpc: true,
+      extracted: { taskId: task.id, title: task.title },
+    }
+  }
+
+  const deleteMatch = trimmed.match(/\b(delete|remove|cancel)\s+(?:the\s+)?(?:task\s+)?(.+)$/i)
+  if (!deleteMatch) {
+    return null
+  }
+
+  const query = deleteMatch[2].trim()
+  if (!query || query === 'task') {
+    const task = mostRecentTask(context.tasks)
+    if (!task) {
+      return null
+    }
+    return {
+      intent: 'delete_task',
+      requiresIpc: true,
+      extracted: { taskId: task.id, title: task.title },
+    }
+  }
+
+  const task = findTaskByQuery(context.tasks, query)
+  if (!task) {
+    return null
+  }
+
+  return {
+    intent: 'delete_task',
+    requiresIpc: true,
+    extracted: { taskId: task.id, title: task.title },
+  }
+}
+
+export function matchUpdateTaskIntent(
+  input: string,
+  context: { tasks: Array<{ id: number; title: string }> }
+): IntentMatch | null {
+  const trimmed = input.trim()
+
+  const renameMatch = trimmed.match(
+    /\b(?:edit|rename|update)\s+(?:the\s+)?(?:task\s+)?(.+?)\s+(?:to|as)\s+(.+)$/i
+  )
+  if (!renameMatch) {
+    return null
+  }
+
+  const task = findTaskByQuery(context.tasks, renameMatch[1].trim())
+  const newTitle = renameMatch[2].trim()
+  if (!task || !newTitle) {
+    return null
+  }
+
+  return {
+    intent: 'update_task',
+    requiresIpc: true,
+    extracted: { taskId: task.id, title: newTitle, previousTitle: task.title },
   }
 }
 

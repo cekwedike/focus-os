@@ -100,6 +100,8 @@ export type ChatIntentType =
   | 'query_status'
   | 'query_tasks'
   | 'complete_task'
+  | 'delete_task'
+  | 'update_task'
   | 'replan_day'
   | 'acknowledge_check_in'
   | 'extend_block'

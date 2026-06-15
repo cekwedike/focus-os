@@ -17,8 +17,24 @@ export function ChatPanel(): React.JSX.Element {
     deliverAssistantMessages,
     aiThinking,
     isTyping,
+    sending,
+    messages,
+    clearChat,
   } = useChatContext()
   const [dayPanelOpen, setDayPanelOpen] = useState(false)
+
+  const handleClearChat = (): void => {
+    if (sending || isTyping || aiThinking) {
+      return
+    }
+    if (messages.length > 0) {
+      const confirmed = window.confirm('Clear this conversation? This cannot be undone.')
+      if (!confirmed) {
+        return
+      }
+    }
+    clearChat()
+  }
 
   useProactiveGreeting({
     initialized,
@@ -54,13 +70,24 @@ export function ChatPanel(): React.JSX.Element {
 
           <div className="flex shrink-0 flex-col items-end gap-2">
             <HudWaveform active={systemActive || initialized} className="hidden sm:flex" />
-            <button
-              type="button"
-              className="focus-btn-ghost text-xs lg:hidden"
-              onClick={() => setDayPanelOpen(true)}
-            >
-              Telemetry
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="focus-btn-ghost text-xs"
+                onClick={handleClearChat}
+                disabled={sending || isTyping || aiThinking}
+                title="Clear conversation"
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                className="focus-btn-ghost text-xs lg:hidden"
+                onClick={() => setDayPanelOpen(true)}
+              >
+                Telemetry
+              </button>
+            </div>
           </div>
         </div>
       </header>
