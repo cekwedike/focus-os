@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-15: Dashboard + Chat Merge and Auto Block Progression
+
+**Prompt summary:** Merge Chat into Dashboard as home at `/`, automatic block progression (pre-completion warnings, auto-complete + advance, extend +5, skip), contextual inline quick-reply chips on assistant messages, intent router extensions, full test coverage.
+
+**Outcome:** Migration 009 `protected_blocks.skippable`. `HomeDashboardScreen` (chat panel + day panel). `blockProgressionService`, `blockNotificationService`, pause-aware timers. Inline chips via `contextualChips.ts`. IPC: `schedule:complete-and-advance`, `schedule:extend-block`, `schedule:skip-block`, `work:get-paused`. 168 tests passing.
+
+**Files / phases:** src/renderer/screens/Home/, src/shared/schedule/, src/shared/chat/contextualChips.ts, blockProgressionService, ARCHITECTURE.md, SCHEMA.md, ROADMAP.md.
+
+**Follow-ups:** Phase 15 rich inline attachments beyond text chips.
+
 ### 2026-06-15: Self-Resetting Check-in Countdown (Supersedes Block-Tied Reminders)
 
 **Prompt summary:** Replace active-block-tied reminder timer with self-resetting countdown during each client's fixed-block window. Due state persists until acknowledged. `check_ins_log` table, global banner, chat acknowledgment intents, Review aggregations.

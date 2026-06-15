@@ -110,6 +110,6 @@ describe('skipBlock', () => {
       actual_start: `${scheduleDate}T08:00:00.000Z`,
     })
 
-    expect(() => skipBlock(db, rows[0].id)).toThrow('BLOCK_NOT_SKIPPABLE')
+    expect(() => skipBlock(db!, rows[0].id)).toThrow('BLOCK_NOT_SKIPPABLE')
   })
 })

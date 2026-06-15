@@ -7,7 +7,7 @@ Focus OS is a local-first Electron desktop application with a clear split betwee
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Renderer (React + TS)                       │
-│  Chat Shell │ Icon Rail │ Legacy Screens │ Context │ Components │
+│  Home Dashboard │ Icon Rail │ Legacy Screens │ Context │ Components │
 └────────────────────────────┬────────────────────────────────────┘
                              │ contextBridge (preload)
                              │ invoke / on events
@@ -66,7 +66,7 @@ flowchart TB
 | Application lifecycle | Create window, handle quit, single-instance lock (optional) |
 | SQLite | Open DB, migrations, CRUD for all 9 tables, transactions |
 | Allocation persistence | Invoke allocation engine, write `daily_schedule` and related rows atomically |
-| Timers | Micro-break interval (~90 min), staleness check interval, active block clock sync |
+| Timers | Micro-break interval (~90 min), staleness check interval, block pre-completion warnings (15/10/5 min), auto-complete + advance at `planned_end` |
 | Notifications | Desktop notifications for breaks, staleness, optional insight ready |
 | AI routing | OpenRouter HTTP (primary), Ollama HTTP (fallback), timeout and error handling |
 | Config | Load `.env`, merge with `app_settings`, secure API key access |
@@ -90,7 +90,10 @@ src/main/
 │   ├── migrations/
 │   └── repositories/        # One module per aggregate (tasks, schedule, etc.)
 ├── services/
-│   ├── timerService.ts      # Micro-break accumulator
+│   ├── timerService.ts      # Micro-break accumulator + progression tick
+│   ├── blockProgressionService.ts  # complete/advance, extend, skip
+│   ├── blockNotificationService.ts # Pre-completion warnings + chat posts
+│   ├── chatAssistantBridge.ts      # Main → renderer assistant messages
 │   ├── stalenessService.ts  # Client staleness alerts
 │   ├── checkInService.ts           # Self-resetting check-in countdown
 │   ├── workPauseService.ts  # Pause state from Schedule/Dashboard
@@ -109,9 +112,9 @@ src/main/
 
 | Area | Responsibility |
 |------|----------------|
-| UI shell | Chat-first thread, collapsible icon rail, top status bar, routing |
-| Chat orchestrator | Intent router (shared), template responses, sessionStorage history |
-| Legacy screens | Dashboard, Daily Workspace, Task Matrix, Schedule, Daily Insight, Journal, Review, Settings (secondary access via icon rail or `/menu`) |
+| UI shell | Merged home dashboard (chat + day panel), collapsible icon rail, top status bar, routing |
+| Chat orchestrator | Intent router (shared), template responses, sessionStorage history, inline contextual chips |
+| Legacy screens | Daily Workspace, Task Matrix, Schedule, Daily Insight, Journal, Review, Settings (secondary access via icon rail or `/menu`) |
 | Forms & modals | Long break (top bar shortcut), micro-break activity picker |
 | Local UI state | Selected filters, modal open state, draft form fields |
 | Display | Timelines, CSS flex bar charts on Review (no chart library), streak badges, focus score visualization |
@@ -143,7 +146,8 @@ src/renderer/
 │   ├── SettingsContext.tsx
 │   └── NotificationContext.tsx
 ├── screens/
-│   ├── Dashboard/
+│   ├── Home/                # Merged Dashboard + Chat at /
+│   ├── Dashboard/           # Shared day-panel card components
 │   ├── DailyWorkspace/
 │   ├── TaskMatrix/
 │   ├── Schedule/
@@ -171,9 +175,25 @@ src/shared/chat/             # Testable intent router (no Electron)
 └── intents/                 # One module per intent category
 ```
 
+## Home Dashboard (Merged Chat + Day Panel)
+
+Route `/` renders `HomeDashboardScreen`: chat is the dominant center column; a **Day Panel** sidebar (desktop) shows Live Execution, Up Next, Focus Score, Faith Streak, Next Break, and Staleness Radar. On mobile, a **Day** toggle opens the same panel as a slide-over drawer.
+
+Chat is no longer a separate route or icon-rail item. `/dashboard` redirects to `/`.
+
+### Layout (desktop)
+
+```
+Chat panel (~65%)  |  Day panel (w-80)
+ChatThread         |  RightNowCard (Pause, Extend +5, Skip, Complete)
+ChatInputBar       |  UpNext, widgets...
+```
+
+Dual control paths: Live Execution card buttons and chat commands (`extend by 5`, `skip this`, `I'm done`) both invoke the same IPC handlers.
+
 ## Chat Shell and Intent Router (Phase 13+)
 
-Focus OS uses a **chat-first primary interface** at route `/`. The existing eight screens remain available via a collapsible icon rail and the `/menu` chat command.
+Focus OS uses a **conversational home interface** at route `/`. Legacy screens remain available via the icon rail and `/menu`.
 
 ### Message Flow
 
@@ -205,11 +225,11 @@ Before each assistant message, a **typing indicator** shows for 650-1100ms (rand
 
 **Framer Motion** (limited scope, not full Phase 17): `TypingIndicator` dot animation, `AnimatedChatMessageBubble` slide-up + fade (200ms).
 
-**Suggestion chips** below the thread (above input) are contextual: wake shortcuts, day-ready actions, or long-break actions. Chips call the same `sendMessage` path as typed input.
+**Suggestion chips** are **inline** on assistant messages (contextual quick replies), not a persistent row below the thread. Contexts include welcome-back, pre-completion warnings, auto-progression, extend/skip confirmations, and wake-time prompts.
 
 ### Main-process assistant messages
 
-The main process can push text into the chat thread via IPC event `chat:assistant-message`. `ChatContext` subscribes and routes through `useAssistantDelivery` (typing pipeline). Used for per-client recurring check-in reminders when a client's schedule block is active.
+The main process pushes text into the chat thread via IPC event `chat:assistant-message` with optional `quickReplies`. Used for check-in reminders, pre-completion warnings (15/10/5 min), auto-complete/advance, extend confirmations, and skip confirmations.
 
 Reopening the app from the system tray does **not** re-trigger the proactive greeting; `focus-os-greeting-sent-v1` persists for the app session until restart.
 
@@ -267,7 +287,10 @@ window.focusOS.onMicroBreakDue(callback);
 | `schedule:generate` | invoke | Full day generation from wake time |
 | `schedule:reallocate` | invoke | Post-long-break re-allocation |
 | `schedule:get-day` | invoke | Fetch blocks for date |
-| `schedule:complete-block` | invoke | Mark block actual end, update metrics |
+| `schedule:complete-and-advance` | invoke | Complete block early or on demand and start next block |
+| `schedule:extend-block` | invoke | Extend active block +5 min, cascade later blocks |
+| `schedule:skip-block` | invoke | Skip skippable block, reclaim time, advance |
+| `work:get-paused` | invoke | Read main-process pause flag |
 | `tasks:*` | invoke | CRUD + matrix queries |
 | `clients:*` | invoke | CRUD clients/projects |
 | `journal:*` | invoke | Faith log read/write, search, stats, complete-faith-block |
@@ -354,6 +377,8 @@ UI shows last cached insight, partial template, or friendly offline message. Sch
 | Micro-break due | timerService (~90 min focus elapsed) |
 | Staleness warning | stalenessService periodic check |
 | Client check-in due | checkInService once per due cycle |
+| Block ending soon | blockNotificationService at 15/10/5 min before `planned_end` |
+| Block auto-progression | blockProgressionService at `planned_end` (chat message) |
 | Tray close tip | index.ts first hide-to-tray (one-time) |
 | Daily Insight ready | aiService completion (optional) |
 
@@ -363,8 +388,12 @@ Respects `app_settings.notifications` (per category, including `clientReminder`)
 
 `timerService.ts` runs in main process:
 
-- **Micro-break scheduler**: Accumulates seconds only while a schedule block is `active`; fires `break:micro-break-due` at configured interval.
+- **Micro-break scheduler**: Accumulates seconds only while a schedule block is `active` and work is not paused; fires `break:micro-break-due` at configured interval.
+- **Pre-completion warnings**: `blockNotificationService` fires at 15, 10, and 5 minutes before active block `planned_end` (desktop notification + chat message). Timings recalculate after extend.
+- **Auto-progression**: At `planned_end`, non-faith active blocks auto-complete and advance to the next `planned` block via `blockProgressionService`. Paused work blocks both warnings and auto-complete until resumed.
 - **Staleness checker**: `stalenessService.ts` compares `last_touched_at` per active client; emits `staleness:alert`.
+
+`workPauseService` tracks pause state in main process; `work:set-paused` and `work:get-paused` sync renderer Live Execution card with timers.
 
 `checkInService.ts` polls every second for clients with `reminder_enabled` and a fixed-block window (including daily overrides from `daily_settings.notes`):
 

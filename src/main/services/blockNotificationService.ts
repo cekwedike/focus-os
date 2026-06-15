@@ -6,7 +6,6 @@ import {
   recalculateFiredThresholds,
 } from '@shared/schedule/preCompletionNotifications'
 import { resolveContextualChips } from '@shared/chat/contextualChips'
-import { shouldAutoCompleteBlock } from '@shared/schedule/blockAutoComplete'
 import { emitAssistantMessage } from './chatAssistantBridge'
 import { showDesktopNotification } from './notificationService'
 import { getEffectiveNowMs, isWorkPaused } from './workPauseService'
@@ -89,15 +88,4 @@ export function tickBlockNotifications(activeBlock: DailyScheduleRow | null, now
 
   runtimeState.firedThresholds.add(dueThreshold)
   firePreCompletionNotification(activeBlock, dueThreshold)
-}
-
-export function shouldRunAutoComplete(
-  block: DailyScheduleRow,
-  nowMs = Date.now()
-): boolean {
-  if (isWorkPaused()) {
-    return false
-  }
-
-  return shouldAutoCompleteBlock(block, nowMs)
 }

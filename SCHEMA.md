@@ -121,8 +121,21 @@ User-configurable templates for non-negotiable daily blocks. Not dated rows; eng
 | `anchor_value` | TEXT | NOT NULL | Minutes after wake, or `HH:MM`, or relative rule encoded as JSON/text |
 | `sort_order` | INTEGER | NOT NULL DEFAULT 0 | Placement order among protected blocks |
 | `is_enabled` | INTEGER | NOT NULL DEFAULT 1 | Boolean 0/1 |
+| `skippable` | INTEGER | NOT NULL DEFAULT 0 | Boolean: whether daily instances of this template can be skipped from Live Execution or chat |
 | `created_at` | TEXT | NOT NULL | |
 | `updated_at` | TEXT | NOT NULL | |
+
+**`skippable` defaults by `block_type`**
+
+| `block_type` | Default | Reasoning |
+|--------------|---------|-----------|
+| `meal` | 1 (true) | Personal nourishment is flexible |
+| `micro_break` | 1 (true) | Optional scheduled slot; popups handle most breaks |
+| `morning_routine` | 0 (false) | Foundational start-of-day habit |
+| `faith` | 0 (false) | Intentional practice; completion uses journal path |
+| `winddown` | 0 (false) | End-of-day boundary before sleep target |
+
+Client blocks (`fixed_client`, `weighted_client`) on `daily_schedule` are always skippable at runtime. `buffer` and `break` rows are never skippable.
 
 **`block_type` enum**
 
@@ -157,15 +170,27 @@ Materialized schedule blocks for a specific calendar date. Regenerated or partia
 | `actual_start` | TEXT | NULL | Filled when user starts block |
 | `actual_end` | TEXT | NULL | Filled on completion or skip |
 | `actual_duration_minutes` | INTEGER | NULL | |
-| `status` | TEXT | NOT NULL DEFAULT 'planned' | `planned`, `active`, `completed`, `skipped`, `compressed`, `superseded` |
+| `status` | TEXT | NOT NULL DEFAULT 'planned' | See status enum below |
 | `priority_order` | INTEGER | NOT NULL DEFAULT 0 | Sort key within day |
 | `metadata_json` | TEXT | NULL | Extra engine output (compression ratio, bumped tasks refs) |
 | `created_at` | TEXT | NOT NULL | |
 | `updated_at` | TEXT | NOT NULL | |
 
-**Indexes**
+**`status` enum (daily_schedule)**
 
-- `idx_daily_schedule_date_order` ON (`schedule_date`, `priority_order`)
+| Value | Description |
+|-------|-------------|
+| `planned` | Generated but not started (user-facing "pending") |
+| `active` | Currently running (at most one per day) |
+| `completed` | Finished manually, by faith journal, or auto-progression at `planned_end` |
+| `skipped` | User skipped; unused time reclaimed by shifting later blocks earlier |
+| `compressed` | Shortened by long-break re-allocation |
+| `superseded` | Replaced on schedule regen or reallocate |
+
+**Extend and skip behavior**
+
+- **Extend +5:** Adds 5 minutes to active block `planned_end` and shifts all later blocks later by 5 minutes (flat cascade). Day may end later than the original sleep target; no silent compression.
+- **Skip:** Sets `skipped`, `actual_end = now`, shifts later blocks earlier by unused minutes. Next `planned` block becomes `active`.
 - `idx_daily_schedule_date_client` ON (`schedule_date`, `client_id`)
 - `idx_daily_schedule_active` ON (`schedule_date`, `status`) WHERE `status` = 'active'
 

@@ -32,6 +32,7 @@ const baseSettings: AppSettings = {
     staleness: true,
     insightReady: true,
     clientReminder: true,
+    blockReminder: true,
   },
   themeAccent: '#2DD4A0',
   onboardingComplete: false,
