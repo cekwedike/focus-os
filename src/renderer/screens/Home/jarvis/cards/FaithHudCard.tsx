@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useFaithStreak } from '@renderer/hooks/useFaithStreak'
+import { formatStreakDays } from '@shared/utils/faithStreak'
 import { useFaithEntry } from '@renderer/context/FaithEntryContext'
 import { useChatContext } from '@renderer/context/useChatContext'
 import { HudCard } from '../JarvisCard'
@@ -30,8 +31,8 @@ export function FaithHudCard(): React.JSX.Element {
             <p className="mt-2 text-sm text-text-muted">Syncing...</p>
           ) : (
             <>
-              <p className="hud-value mt-1 text-2xl">{current}d</p>
-              <p className="text-[10px] text-text-muted">Record {longest}d</p>
+              <p className="hud-value mt-1 text-xl sm:text-2xl">{formatStreakDays(current)}</p>
+              <p className="text-[10px] text-text-muted">Record {formatStreakDays(longest)}</p>
             </>
           )}
         </div>

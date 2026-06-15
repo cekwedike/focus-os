@@ -1,4 +1,5 @@
 import { useFaithStreak } from '@renderer/hooks/useFaithStreak'
+import { formatStreakDays } from '@shared/utils/faithStreak'
 
 interface FaithStreakWidgetProps {
   variant?: 'dashboard' | 'sidebar'
@@ -16,11 +17,11 @@ export function FaithStreakWidget({ variant = 'dashboard' }: FaithStreakWidgetPr
         <p className="mt-3 text-sm text-text-muted">Syncing...</p>
       ) : (
         <>
-          <p className={`focus-metric-value mt-2 ${variant === 'sidebar' ? '!text-3xl' : ''}`}>
-            {stats.currentStreak}
+          <p className={`focus-metric-value mt-2 ${variant === 'sidebar' ? '!text-2xl' : ''}`}>
+            {formatStreakDays(stats.currentStreak)}
           </p>
           <p className="mt-1 text-xs text-text-muted">
-            Longest {stats.longestStreak} days
+            Longest {formatStreakDays(stats.longestStreak)}
           </p>
         </>
       )}

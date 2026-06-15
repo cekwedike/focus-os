@@ -1,3 +1,5 @@
+import { formatStreakDays } from '@shared/utils/faithStreak'
+
 interface JournalStatsPanelProps {
   entriesThisMonth: number
   longestStreak: number
@@ -19,7 +21,9 @@ export function JournalStatsPanel({
         </div>
         <div>
           <dt className="text-xs text-text-muted">Longest Streak</dt>
-          <dd className="mt-1 text-lg font-semibold text-text-primary">{longestStreak} days</dd>
+          <dd className="mt-1 text-lg font-semibold text-text-primary">
+            {formatStreakDays(longestStreak)}
+          </dd>
         </div>
         <div>
           <dt className="text-xs text-text-muted">Total Words Logged</dt>

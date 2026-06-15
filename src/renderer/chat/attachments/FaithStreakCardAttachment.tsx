@@ -1,4 +1,5 @@
 import type { FaithStreakCardAttachment } from '@shared/types/chat'
+import { formatStreakDays } from '@shared/utils/faithStreak'
 
 interface FaithStreakCardAttachmentViewProps {
   attachment: FaithStreakCardAttachment
@@ -13,11 +14,15 @@ export function FaithStreakCardAttachmentView({
       <div className="grid grid-cols-2 gap-3 text-sm">
         <div>
           <p className="text-xs text-text-muted">Current</p>
-          <p className="text-lg font-semibold text-accent-mint">{attachment.currentStreak}</p>
+          <p className="text-lg font-semibold text-accent-mint">
+            {formatStreakDays(attachment.currentStreak)}
+          </p>
         </div>
         <div>
           <p className="text-xs text-text-muted">Longest</p>
-          <p className="text-lg font-semibold text-text-primary">{attachment.longestStreak}</p>
+          <p className="text-lg font-semibold text-text-primary">
+            {formatStreakDays(attachment.longestStreak)}
+          </p>
         </div>
       </div>
       <p className="mt-2 text-xs text-text-muted">

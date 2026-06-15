@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { calculateFaithStreaks } from '../../src/shared/utils/faithStreak'
+import { calculateFaithStreaks, formatStreakDays } from '../../src/shared/utils/faithStreak'
+
+describe('formatStreakDays', () => {
+  it('uses singular Day for 1', () => {
+    expect(formatStreakDays(1)).toBe('1 Day')
+  })
+
+  it('uses plural Days for 0 and 2+', () => {
+    expect(formatStreakDays(0)).toBe('0 Days')
+    expect(formatStreakDays(2)).toBe('2 Days')
+    expect(formatStreakDays(10)).toBe('10 Days')
+  })
+})
 
 describe('calculateFaithStreaks', () => {
   it('returns zero streaks when there are no entries', () => {

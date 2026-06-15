@@ -8,6 +8,12 @@ export interface FaithStreakResult {
   longestStreak: number
 }
 
+/** e.g. 0 → "0 Days", 1 → "1 Day", 2 → "2 Days" */
+export function formatStreakDays(count: number): string {
+  const label = count === 1 ? 'Day' : 'Days'
+  return `${count} ${label}`
+}
+
 export function isQualifyingFaithEntry(entry: FaithStreakEntry): boolean {
   return Boolean(entry.bible_reference?.trim())
 }

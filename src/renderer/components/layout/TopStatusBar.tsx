@@ -4,6 +4,7 @@ import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { useBreakContext } from '@renderer/context/BreakContext'
 import { useFaithEntry } from '@renderer/context/FaithEntryContext'
 import { useFaithStreak } from '@renderer/hooks/useFaithStreak'
+import { formatStreakDays } from '@shared/utils/faithStreak'
 import { ActiveBlockTimer } from '@renderer/components/schedule/ActiveBlockTimer'
 
 function NotificationBellIcon(): React.JSX.Element {
@@ -60,7 +61,7 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
       : `${dayBundle.focusScore}%`
 
   const faithStreakLabel =
-    faithStats === null ? '--' : `${faithStats.currentStreak}d`
+    faithStats === null ? '--' : formatStreakDays(faithStats.currentStreak)
 
   const isLive = Boolean(activeBlock) || longBreakActive
 
