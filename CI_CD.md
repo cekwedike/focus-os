@@ -143,8 +143,12 @@ Optional but recommended before a release tag:
 
 | File | Trigger | Runner |
 |------|---------|--------|
-| [.github/workflows/ci.yml](./.github/workflows/ci.yml) | Push/PR to `main` | `ubuntu-latest` |
-| [.github/workflows/release.yml](./.github/workflows/release.yml) | Tag `v*.*.*` | `windows-latest` |
+| [.github/workflows/ci.yml](./.github/workflows/ci.yml) | Push/PR to `main` | `ubuntu-latest` (reuses `checks.yml`) |
+| [.github/workflows/checks.yml](./.github/workflows/checks.yml) | Reusable workflow | `ubuntu-latest` |
+| [.github/workflows/cd.yml](./.github/workflows/cd.yml) | Manual (`workflow_dispatch`) | `windows-latest` |
+| [.github/workflows/release.yml](./.github/workflows/release.yml) | Tag `v*.*.*` or manual | `windows-latest` |
+| [.github/workflows/maintenance.yml](./.github/workflows/maintenance.yml) | Weekly schedule or manual | `ubuntu-latest` |
+| [.github/dependabot.yml](./.github/dependabot.yml) | Weekly dependency PRs | GitHub-hosted |
 
 ## Secrets and Environment
 

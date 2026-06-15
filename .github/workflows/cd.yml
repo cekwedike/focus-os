@@ -1,0 +1,54 @@
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_artifact:
+        description: Upload the Windows installer as a workflow artifact
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    name: Build Windows installer
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+
+      - name: TypeScript type check
+        run: pnpm typecheck
+
+      - name: ESLint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+        env:
+          CI: true
+
+      - name: Build Windows executable
+        run: pnpm build:exe
+
+      - name: Upload installer artifact
+        if: inputs.upload_artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: focus-os-windows-installer
+          path: |
+            release/*.exe
+            release/*.exe.blockmap
+          if-no-files-found: error
+          retention-days: 14

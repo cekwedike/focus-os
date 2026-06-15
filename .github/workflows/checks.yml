@@ -1,0 +1,29 @@
+name: Checks
+
+on:
+  workflow_call:
+
+jobs:
+  check:
+    name: Typecheck, lint, and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+
+      - name: TypeScript type check
+        run: pnpm typecheck
+
+      - name: ESLint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+        env:
+          ELECTRON_DISABLE_SANDBOX: 1
+          CI: true

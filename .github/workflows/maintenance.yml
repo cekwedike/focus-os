@@ -1,0 +1,46 @@
+name: Maintenance
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    name: Weekly hygiene checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+
+      - name: TypeScript type check
+        run: pnpm typecheck
+
+      - name: ESLint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+        env:
+          ELECTRON_DISABLE_SANDBOX: 1
+          CI: true
+
+      - name: Prettier format check
+        run: pnpm format:check
+        continue-on-error: true
+
+      - name: Dependency audit (high severity)
+        run: pnpm audit --audit-level high
+        continue-on-error: true
+
+      - name: Outdated dependency report
+        run: pnpm outdated || true
+        continue-on-error: true
