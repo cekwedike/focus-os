@@ -175,7 +175,7 @@ describe('schedule timestamp consistency', () => {
       )
       .run({
         schedule_date: scheduleDate,
-        planned_start: `${scheduleDate}T20:54:00`,
+        planned_start: `${scheduleDate}T18:54:00.000Z`,
         planned_end: `${scheduleDate}T20:10:00.000Z`,
         created_at: timestamp,
         updated_at: timestamp,

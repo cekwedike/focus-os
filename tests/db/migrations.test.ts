@@ -9,6 +9,7 @@ import {
 } from '../../src/main/db/migrations/seed'
 import { getLatestSchemaVersion, listUserTableNames, runMigrations } from '../../src/main/db/migrations/runner'
 import { applyTimezoneLegacyFixMigration } from '../../src/main/db/migrations/015_timezone_legacy_fix'
+import { resolveDefaultTimezone } from '../../src/shared/constants/timezones'
 
 function createTempDatabasePath(): string {
   const directory = mkdtempSync(join(tmpdir(), 'focus-os-test-'))
@@ -153,7 +154,7 @@ describe('database migrations', () => {
       .prepare('SELECT value FROM app_settings WHERE key = ?')
       .get('timezone') as { value: string }
 
-    expect(JSON.parse(timezone.value)).not.toBe('UTC')
+    expect(JSON.parse(timezone.value)).toBe(resolveDefaultTimezone())
   })
 
   it('seeds system unassigned client', () => {
