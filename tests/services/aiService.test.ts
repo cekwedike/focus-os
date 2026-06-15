@@ -24,6 +24,7 @@ const baseSettings: AppSettings = {
   microBreakIntervalMinutes: 90,
   minViableBlockMinutes: 15,
   defaultBufferPercent: 10,
+  maxBufferMinutes: 60,
   doomscrollAllowanceMinutes: 5,
   timeFormat: '12h',
   weekStartsOn: 'monday',

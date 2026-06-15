@@ -97,18 +97,24 @@ Fixed blocks consume time but **task fill** happens in Step 5 per client block.
 
 ### Step 3: Apply Buffer
 
-1. Sum remaining free minutes across intervals (after Steps 1-2).
-2. `buffer_minutes = floor(remaining_free * buffer_percent / 100)`.
-3. Allocate buffer as one or more `block_type = buffer` segments (prefer end of day before winddown, or distributed trailing slots; default: single block immediately before winddown if winddown exists, else last free segment).
-4. Subtract buffer from free minutes.
+1. Compute **flexible minutes** (the pool shared between buffer and weighted client blocks):
+   - When `capacityMinutes` is provided (`remaining_minutes_at_wake`):
+     `flexible_minutes = max(0, capacityMinutes - protectedMinutes - fixedMinutes)`
+   - When `capacityMinutes` is omitted (tests / legacy callers):
+     `flexible_minutes = sum(timeline free gaps after Steps 1-2)`
+2. `requested_buffer = floor(flexible_minutes * buffer_percent / 100)`
+3. `buffer_minutes = min(requested_buffer, max_buffer_minutes)` (default cap: 60)
+4. `distributable_minutes = flexible_minutes - buffer_minutes` (passed to Step 4 for weighted clients)
+5. Allocate buffer as one `block_type = buffer` segment (prefer immediately before winddown, else first-fit in free intervals). If physical gaps cannot fit the computed duration, shorten placement and return freed minutes to the weighted pool.
+6. Subtract buffer interval from timeline free gaps.
 
-Buffer is not task-fillable.
+Buffer is not task-fillable. Clamped buffer excess is redistributed to weighted client allocation, not discarded.
 
 ### Step 4: Weighted Distribution of Remaining Time
 
 1. Consider only **active** clients with `weight_percent > 0`.
 2. If sum of weights ≠ 100, **normalize**: `effective_weight = weight / sum * 100`.
-3. `distributable_minutes = sum(free intervals after buffer)`.
+3. `distributable_minutes` is supplied from Step 3 (flexible pool minus buffer). Physical placement is limited by remaining timeline gaps.
 4. For each client: `allocated = floor(distributable_minutes * effective_weight / 100)`.
 5. Assign minutes to free intervals in timeline order (first-fit contiguous segments):
    - Create `block_type = weighted_client` blocks per client.
@@ -253,7 +259,8 @@ Future enhancement (not in scope): optional "stale client nudge" in Daily Insigh
 | Constant | Default | Source |
 |----------|---------|--------|
 | `min_viable_block_minutes` | 15 | app_settings |
-| `buffer_percent` | 10 | daily_settings |
+| `max_buffer_minutes` | 60 | app_settings |
+| `buffer_percent` | 10 | daily_settings / app_settings default |
 | `default_task_estimate_minutes` | 25 | engine constant |
 | Weight normalization | always if sum ≠ 100 | engine rule |
 

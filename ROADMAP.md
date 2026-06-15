@@ -74,6 +74,8 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Completed 2026-06-14:** Pure allocation module with protected/fixed/buffer/weighted/task-fill pipeline, long-break re-allocation with MVB bumping and replan summary, 17 allocation unit tests, `runAllocation.ts` DB mapper in main process.
 
+**Completed 2026-06-15:** Capacity-aware buffer sizing fix. Buffer is now percent of flexible time (`capacityMinutes - protected - fixed`), capped by `max_buffer_minutes` (default 60), with Settings UI guidance for high buffer values.
+
 ## Phase 5: Daily Workspace + Wake-Time Flow
 
 **Status:** Complete
@@ -284,10 +286,6 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 **Completed 2026-06-15:** New intents `query_status`, `query_tasks`, `complete_task`, `replan_day`; Daily Workspace and Schedule removed from icon rail (routes remain for deep links); Settings/Review/Journal history stay as dedicated screens; `executeIntent` extraction for shared IPC path.
 
 ## Follow-up Work (not yet scheduled as phases)
-
-### Capacity-aware buffer sizing
-
-Review and fix capacity-aware buffer sizing in the allocation engine. Buffer block duration should be bounded relative to `total_capacity_hours` / `remaining_minutes_at_wake` and not consume a disproportionate share of the day at high `buffer_percent`. Add Settings UI guidance when buffer values above a threshold are likely misconfigurations.
 
 ## Phase Dependency Graph
 

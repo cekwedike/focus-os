@@ -15,6 +15,7 @@ const baseContext = {
   defaultSleepTime: '23:00',
   defaultCapacityMinutes: 480,
   defaultBufferPercent: 10,
+  maxBufferMinutes: 60,
   nowIso: '2026-06-14T12:00:00.000Z',
   dueCheckInClients: [{ id: 1, name: 'PLNITUDE' }],
 }

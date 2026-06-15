@@ -267,7 +267,7 @@ Per-day settings captured at day start or when user changes day parameters.
 | `settings_date` | TEXT | NOT NULL UNIQUE | `YYYY-MM-DD` |
 | `wake_time` | TEXT | NULL | ISO 8601 or `HH:MM` on that date |
 | `sleep_target_time` | TEXT | NULL | Optional upper bound for schedule |
-| `buffer_percent` | REAL | NOT NULL DEFAULT 10 | Percent of remaining day reserved as buffer blocks |
+| `buffer_percent` | REAL | NOT NULL DEFAULT 10 | Percent of flexible time (capacity minus protected and fixed) reserved as buffer |
 | `remaining_minutes_at_wake` | INTEGER | NULL | Snapshot after wake entry |
 | `allocation_version` | INTEGER | NOT NULL DEFAULT 1 | Increment on each full regen |
 | `notes` | TEXT | NULL | User day notes |
@@ -371,6 +371,8 @@ Global key-value configuration.
 | `default_staleness_hours` | number | Default 24 |
 | `micro_break_interval_minutes` | number | Default 90 |
 | `min_viable_block_minutes` | number | Default 15 |
+| `default_buffer_percent` | number | Default 10 |
+| `max_buffer_minutes` | number | Hard ceiling on buffer block duration (default 60) |
 | `notifications` | object | Per-category booleans |
 | `theme_accent` | string | Default `#2DD4A0` |
 | `onboarding_complete` | boolean | First-run flag |

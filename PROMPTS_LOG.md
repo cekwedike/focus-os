@@ -13,6 +13,14 @@ After each significant AI session:
 
 Keep entries concise but specific enough that a future you (or Cursor) can resume without re-reading entire chat threads.
 
+### 2026-06-15: Capacity-Aware Buffer Sizing Fix
+
+**Prompt summary:** Fix allocation engine buffer sizing to use percent of flexible time (capacity minus protected minus fixed), add `max_buffer_minutes` cap (default 60), Settings UI guidance, migration 016, and regression tests.
+
+**Outcome:** `flexiblePool.ts` and refactored `applyBuffer.ts` compute buffer from flexible pool when `capacityMinutes` is set; `max_buffer_minutes` app setting with migration 016; Settings hints and >30% warning; 10 new allocation/migration tests. 242 tests pass. Prior ~418 min symptom was a display/timestamp issue (see earlier PROMPTS_LOG entry), not a 50% seed value.
+
+**Files / phases:** `src/shared/allocation/flexiblePool.ts`, `applyBuffer.ts`, `index.ts`, `distributeWeighted.ts`, `runAllocation.ts`, migration 016, `AppSettingsSection.tsx`, `tests/allocation/applyBuffer.test.ts`, ALLOCATION_ENGINE.md, SCHEMA.md, ROADMAP.md Phase 4 note.
+
 ## Entry Template
 
 ```markdown

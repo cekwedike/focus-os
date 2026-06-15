@@ -4,7 +4,6 @@ import { computeFlexibleMinutes, resolveBufferMinutes } from '@shared/allocation
 import {
   baseInput,
   clientWithFixedBlock,
-  SCHEDULE_DATE,
   WAKE_TIME,
 } from './fixtures'
 import type { ClientInput, ProtectedBlockTemplate } from '@shared/allocation/types'
@@ -170,6 +169,7 @@ describe('allocateDay buffer sizing', () => {
         clients: [],
         tasks: [],
         bufferPercent: 10,
+        maxBufferMinutes: 120,
         protectedBlocks: [],
       })
     )
@@ -178,6 +178,10 @@ describe('allocateDay buffer sizing', () => {
     const expectedFlexible = dayWindowMinutes
     const buffer = output.blocks.find((block) => block.blockType === 'buffer')
     expect(buffer?.plannedDurationMinutes).toBe(Math.floor(expectedFlexible * 0.1))
+  })
+})
+
+describe('allocateDay fixed client buffer interaction', () => {
   it('matches clientWithFixedBlock fixture without buffer inflation', () => {
     const output = allocateDay(
       baseInput({

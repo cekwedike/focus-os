@@ -66,10 +66,6 @@ export function applyBuffer(
             break
           }
           segmentStart = null
-        } else if (available > 0 && available < targetBufferMinutes) {
-          segmentStart = interval.start
-          placedMinutes = available
-          break
         }
       }
     }
