@@ -1,3 +1,6 @@
+import { matchClientFromForClause } from '@shared/chat/parsers/matchClientName'
+import { parseEstimateMinutes } from '@shared/chat/parsers/parseDuration'
+
 export interface QuickAddClient {
   id: number
   name: string
@@ -9,27 +12,20 @@ export interface QuickAddParseResult {
   estimatedMinutes: number
   deadlineDate: string | null
   priority: number
+  ambiguousClients?: string[]
 }
 
 const DEFAULT_ESTIMATE_MINUTES = 30
 const DEFAULT_PRIORITY = 3
 
+const ADD_TASK_PREFIX_PATTERNS = [
+  /^add\s+/i,
+  /^remind me to\s+/i,
+  /^i need to\s+/i,
+]
+
 function stripMatched(text: string, pattern: RegExp): string {
   return text.replace(pattern, '').replace(/\s+/g, ' ').trim()
-}
-
-function parseEstimateMinutes(input: string): number | null {
-  const hourMatch = input.match(/(\d+(?:\.\d+)?)\s*h(?:ours?)?/i)
-  if (hourMatch) {
-    return Math.round(Number(hourMatch[1]) * 60)
-  }
-
-  const minuteMatch = input.match(/(\d+)\s*m(?:in(?:utes?)?)?/i)
-  if (minuteMatch) {
-    return Number(minuteMatch[1])
-  }
-
-  return null
 }
 
 function formatDate(date: Date): string {
@@ -66,23 +62,12 @@ function parseDeadline(input: string, referenceDate = new Date()): string | null
   return null
 }
 
-function matchClient(input: string, clients: QuickAddClient[]): QuickAddClient | null {
-  const forMatch = input.match(/\bfor\s+(.+?)(?:\s*$)/i)
-  if (!forMatch) {
-    return null
+export function stripAddTaskPrefix(input: string): string {
+  let working = input.trim()
+  for (const pattern of ADD_TASK_PREFIX_PATTERNS) {
+    working = working.replace(pattern, '').trim()
   }
-
-  const query = forMatch[1].trim().toLowerCase()
-  const exact = clients.find((client) => client.name.toLowerCase() === query)
-  if (exact) {
-    return exact
-  }
-
-  return (
-    clients.find((client) => client.name.toLowerCase().includes(query)) ??
-    clients.find((client) => query.includes(client.name.toLowerCase())) ??
-    null
-  )
+  return working
 }
 
 export function parseQuickAddTask(
@@ -90,27 +75,39 @@ export function parseQuickAddTask(
   clients: QuickAddClient[],
   unassignedClientId: number
 ): QuickAddParseResult {
-  let working = input.trim()
+  let working = stripAddTaskPrefix(input.trim())
 
   const estimate = parseEstimateMinutes(working) ?? DEFAULT_ESTIMATE_MINUTES
   working = stripMatched(working, /\d+(?:\.\d+)?\s*h(?:ours?)?/i)
   working = stripMatched(working, /\d+\s*m(?:in(?:utes?)?)?/i)
+  working = stripMatched(working, /\bhalf\s+(?:an?\s+)?hour\b/i)
 
   const deadlineDate = parseDeadline(working)
   working = stripMatched(working, /\bby\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i)
   working = stripMatched(working, /\btoday\b/i)
   working = stripMatched(working, /\btomorrow\b/i)
 
-  const client = matchClient(working, clients)
-  if (client) {
+  const clientOutcome = matchClientFromForClause(working, clients)
+  let ambiguousClients: string[] | undefined
+
+  if (clientOutcome.status === 'ambiguous') {
+    ambiguousClients = clientOutcome.candidates.map((client) => client.name)
+  }
+
+  if (clientOutcome.status === 'matched') {
     working = stripMatched(working, /\bfor\s+.+$/i)
   }
 
   return {
     title: working || input.trim(),
-    clientId: client?.id ?? unassignedClientId,
+    clientId:
+      clientOutcome.status === 'matched' ? clientOutcome.client.id : unassignedClientId,
     estimatedMinutes: estimate,
     deadlineDate,
     priority: DEFAULT_PRIORITY,
+    ambiguousClients,
   }
 }
+
+export { parseEstimateMinutes } from '@shared/chat/parsers/parseDuration'
+export { matchClientByName, matchClientFromForClause } from '@shared/chat/parsers/matchClientName'

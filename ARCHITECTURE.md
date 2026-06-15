@@ -7,7 +7,7 @@ Focus OS is a local-first Electron desktop application with a clear split betwee
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Renderer (React + TS)                       │
-│  Sidebar │ Screens │ Context │ Components │ Tailwind UI         │
+│  Chat Shell │ Icon Rail │ Legacy Screens │ Context │ Components │
 └────────────────────────────┬────────────────────────────────────┘
                              │ contextBridge (preload)
                              │ invoke / on events
@@ -104,9 +104,10 @@ src/main/
 
 | Area | Responsibility |
 |------|----------------|
-| UI shell | Sidebar navigation, top status bar, routing |
-| Screens | Dashboard, Daily Workspace, Task Matrix, Schedule, Daily Insight, Journal, Review, Settings |
-| Forms & modals | Wake-time capture, long break, micro-break activity picker |
+| UI shell | Chat-first thread, collapsible icon rail, top status bar, routing |
+| Chat orchestrator | Intent router (shared), template responses, sessionStorage history |
+| Legacy screens | Dashboard, Daily Workspace, Task Matrix, Schedule, Daily Insight, Journal, Review, Settings (secondary access via icon rail or `/menu`) |
+| Forms & modals | Long break (top bar shortcut), micro-break activity picker |
 | Local UI state | Selected filters, modal open state, draft form fields |
 | Display | Timelines, CSS flex bar charts on Review (no chart library), streak badges, focus score visualization |
 | IPC client | Call preload API; subscribe to push events |
@@ -118,7 +119,16 @@ src/renderer/
 ├── main.tsx
 ├── App.tsx                  # Router + layout shell
 ├── routes.tsx
+├── chat/                    # Primary UI (Phase 13+)
+│   ├── ChatShell.tsx
+│   ├── ChatThread.tsx
+│   ├── ChatInputBar.tsx
+│   ├── ScreenIconRail.tsx
+│   └── hooks/
+│       ├── useChatSession.ts
+│       └── useChatOrchestrator.ts
 ├── context/
+│   ├── ChatContext.tsx
 │   ├── ScheduleContext.tsx
 │   ├── SettingsContext.tsx
 │   └── NotificationContext.tsx
@@ -132,13 +142,54 @@ src/renderer/
 │   ├── Review/
 │   └── Settings/
 ├── components/
-│   ├── layout/              # Sidebar, TopBar, Card
+│   ├── layout/              # TopBar, icon rail helpers
 │   ├── schedule/            # Timeline, BlockCard
 │   └── shared/              # Button, Input, Badge
 └── hooks/
     ├── useIpc.ts
     └── useCurrentBlock.ts
+
+src/shared/chat/             # Testable intent router (no Electron)
+├── intentRouter.ts          # classifyIntent()
+├── responseTemplates.ts     # Template-based assistant text
+├── routerContext.ts
+├── parsers/                 # Wake time, duration, client, block title
+└── intents/                 # One module per intent category
 ```
+
+## Chat Shell and Intent Router (Phase 13+)
+
+Focus OS uses a **chat-first primary interface** at route `/`. The existing eight screens remain available via a collapsible icon rail and the `/menu` chat command.
+
+### Message Flow
+
+```
+User types in ChatInputBar
+  → useChatOrchestrator.processMessage()
+  → classifyIntent() in src/shared/chat/intentRouter.ts (pure, deterministic)
+  → if unrecognized or ambiguous: responseTemplates only (no IPC)
+  → else: window.focusOS.* IPC calls (existing handlers, unchanged)
+  → responseTemplates build assistant text from IPC results
+  → ChatMessage appended to thread (sessionStorage, last 80 messages)
+```
+
+### Persistence
+
+Chat history uses **sessionStorage** (`focus-os-chat-v1`), capped at 80 messages. No database table in Phase 13; a future phase may add SQLite persistence once rich attachment shapes stabilize.
+
+### Conversation State
+
+The orchestrator tracks `pendingPrompt` (wake time), `longBreakActive`, and faith block context. On first open each day without `wake_time`, the assistant proactively asks for wake time and replaces the Phase 5 wake modal.
+
+### Future Hook Points
+
+| Phase | Hook location | Purpose |
+|-------|---------------|---------|
+| 14 | `intentRouter.ts` after deterministic pass | AI fallback for ambiguous input |
+| 15 | `ChatMessage.attachments` + `ChatMessageBubble` | Inline rich components (schedule cards, etc.) |
+| 16 | `ChatInputBar` mic button | Voice input |
+| 17 | Chat UI components | Motion and transitions |
+| 18 | Orchestrator + router | Migrate remaining screen workflows into chat |
 
 ## Preload and IPC Pattern
 
@@ -284,12 +335,10 @@ Timers pause or adjust on long break start/end per product rules (documented in 
 
 ### Morning Wake-Time Flow
 
-1. User submits wake time in Daily Workspace modal.
-2. Renderer `invoke('schedule:generate', { wakeTime, date })`.
-3. Main loads clients, tasks, protected_blocks, daily_settings.
-4. Allocation engine runs full pipeline.
-5. Main writes `daily_schedule` rows, updates `daily_settings.wake_time`.
-6. Returns schedule to renderer; ScheduleContext updates; Dashboard reflects current block.
+1. User opens app; chat assistant asks "What time did you wake up?" if no wake time logged today.
+2. User replies (e.g. "9am"); intent router parses wake time.
+3. Renderer calls `daily:upsert`, then `schedule:generate`, then `schedule:commit` (same IPC as Daily Workspace).
+4. Assistant responds with a text summary of today's schedule; ScheduleContext refreshes.
 
 ### Long Break Return Flow
 

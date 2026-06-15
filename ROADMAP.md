@@ -220,6 +220,57 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Completed 2026-06-14:** NSIS installer via `pnpm build:exe`, output `release/Focus OS Setup 0.1.0.exe`, `asarUnpack` for better-sqlite3, release.yml artifact glob aligned, local smoke test passed (packaged exe launches).
 
+## Phase 13: Chat-First Shell and Intent Router
+
+**Status:** Complete
+
+**Goal:** Replace sidebar-first navigation with a chat thread as the primary interface; route user messages to existing IPC via deterministic pattern matching.
+
+**Deliverables**
+
+- Chat shell at `/`: scrollable message history, input bar with placeholder mic icon
+- Collapsible icon rail for legacy screens; `/menu` chat command lists screens
+- Top status bar retained above chat
+- Proactive wake-time prompt in chat (replaces wake modal); full generate + commit flow
+- Shared intent router (`src/shared/chat/`) with template-based responses
+- Message type with attachment union stub for Phase 15
+- sessionStorage chat history (last 80 messages)
+- Unit tests for all intent categories and unrecognized-no-IPC guarantee
+
+**Exit criteria:** User can manage wake time, tasks, blocks, breaks, faith log, and schedule queries via chat; legacy screens accessible via rail; 99 tests pass.
+
+**Completed 2026-06-15:** ChatShell, ScreenIconRail, ChatContext, useChatOrchestrator, classifyIntent with 10 intent categories, responseTemplates module, extended quickAddTask client matching (initialism), Dashboard moved to `/dashboard`.
+
+## Phase 14: AI Fallback for Chat
+
+**Status:** Not Started
+
+**Goal:** When deterministic intent matching fails, route ambiguous input through the existing AI provider chain (OpenRouter free models, Ollama fallback) to classify intent or generate a helpful reply.
+
+## Phase 15: Inline Rich Components
+
+**Status:** Not Started
+
+**Goal:** Render schedule cards, task summaries, and other structured data as inline message attachments instead of plain text only.
+
+## Phase 16: Voice Input
+
+**Status:** Not Started
+
+**Goal:** Wire the chat input bar mic button to speech-to-text for hands-free commands.
+
+## Phase 17: Motion and Transitions
+
+**Status:** Not Started
+
+**Goal:** Polish chat and shell animations for a more responsive, automatic feel.
+
+## Phase 18: Remaining Screen Migration
+
+**Status:** Not Started
+
+**Goal:** Move remaining Daily Workspace, Settings, and other screen workflows into chat-first flows where appropriate.
+
 ## Phase Dependency Graph
 
 ```
@@ -230,6 +281,8 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
     5 Wake/Workspace → 6 Schedule/Dashboard → 7 Tasks
                 ↓
          8 Breaks → 9 Journal → 10 Review → 11 Insight → 12 Package
+                ↓
+    13 Chat Shell → 14 AI Fallback → 15 Rich Components → 16 Voice → 17 Motion → 18 Migration
 ```
 
 **Implementation note (2026-06-14):** Phases 5 through 8 were built in dependency order **7 → 5 → 6 → 8** (tasks before schedule generation). Roadmap phase numbers are unchanged.

@@ -7,7 +7,7 @@ export interface ScreenDefinition {
 
 export const screenDefinitions: ScreenDefinition[] = [
   {
-    path: '/',
+    path: '/dashboard',
     label: 'Dashboard',
     title: 'Dashboard',
     description:

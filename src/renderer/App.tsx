@@ -1,10 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import { DisplayPreferencesProvider } from './context/DisplayPreferencesContext'
 import { ScheduleProvider } from './context/ScheduleContext'
 import { FaithEntryProvider } from './context/FaithEntryContext'
 import { BreakProvider } from './context/BreakContext'
+import { ChatProvider } from './context/ChatContext'
 import { AppShell } from './components/layout/AppShell'
 import { useAppNavigationEvents } from './hooks/useAppNavigationEvents'
+import { ChatShell } from './chat/ChatShell'
 import { DashboardScreen } from './screens/Dashboard/DashboardScreen'
 import { DailyWorkspaceScreen } from './screens/DailyWorkspace/DailyWorkspaceScreen'
 import { TaskMatrixScreen } from './screens/TaskMatrix/TaskMatrixScreen'
@@ -14,20 +17,25 @@ import { JournalScreen } from './screens/Journal/JournalScreen'
 import { ReviewScreen } from './screens/Review/ReviewScreen'
 import { SettingsScreen } from './screens/Settings/SettingsScreen'
 
+function LegacyScreenLayout({ children }: { children: ReactNode }): React.JSX.Element {
+  return <div className="min-h-0 flex-1 overflow-y-auto p-shell">{children}</div>
+}
+
 function AppRoutes(): React.JSX.Element {
   useAppNavigationEvents()
 
   return (
     <AppShell>
       <Routes>
-        <Route path="/" element={<DashboardScreen />} />
-        <Route path="/daily-workspace" element={<DailyWorkspaceScreen />} />
-        <Route path="/task-matrix" element={<TaskMatrixScreen />} />
-        <Route path="/schedule" element={<ScheduleScreen />} />
-        <Route path="/daily-insight" element={<DailyInsightScreen />} />
-        <Route path="/journal" element={<JournalScreen />} />
-        <Route path="/review" element={<ReviewScreen />} />
-        <Route path="/settings" element={<SettingsScreen />} />
+        <Route path="/" element={<ChatShell />} />
+        <Route path="/dashboard" element={<LegacyScreenLayout><DashboardScreen /></LegacyScreenLayout>} />
+        <Route path="/daily-workspace" element={<LegacyScreenLayout><DailyWorkspaceScreen /></LegacyScreenLayout>} />
+        <Route path="/task-matrix" element={<LegacyScreenLayout><TaskMatrixScreen /></LegacyScreenLayout>} />
+        <Route path="/schedule" element={<LegacyScreenLayout><ScheduleScreen /></LegacyScreenLayout>} />
+        <Route path="/daily-insight" element={<LegacyScreenLayout><DailyInsightScreen /></LegacyScreenLayout>} />
+        <Route path="/journal" element={<LegacyScreenLayout><JournalScreen /></LegacyScreenLayout>} />
+        <Route path="/review" element={<LegacyScreenLayout><ReviewScreen /></LegacyScreenLayout>} />
+        <Route path="/settings" element={<LegacyScreenLayout><SettingsScreen /></LegacyScreenLayout>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>
@@ -38,11 +46,13 @@ export default function App(): React.JSX.Element {
   return (
     <DisplayPreferencesProvider>
       <ScheduleProvider>
-        <FaithEntryProvider>
-          <BreakProvider>
-            <AppRoutes />
-          </BreakProvider>
-        </FaithEntryProvider>
+        <ChatProvider>
+          <FaithEntryProvider>
+            <BreakProvider>
+              <AppRoutes />
+            </BreakProvider>
+          </FaithEntryProvider>
+        </ChatProvider>
       </ScheduleProvider>
     </DisplayPreferencesProvider>
   )

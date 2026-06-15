@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-15: Phase 13 Chat-First Shell and Intent Router
+
+**Prompt summary:** Extended roadmap Phase 13: chat-first primary interface, deterministic intent router routing to existing IPC, template responses, icon rail for legacy screens, proactive wake-time in chat, sessionStorage history, unit tests.
+
+**Outcome:** Phase 13 complete. Chat at `/`, Dashboard at `/dashboard`, ScreenIconRail replaces sidebar, WakeTimeModal removed from shell flow. Shared modules in `src/shared/chat/` (intentRouter, responseTemplates, parsers, intents). 34 new chat/parsing tests; 99 total pass. Phases 14-18 added to ROADMAP as Not Started.
+
+**Files / phases:** src/shared/chat/, src/shared/types/chat.ts, src/renderer/chat/, ChatContext, AppShell refactor, quickAddTask client initialism, ARCHITECTURE.md chat section, ROADMAP Phases 13-18. Phase 13 Complete.
+
+**Follow-ups:** Phase 14 AI fallback for unrecognized chat input.
+
 ### 2026-06-14: Phases 11 and 12 Daily Insight + Windows Packaging (Roadmap Complete)
 
 **Prompt summary:** Final roadmap phases: Daily Insight AI (OpenRouter primary, Ollama fallback, graceful degradation, insights_log persistence) and Windows NSIS packaging via electron-builder with CI release workflow.

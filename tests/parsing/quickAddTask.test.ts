@@ -4,6 +4,7 @@ import { parseQuickAddTask } from '../../src/shared/parsing/quickAddTask'
 const clients = [
   { id: 1, name: 'Acme Corp' },
   { id: 2, name: 'Beta Design' },
+  { id: 3, name: 'CX University' },
 ]
 
 describe('parseQuickAddTask', () => {
@@ -26,5 +27,20 @@ describe('parseQuickAddTask', () => {
     const result = parseQuickAddTask('Follow up tomorrow 45 min', clients, 99)
     expect(result.estimatedMinutes).toBe(45)
     expect(result.deadlineDate).not.toBeNull()
+  })
+
+  it('matches client by initialism', () => {
+    const result = parseQuickAddTask('Orientation deck for CXU 1h', clients, 99)
+    expect(result.clientId).toBe(3)
+    expect(result.estimatedMinutes).toBe(60)
+  })
+
+  it('flags ambiguous client matches', () => {
+    const ambiguousClients = [
+      { id: 1, name: 'Acme Corp' },
+      { id: 2, name: 'Acme Design' },
+    ]
+    const result = parseQuickAddTask('Inbox sweep for acme 30 min', ambiguousClients, 99)
+    expect(result.ambiguousClients?.length).toBeGreaterThan(1)
   })
 })

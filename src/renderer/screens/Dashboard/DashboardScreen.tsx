@@ -7,7 +7,7 @@ import { StalenessAlertList } from './components/StalenessAlertList'
 import { UntilBreakCountdown } from './components/UntilBreakCountdown'
 import { UpNextCard } from './components/UpNextCard'
 
-const screen = getScreenDefinition('/')
+const screen = getScreenDefinition('/dashboard')
 
 export function DashboardScreen(): React.JSX.Element {
   return (

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 const icons: Record<string, ReactNode> = {
-  '/': (
+  '/dashboard': (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-4 w-4">
       <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M4 18h7" />
       <circle cx="18" cy="17" r="3" />
@@ -50,5 +50,5 @@ const icons: Record<string, ReactNode> = {
 }
 
 export function NavIcon({ path }: { path: string }): React.JSX.Element {
-  return <span className="shrink-0 opacity-80">{icons[path] ?? icons['/']}</span>
+  return <span className="shrink-0 opacity-80">{icons[path] ?? icons['/dashboard']}</span>
 }
