@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
+import { HudChronoDisplay } from '@renderer/components/chrono/HudChronoDisplay'
 import { ExecutionHudCard } from './cards/ExecutionHudCard'
 import { QueueHudCard } from './cards/QueueHudCard'
 import { FocusHudCard } from './cards/FocusHudCard'
@@ -9,17 +8,10 @@ import { FaithHudCard } from './cards/FaithHudCard'
 import { BreakHudCard } from './cards/BreakHudCard'
 import { StalenessHudCard } from './cards/StalenessHudCard'
 import { HudScanline } from './HudScanline'
-import './jarvis.css'
+import './hud.css'
 
-export function JarvisTelemetryPanel(): React.JSX.Element {
-  const { formatClock } = useDisplayPreferences()
+export function HudTelemetryPanel(): React.JSX.Element {
   const { loading, dayBundle } = useScheduleContext()
-  const [clock, setClock] = useState(() => formatClock(new Date(), false))
-
-  useEffect(() => {
-    const id = window.setInterval(() => setClock(formatClock(new Date(), false)), 1000)
-    return () => window.clearInterval(id)
-  }, [formatClock])
 
   const blockCount = dayBundle?.blocks.length ?? 0
 
@@ -30,18 +22,16 @@ export function JarvisTelemetryPanel(): React.JSX.Element {
       <header className="relative z-10 shrink-0 border-b border-accent-cyan/15 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
           <div>
-            <p className="hud-kicker">Day telemetry</p>
-            <h2 className="font-display text-sm font-bold tracking-wide text-text-primary sm:text-base">
-              <span className="text-gradient-mint">Systems</span>
-              <span className="text-text-muted"> overview</span>
+            <p className="hud-kicker">Day Telemetry</p>
+            <h2 className="font-display text-sm font-bold tracking-wide text-gradient-mint sm:text-base">
+              Systems Overview
             </h2>
           </div>
-          <div className="text-right">
-            <p className="font-mono text-sm tabular-nums text-accent-cyan">{clock}</p>
-            <p className="text-[10px] text-text-muted">
-              {loading ? 'Syncing...' : `${blockCount} blocks`}
-            </p>
-          </div>
+          <HudChronoDisplay
+            variant="panel"
+            showSeconds={false}
+            footer={loading ? 'Syncing...' : `${blockCount} Blocks`}
+          />
         </div>
       </header>
 

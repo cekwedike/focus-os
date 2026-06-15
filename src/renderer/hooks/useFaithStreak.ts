@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { JournalStatsResponse } from '@shared/types/journal'
-import { getTodayDateString } from '@renderer/utils/date'
+import { useTodayDateString } from '@renderer/hooks/useTodayDateString'
 
 export function useFaithStreak(): {
   stats: JournalStatsResponse | null
@@ -10,15 +10,17 @@ export function useFaithStreak(): {
   const [stats, setStats] = useState<JournalStatsResponse | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const today = useTodayDateString()
+
   const refresh = useCallback(async () => {
     setLoading(true)
     try {
-      const result = await window.focusOS.journal.stats({ today: getTodayDateString() })
+      const result = await window.focusOS.journal.stats({ today })
       setStats(result)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [today])
 
   useEffect(() => {
     void refresh()

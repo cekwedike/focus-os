@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { ActiveBlockTimer } from '@renderer/components/schedule/ActiveBlockTimer'
-import { HudCard } from '../JarvisCard'
+import { HudCard } from '../HudCard'
 import { HudOrb } from '../HudOrb'
 import { HudWaveform } from '../HudWaveform'
-import { JarvisMiniBars, type JarvisBarDatum } from '../JarvisMiniBars'
+import { HudMiniBars, type HudBarDatum } from '../HudMiniBars'
 
 export function ExecutionHudCard(): React.JSX.Element {
   const { activeBlock, dayBundle, refresh, isBlockSkippable } = useScheduleContext()
@@ -18,7 +18,7 @@ export function ExecutionHudCard(): React.JSX.Element {
     })
   }, [activeBlock?.id])
 
-  const blockBars = useMemo((): JarvisBarDatum[] => {
+  const blockBars = useMemo((): HudBarDatum[] => {
     if (!dayBundle?.blocks.length) {
       return []
     }
@@ -91,15 +91,15 @@ export function ExecutionHudCard(): React.JSX.Element {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className={activeBlock ? 'focus-live-dot' : 'focus-live-dot-idle'} />
-            <p className="hud-kicker">Live execution</p>
+            <p className="hud-kicker">Live Execution</p>
           </div>
           <h2 className="hud-value mt-1 truncate text-lg sm:text-xl">
-            {activeBlock ? activeBlock.title : 'Standby mode'}
+            {activeBlock ? activeBlock.title : 'Standby Mode'}
           </h2>
           <p className="mt-1 text-xs text-text-muted">
             {activeBlock
               ? `${activeBlock.block_type.replace(/_/g, ' ')} · ${activeBlock.status}`
-              : 'Awaiting schedule activation'}
+              : 'Awaiting Schedule Activation'}
           </p>
           {activeBlock?.actual_start ? (
             <div className="mt-2">
@@ -125,10 +125,8 @@ export function ExecutionHudCard(): React.JSX.Element {
             <div className="mt-4 space-y-4 border-t border-surface-border/60 pt-4">
               {blockBars.length > 0 ? (
                 <div>
-                  <p className="mb-2 text-[10px] uppercase tracking-wider text-text-muted">
-                    Timeline density
-                  </p>
-                  <JarvisMiniBars data={blockBars} height={56} />
+                  <p className="mb-2 text-[10px] tracking-wide text-text-muted">Timeline Density</p>
+                  <HudMiniBars data={blockBars} height={56} />
                 </div>
               ) : null}
 

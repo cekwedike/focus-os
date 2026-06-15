@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { JarvisTelemetryPanel } from '../jarvis/JarvisTelemetryPanel'
+import { HudTelemetryPanel } from '../hud/HudTelemetryPanel'
 
 interface DayPanelDrawerProps {
   open: boolean
@@ -29,7 +29,7 @@ export function DayPanelDrawer({ open, onClose }: DayPanelDrawerProps): React.JS
         <div className="flex h-full flex-col shadow-panel-active">
           <div className="flex items-center justify-between border-b border-accent-cyan/20 bg-surface-card/95 px-4 py-3">
             <div>
-              <p className="hud-kicker">Day panel</p>
+              <p className="hud-kicker">Day Panel</p>
               <h2 className="font-display text-lg font-bold text-text-primary">Telemetry</h2>
             </div>
             <button type="button" className="focus-btn-ghost text-xs" onClick={onClose}>
@@ -37,7 +37,7 @@ export function DayPanelDrawer({ open, onClose }: DayPanelDrawerProps): React.JS
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-hidden">
-            <JarvisTelemetryPanel />
+            <HudTelemetryPanel />
           </div>
         </div>
       </motion.div>

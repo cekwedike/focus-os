@@ -4,6 +4,12 @@ import {
   formatDateLabel,
   formatHHMM,
   from12HourParts,
+  getDateStringInTimezone,
+  getTimeHHMMInTimezone,
+  getTimezoneAbbreviation,
+  getTimezoneOffsetLabel,
+  getWeekdayInTimezone,
+  formatMonthDayInTimezone,
   parseHHMM,
   to12HourParts,
 } from '@shared/utils/displayTime'
@@ -36,5 +42,21 @@ describe('displayTime utilities', () => {
     expect(formatDateLabel(date, 'mdy')).toBe('06/14/2026')
     expect(formatDateLabel(date, 'dmy')).toBe('14/06/2026')
     expect(formatDateLabel(date, 'ymd')).toBe('2026-06-14')
+  })
+
+  it('reads date and time in a specific timezone', () => {
+    const date = new Date('2026-06-15T04:30:00Z')
+    expect(getDateStringInTimezone(date, 'America/New_York')).toBe('2026-06-15')
+    expect(getTimeHHMMInTimezone(date, 'America/New_York')).toBe('00:30')
+    expect(getDateStringInTimezone(date, 'Asia/Tokyo')).toBe('2026-06-15')
+    expect(getTimeHHMMInTimezone(date, 'Asia/Tokyo')).toBe('13:30')
+  })
+
+  it('formats weekday, month-day, and timezone labels', () => {
+    const date = new Date('2026-06-15T04:30:00Z')
+    expect(getWeekdayInTimezone(date, 'America/New_York')).toBe('Mon')
+    expect(formatMonthDayInTimezone(date, 'America/New_York')).toBe('Jun 15')
+    expect(getTimezoneAbbreviation(date, 'America/New_York').length).toBeGreaterThan(0)
+    expect(getTimezoneOffsetLabel(date, 'America/New_York')).toMatch(/GMT|UTC/)
   })
 })

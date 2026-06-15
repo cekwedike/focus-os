@@ -12,7 +12,7 @@ export function FocusScoreWidget({ variant = 'dashboard' }: FocusScoreWidgetProp
 
   return (
     <section className={`${panelClass} h-full min-w-0`}>
-      <p className="focus-metric-label">Focus score</p>
+      <p className="focus-metric-label">Focus Score</p>
       <p className={`focus-metric-value mt-2 ${variant === 'sidebar' ? '!text-3xl' : ''}`}>
         {score === null || score === undefined ? '--' : `${score}%`}
       </p>

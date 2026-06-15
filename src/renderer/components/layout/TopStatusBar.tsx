@@ -1,11 +1,16 @@
-import { useEffect, useState } from 'react'
-import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
+import { useCallback, useState } from 'react'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { useBreakContext } from '@renderer/context/BreakContext'
 import { useFaithEntry } from '@renderer/context/FaithEntryContext'
 import { useFaithStreak } from '@renderer/hooks/useFaithStreak'
 import { formatStreakDays } from '@shared/utils/faithStreak'
 import { ActiveBlockTimer } from '@renderer/components/schedule/ActiveBlockTimer'
+import { HudChronoDisplay } from '@renderer/components/chrono/HudChronoDisplay'
+import {
+  NotificationCenterPanel,
+  useNotificationCenterCount,
+} from '@renderer/components/notifications/NotificationCenterPanel'
+import '@renderer/components/notifications/notification-center.css'
 
 function NotificationBellIcon(): React.JSX.Element {
   return (
@@ -41,19 +46,17 @@ interface TopStatusBarProps {
 }
 
 export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React.JSX.Element {
-  const { formatClock } = useDisplayPreferences()
   const { activeBlock, dayBundle, refresh } = useScheduleContext()
   const { longBreakActive, longBreakStartedAt, longBreakPlannedMinutes, openLongBreakModal, endLongBreak } = useBreakContext()
   const { stats: faithStats } = useFaithStreak()
   const { isFaithBlockActive, openFaithEntry } = useFaithEntry()
-  const [currentTime, setCurrentTime] = useState(() => formatClock(new Date()))
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const notificationCount = useNotificationCenterCount()
 
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setCurrentTime(formatClock(new Date()))
-    }, 1000)
-    return () => window.clearInterval(intervalId)
-  }, [formatClock])
+  const closeNotifications = useCallback(() => setNotificationsOpen(false), [])
+  const toggleNotifications = useCallback(() => {
+    setNotificationsOpen((open) => !open)
+  }, [])
 
   const focusLabel =
     dayBundle?.focusScore === null || dayBundle?.focusScore === undefined
@@ -66,8 +69,8 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
   const isLive = Boolean(activeBlock) || longBreakActive
 
   const blockTitle = longBreakActive
-    ? 'Long break'
-    : activeBlock?.title ?? 'Awaiting schedule'
+    ? 'Long Break'
+    : activeBlock?.title ?? 'Awaiting Schedule'
 
   return (
     <header className="focus-status-rail relative z-20">
@@ -88,18 +91,13 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
           ) : (
             <span className="focus-live-dot-idle shrink-0" aria-hidden="true" />
           )}
-          <time
-            className="shrink-0 font-mono text-sm font-medium tabular-nums tracking-wide text-text-primary sm:text-base"
-            dateTime={new Date().toISOString()}
-          >
-            {currentTime}
-          </time>
+          <HudChronoDisplay variant="rail" showSeconds />
         </div>
 
         <div className="hidden h-5 w-px shrink-0 bg-surface-border lg:block" aria-hidden="true" />
 
         <div className="hidden min-w-0 lg:block">
-          <p className="focus-metric-label">Current block</p>
+          <p className="focus-metric-label">Current Block</p>
           <p className="truncate text-sm font-medium text-text-primary">{blockTitle}</p>
         </div>
 
@@ -155,13 +153,30 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
             <span className="hidden sm:inline">Long Break</span>
           </button>
         )}
-        <button
-          type="button"
-          className="focus-btn-ghost !px-2 !py-1.5 sm:!px-2.5 sm:!py-2"
-          aria-label="Notifications"
-        >
-          <NotificationBellIcon />
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={toggleNotifications}
+            className={`focus-btn-ghost relative !px-2 !py-1.5 sm:!px-2.5 sm:!py-2 ${
+              notificationsOpen ? 'notification-center-bell-active' : ''
+            }`}
+            aria-label={
+              notificationCount > 0
+                ? `Notifications, ${notificationCount} active`
+                : 'Notifications'
+            }
+            aria-expanded={notificationsOpen}
+            aria-haspopup="dialog"
+          >
+            <NotificationBellIcon />
+            {notificationCount > 0 ? (
+              <span className="notification-center-badge" aria-hidden="true">
+                {notificationCount > 9 ? '9+' : notificationCount}
+              </span>
+            ) : null}
+          </button>
+          <NotificationCenterPanel open={notificationsOpen} onClose={closeNotifications} />
+        </div>
       </div>
     </header>
   )

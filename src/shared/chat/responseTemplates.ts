@@ -1,10 +1,12 @@
 import type { ReplanSummary } from '@shared/allocation/types'
 import type { ChatScreenLink } from '@shared/types/chat'
+import type { TimeFormat } from '@shared/types/settings'
 import type { RouterBlockSummary } from './routerContext'
+import { formatHHMM } from '@shared/utils/displayTime'
+import { extractLocalTimeHHMM } from '@shared/utils/scheduleTimestamp'
 
-function formatClock(iso: string): string {
-  const date = new Date(iso)
-  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+function formatScheduleClock(iso: string, timeFormat: TimeFormat = '12h'): string {
+  return formatHHMM(extractLocalTimeHHMM(iso), timeFormat)
 }
 
 export function wakeTimePrompt(): string {
@@ -25,7 +27,7 @@ export function wakeTimeConfirmedSummary(
     lines.push('- No blocks were generated yet.')
   } else {
     for (const block of blocks.slice(0, 12)) {
-      const start = block.planned_start ? formatClock(block.planned_start) : 'TBD'
+      const start = block.planned_start ? formatScheduleClock(block.planned_start) : 'TBD'
       lines.push(`- ${start}: ${block.title} (${block.status})`)
     }
     if (blocks.length > 12) {
@@ -89,7 +91,7 @@ export function scheduleOverview(
   }
 
   for (const block of blocks) {
-    const start = block.planned_start ? formatClock(block.planned_start) : 'TBD'
+    const start = block.planned_start ? formatScheduleClock(block.planned_start) : 'TBD'
     lines.push(`- ${start}: ${block.title} (${block.status})`)
   }
 

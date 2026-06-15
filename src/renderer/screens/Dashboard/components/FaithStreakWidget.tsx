@@ -12,7 +12,7 @@ export function FaithStreakWidget({ variant = 'dashboard' }: FaithStreakWidgetPr
 
   return (
     <section className={`${panelClass} h-full min-w-0`}>
-      <p className="focus-metric-label">Faith streak</p>
+      <p className="focus-metric-label">Faith Streak</p>
       {loading || !stats ? (
         <p className="mt-3 text-sm text-text-muted">Syncing...</p>
       ) : (

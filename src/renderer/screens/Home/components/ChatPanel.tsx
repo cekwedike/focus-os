@@ -4,10 +4,11 @@ import { ChatInputBar } from '@renderer/chat/ChatInputBar'
 import { ChatThread } from '@renderer/chat/ChatThread'
 import { useProactiveGreeting } from '@renderer/chat/hooks/useProactiveGreeting'
 import { useChatContext } from '@renderer/context/useChatContext'
-import { HudWaveform } from '../jarvis/HudWaveform'
-import { HudScanline } from '../jarvis/HudScanline'
+import { HudWaveform } from '../hud/HudWaveform'
+import { HudScanline } from '../hud/HudScanline'
 import { DayPanelDrawer } from './DayPanelDrawer'
-import '../jarvis/jarvis.css'
+import { ConfirmDialog } from '@renderer/components/modals/ConfirmDialog'
+import '../hud/hud.css'
 
 export function ChatPanel(): React.JSX.Element {
   const {
@@ -22,18 +23,22 @@ export function ChatPanel(): React.JSX.Element {
     clearChat,
   } = useChatContext()
   const [dayPanelOpen, setDayPanelOpen] = useState(false)
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
 
   const handleClearChat = (): void => {
     if (sending || isTyping || aiThinking) {
       return
     }
     if (messages.length > 0) {
-      const confirmed = window.confirm('Clear this conversation? This cannot be undone.')
-      if (!confirmed) {
-        return
-      }
+      setClearConfirmOpen(true)
+      return
     }
     clearChat()
+  }
+
+  const handleConfirmClear = (): void => {
+    clearChat()
+    setClearConfirmOpen(false)
   }
 
   useProactiveGreeting({
@@ -58,7 +63,7 @@ export function ChatPanel(): React.JSX.Element {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35 }}
           >
-            <p className="hud-kicker">Command interface</p>
+            <p className="hud-kicker">Command Interface</p>
             <h1 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
               <span className="text-gradient-mint">Focus</span>
               <span className="text-text-primary"> Assistant</span>
@@ -98,6 +103,17 @@ export function ChatPanel(): React.JSX.Element {
       </div>
 
       <DayPanelDrawer open={dayPanelOpen} onClose={() => setDayPanelOpen(false)} />
+
+      <ConfirmDialog
+        open={clearConfirmOpen}
+        title="Clear conversation?"
+        message="All messages in this thread will be removed. This cannot be undone."
+        confirmLabel="Clear conversation"
+        cancelLabel="Keep messages"
+        tone="danger"
+        onConfirm={handleConfirmClear}
+        onCancel={() => setClearConfirmOpen(false)}
+      />
     </div>
   )
 }

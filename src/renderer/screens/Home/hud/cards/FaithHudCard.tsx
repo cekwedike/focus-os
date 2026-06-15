@@ -4,8 +4,8 @@ import { useFaithStreak } from '@renderer/hooks/useFaithStreak'
 import { formatStreakDays } from '@shared/utils/faithStreak'
 import { useFaithEntry } from '@renderer/context/FaithEntryContext'
 import { useChatContext } from '@renderer/context/useChatContext'
-import { HudCard } from '../JarvisCard'
-import { JarvisRingGauge } from '../JarvisRingGauge'
+import { HudCard } from '../HudCard'
+import { HudRingGauge } from '../HudRingGauge'
 
 export function FaithHudCard(): React.JSX.Element {
   const { stats, loading } = useFaithStreak()
@@ -26,7 +26,7 @@ export function FaithHudCard(): React.JSX.Element {
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="hud-kicker">Faith streak</p>
+          <p className="hud-kicker">Faith Streak</p>
           {loading || !stats ? (
             <p className="mt-2 text-sm text-text-muted">Syncing...</p>
           ) : (
@@ -36,12 +36,12 @@ export function FaithHudCard(): React.JSX.Element {
             </>
           )}
         </div>
-        <JarvisRingGauge
+        <HudRingGauge
           value={current}
           max={Math.max(longest, current, 1)}
           size={64}
           color="#a78bfa"
-          label="streak"
+          label="Streak"
         />
       </div>
 
@@ -55,7 +55,7 @@ export function FaithHudCard(): React.JSX.Element {
           <p className="text-xs text-text-secondary">{monthEntries} entries this month</p>
           {isFaithBlockActive ? (
             <button type="button" className="focus-btn-primary w-full text-xs" onClick={openFaithEntry}>
-              Log faith block
+              Log Faith Block
             </button>
           ) : (
             <button
@@ -63,7 +63,7 @@ export function FaithHudCard(): React.JSX.Element {
               className="focus-btn-ghost w-full text-xs"
               onClick={() => void sendMessage('faith streak')}
             >
-              Open streak report
+              Open Streak Report
             </button>
           )}
         </motion.div>

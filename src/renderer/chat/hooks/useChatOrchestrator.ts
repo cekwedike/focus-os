@@ -10,7 +10,6 @@ import { menuList, unrecognized } from '@shared/chat/responseTemplates'
 import { CHAT_SCREEN_LINKS } from '@shared/chat/routerContext'
 import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
-import { getTodayDateString } from '@renderer/utils/date'
 import { executeIntent, type ConversationPatch } from '@renderer/chat/executeIntent'
 import type { AssistantDeliveryInput } from '@shared/chat/assistantDelivery'
 import { buildAttachmentByType } from '@shared/chat/attachments'
@@ -77,7 +76,7 @@ export function useChatOrchestrator({
   deliverAssistantMessage,
   setAiThinking,
 }: UseChatOrchestratorOptions) {
-  const { dayBundle, activeBlock, nextBlock, refresh } = useScheduleContext()
+  const { dayBundle, activeBlock, nextBlock, refresh, date: today } = useScheduleContext()
   const [conversation, setConversation] = useState<ExtendedConversationState>(
     createExtendedConversationState
   )
@@ -91,7 +90,6 @@ export function useChatOrchestrator({
 
   useEffect(() => {
     void (async () => {
-      const today = getTodayDateString()
       const [clientRows, daily, settingsResponse, taskRows] = await Promise.all([
         window.focusOS.clients.list(),
         window.focusOS.daily.get({ date: today }),
@@ -136,7 +134,7 @@ export function useChatOrchestrator({
 
       setInitialized(true)
     })()
-  }, [])
+  }, [today])
 
   const applyConversationPatch = useCallback((patch: ConversationPatch | undefined): void => {
     if (!patch) {
@@ -151,7 +149,7 @@ export function useChatOrchestrator({
 
   const routerContextBase: Omit<RouterContext, 'dueCheckInClients'> = useMemo(
     () => ({
-      today: getTodayDateString(),
+      today,
       conversation: {
         pendingPrompt: conversation.pendingPrompt,
         longBreakActive: conversation.longBreakActive,
@@ -168,6 +166,7 @@ export function useChatOrchestrator({
       nowIso: new Date().toISOString(),
     }),
     [
+      today,
       conversation,
       clients,
       openTasks,
@@ -182,7 +181,7 @@ export function useChatOrchestrator({
 
   const executionDeps = useMemo(
     () => ({
-      today: getTodayDateString(),
+      today,
       clients,
       unassignedClientId,
       defaultSleepTime,
@@ -198,6 +197,7 @@ export function useChatOrchestrator({
       mapBlocks,
     }),
     [
+      today,
       clients,
       unassignedClientId,
       defaultSleepTime,
@@ -232,7 +232,6 @@ export function useChatOrchestrator({
 
   const buildSuggestedAttachment = useCallback(
     async (type: ChatAttachmentType): Promise<Awaited<ReturnType<typeof buildAttachmentByType>>> => {
-      const today = getTodayDateString()
       const bundle = await window.focusOS.schedule.getDay({ date: today })
       const stats = await window.focusOS.journal.stats({ today })
       const todayEntry = await window.focusOS.journal.getEntry({ date: today })
@@ -265,7 +264,7 @@ export function useChatOrchestrator({
         plannedActualGroups: review.clientGroups,
       })
     },
-    [activeBlock]
+    [activeBlock, today]
   )
 
   const processMessage = useCallback(

@@ -1,5 +1,5 @@
-import { JarvisTelemetryPanel } from '../jarvis/JarvisTelemetryPanel'
+import { HudTelemetryPanel } from '../hud/HudTelemetryPanel'
 
 export function DayPanel(): React.JSX.Element {
-  return <JarvisTelemetryPanel />
+  return <HudTelemetryPanel />
 }

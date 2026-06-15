@@ -5,7 +5,7 @@ import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesConte
 import { useChatContext } from '@renderer/context/useChatContext'
 import { formatCountdownFromMinutes } from '@shared/utils/remainingTime'
 import { extractLocalTimeHHMM } from '@shared/utils/scheduleTimestamp'
-import { HudCard } from '../JarvisCard'
+import { HudCard } from '../HudCard'
 
 export function QueueHudCard(): React.JSX.Element {
   const { nextBlock } = useScheduleContext()
@@ -23,7 +23,7 @@ export function QueueHudCard(): React.JSX.Element {
       expanded={expanded}
       onClick={() => setExpanded((open) => !open)}
     >
-      <p className="hud-kicker">Up next</p>
+      <p className="hud-kicker">Up Next</p>
       {nextBlock ? (
         <>
           <motion.p
@@ -41,7 +41,7 @@ export function QueueHudCard(): React.JSX.Element {
           </p>
         </>
       ) : (
-        <p className="mt-2 text-sm text-text-muted">No blocks queued</p>
+        <p className="mt-2 text-sm text-text-muted">No Blocks Queued</p>
       )}
 
       {expanded ? (
@@ -52,14 +52,14 @@ export function QueueHudCard(): React.JSX.Element {
           onClick={(event) => event.stopPropagation()}
         >
           <button type="button" className="focus-btn-primary text-xs" onClick={handleActivate}>
-            Query next
+            Query Next
           </button>
           <button
             type="button"
             className="focus-btn-ghost text-xs"
             onClick={() => void sendMessage('show schedule')}
           >
-            Full timeline
+            Full Timeline
           </button>
         </motion.div>
       ) : null}

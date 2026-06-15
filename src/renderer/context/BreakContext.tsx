@@ -9,7 +9,7 @@ import {
 } from 'react'
 import type { ReplanSummary } from '@shared/allocation/types'
 import { useNotifications } from '@renderer/context/NotificationContext'
-import { getTodayDateString } from '@renderer/utils/date'
+import { useTodayDateString } from '@renderer/hooks/useTodayDateString'
 
 interface BreakContextValue {
   longBreakActive: boolean
@@ -38,6 +38,7 @@ const MICRO_ACTIVITY_MINUTES: Record<string, number> = {
 
 export function BreakProvider({ children }: { children: ReactNode }): React.JSX.Element {
   const { onMicroBreakDispatched } = useNotifications()
+  const today = useTodayDateString()
   const [showLongBreakModal, setShowLongBreakModal] = useState(false)
   const [longBreakActive, setLongBreakActive] = useState(false)
   const [longBreakStartedAt, setLongBreakStartedAt] = useState<string | null>(null)
@@ -54,7 +55,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
   const startLongBreak = useCallback(async (reason: string, plannedMinutes?: number) => {
     const startedAt = new Date().toISOString()
     const created = await window.focusOS.breaks.create({
-      break_date: getTodayDateString(),
+      break_date: today,
       break_type: 'long',
       started_at: startedAt,
       reason,
@@ -66,7 +67,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
     setLongBreakReason(reason)
     setLongBreakBreakId(created.id)
     setShowLongBreakModal(false)
-  }, [])
+  }, [today])
 
   const endLongBreak = useCallback(async () => {
     if (!longBreakStartedAt) {
@@ -87,7 +88,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
     }
 
     const result = await window.focusOS.schedule.reallocate({
-      scheduleDate: getTodayDateString(),
+      scheduleDate: today,
       returnTime: endedAt,
       longBreakDurationMinutes: durationMinutes,
     })
@@ -98,7 +99,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
     setLongBreakPlannedMinutes(null)
     setLongBreakReason('')
     setLongBreakBreakId(null)
-  }, [longBreakBreakId, longBreakStartedAt])
+  }, [longBreakBreakId, longBreakStartedAt, today])
 
   useEffect(() => {
     return onMicroBreakDispatched(() => {
@@ -111,7 +112,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
   const logMicroBreak = useCallback(async (activity: string) => {
     const planned = MICRO_ACTIVITY_MINUTES[activity] ?? 10
     await window.focusOS.breaks.create({
-      break_date: getTodayDateString(),
+      break_date: today,
       break_type: 'micro',
       started_at: new Date().toISOString(),
       ended_at: new Date().toISOString(),
@@ -120,7 +121,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
       reason: activity === 'skip' ? 'Skipped micro-break' : null,
     })
     setShowMicroBreakModal(false)
-  }, [])
+  }, [today])
 
   const value = useMemo(
     () => ({

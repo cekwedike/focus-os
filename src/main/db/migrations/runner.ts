@@ -13,6 +13,7 @@ import { applyScheduleTimestampNormalizationMigration } from './011_schedule_tim
 import { applyChatAiLogMigration } from './012_chat_ai_log'
 import { applyOpenRouterFreeModelsMigration } from './013_openrouter_free_models'
 import { applyVoiceSettingsMigration } from './014_voice_settings'
+import { applyTimezoneLegacyFixMigration } from './015_timezone_legacy_fix'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -119,6 +120,13 @@ const migrations: MigrationDefinition[] = [
     name: 'voice_settings',
     up: (db) => {
       applyVoiceSettingsMigration(db)
+    },
+  },
+  {
+    version: 15,
+    name: 'timezone_legacy_fix',
+    up: (db) => {
+      applyTimezoneLegacyFixMigration(db)
     },
   },
 ]

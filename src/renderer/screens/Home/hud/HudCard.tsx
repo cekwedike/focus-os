@@ -94,6 +94,3 @@ export function HudCard({
     </div>
   )
 }
-
-/** @deprecated Use HudCard */
-export const JarvisCard = HudCard

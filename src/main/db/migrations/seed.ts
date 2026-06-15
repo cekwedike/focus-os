@@ -1,4 +1,5 @@
 import type Database from 'better-sqlite3'
+import { resolveDefaultTimezone } from '@shared/constants/timezones'
 import { nowIso } from '@shared/utils/time'
 import type { ProtectedBlockType } from '@shared/types/db'
 
@@ -92,7 +93,7 @@ const APP_SETTINGS_SEEDS: Array<{ key: string; value: string }> = [
   { key: 'week_starts_on', value: JSON.stringify('sunday') },
   { key: 'date_format', value: JSON.stringify('mdy') },
   { key: 'default_sleep_time', value: JSON.stringify('23:00') },
-  { key: 'timezone', value: JSON.stringify('UTC') },
+  { key: 'timezone', value: JSON.stringify(resolveDefaultTimezone()) },
   {
     key: 'notifications',
     value: JSON.stringify({

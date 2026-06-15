@@ -4,8 +4,8 @@ import { extractLocalTimeHHMM } from '@shared/utils/scheduleTimestamp'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 import { useBreakContext } from '@renderer/context/BreakContext'
-import { HudCard } from '../JarvisCard'
-import { JarvisRingGauge } from '../JarvisRingGauge'
+import { HudCard } from '../HudCard'
+import { HudRingGauge } from '../HudRingGauge'
 
 export function BreakHudCard(): React.JSX.Element {
   const { dayBundle } = useScheduleContext()
@@ -46,7 +46,7 @@ export function BreakHudCard(): React.JSX.Element {
     <HudCard accent="cyan" expanded={expanded} onClick={() => setExpanded((o) => !o)}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="hud-kicker">Next break</p>
+          <p className="hud-kicker">Next Break</p>
           {nextMicroBreak ? (
             <>
               <p className="mt-1 font-mono text-lg text-accent-cyan">
@@ -55,10 +55,10 @@ export function BreakHudCard(): React.JSX.Element {
               <p className="text-[10px] text-text-muted">{minutesUntil}m until break</p>
             </>
           ) : (
-            <p className="mt-2 text-sm text-text-muted">No micro-break scheduled</p>
+            <p className="mt-2 text-sm text-text-muted">No Micro-Break Scheduled</p>
           )}
         </div>
-        <JarvisRingGauge
+        <HudRingGauge
           value={nextMicroBreak ? progress : 0}
           max={100}
           size={56}
@@ -75,7 +75,7 @@ export function BreakHudCard(): React.JSX.Element {
           onClick={(event) => event.stopPropagation()}
         >
           <button type="button" className="focus-btn-primary w-full text-xs" onClick={openLongBreakModal}>
-            Initiate long break
+            Initiate Long Break
           </button>
         </motion.div>
       ) : null}

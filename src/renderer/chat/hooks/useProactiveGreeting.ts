@@ -11,7 +11,7 @@ import {
 } from '@shared/chat/proactiveGreetingSession'
 import { isBlockSkippable } from '@shared/schedule/blockSkippable'
 import type { AssistantDeliveryInput } from '@shared/chat/assistantDelivery'
-import { getTodayDateString } from '@renderer/utils/date'
+import { useScheduleContext } from '@renderer/context/ScheduleContext'
 
 interface UseProactiveGreetingOptions {
   initialized: boolean
@@ -26,6 +26,8 @@ export function useProactiveGreeting({
   setGreetingComplete,
   deliverAssistantMessages,
 }: UseProactiveGreetingOptions): void {
+  const { date: today } = useScheduleContext()
+
   useEffect(() => {
     if (!initialized || greetingComplete) {
       return
@@ -37,7 +39,6 @@ export function useProactiveGreeting({
     }
 
     void (async () => {
-      const today = getTodayDateString()
       const [daily, settingsResponse, bundle, protectedBlocks] = await Promise.all([
         window.focusOS.daily.get({ date: today }),
         window.focusOS.settings.get(),
@@ -110,5 +111,5 @@ export function useProactiveGreeting({
       markGreetingSentThisSession()
       setGreetingComplete(true)
     })()
-  }, [initialized, greetingComplete, setGreetingComplete, deliverAssistantMessages])
+  }, [initialized, greetingComplete, setGreetingComplete, deliverAssistantMessages, today])
 }

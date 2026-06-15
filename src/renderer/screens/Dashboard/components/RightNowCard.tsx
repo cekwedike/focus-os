@@ -28,7 +28,7 @@ export function RightNowCard({ variant = 'dashboard' }: RightNowCardProps): Reac
   if (!activeBlock) {
     return (
       <section className={heroClass}>
-        <p className="focus-metric-label">Live execution</p>
+        <p className="focus-metric-label">Live Execution</p>
         <h2
           className={
             isSidebar
@@ -78,7 +78,7 @@ export function RightNowCard({ variant = 'dashboard' }: RightNowCardProps): Reac
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="focus-live-dot" aria-hidden="true" />
-            <p className="focus-metric-label">Live execution</p>
+            <p className="focus-metric-label">Live Execution</p>
           </div>
           <h2 className={titleClass}>{activeBlock.title}</h2>
           <p className="mt-2 text-sm capitalize text-text-muted">

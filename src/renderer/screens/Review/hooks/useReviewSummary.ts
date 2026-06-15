@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReviewSummary } from '@shared/types/review'
+import { useTodayDateString } from '@renderer/hooks/useTodayDateString'
 import { getTodayDateString } from '@renderer/utils/date'
 
 export type ReviewRangePreset = 'this-week' | 'last-7' | 'last-30' | 'this-month' | 'custom'
@@ -44,7 +45,8 @@ export function buildRangeForPreset(preset: ReviewRangePreset, today = getTodayD
 }
 
 export function useReviewSummary() {
-  const [range, setRange] = useState<ReviewDateRange>(() => buildRangeForPreset('last-7'))
+  const today = useTodayDateString()
+  const [range, setRange] = useState<ReviewDateRange>(() => buildRangeForPreset('last-7', today))
   const [summary, setSummary] = useState<ReviewSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -74,8 +76,8 @@ export function useReviewSummary() {
       setRange((current) => ({ ...current, preset }))
       return
     }
-    setRange(buildRangeForPreset(preset))
-  }, [])
+    setRange(buildRangeForPreset(preset, today))
+  }, [today])
 
   const setCustomRange = useCallback((startDate: string, endDate: string) => {
     setRange({ preset: 'custom', startDate, endDate })

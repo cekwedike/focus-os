@@ -32,6 +32,14 @@ export function attachContextMenu(window: BrowserWindow): void {
     }
 
     template.push(
+      {
+        label: 'Refresh',
+        accelerator: 'CmdOrCtrl+R',
+        click: () => {
+          window.webContents.reload()
+        },
+      },
+      { type: 'separator' },
       { label: 'Zoom In', role: 'zoomIn' },
       { label: 'Zoom Out', role: 'zoomOut' },
       { label: 'Actual Size', role: 'resetZoom' },

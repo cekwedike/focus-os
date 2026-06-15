@@ -15,6 +15,7 @@ interface NotificationContextValue {
   activeNotifications: ActiveNotificationSummary[]
   dueCheckInEntries: DueCheckInEntry[]
   refreshDueCheckIns: () => Promise<void>
+  refreshNotifications: () => Promise<void>
   performAction: (notificationId: number, actionId: string) => Promise<{ sendText?: string; navigate?: string }>
   onMicroBreakDispatched: (listener: () => void) => () => void
 }
@@ -51,6 +52,10 @@ export function NotificationProvider({
     const response = await window.focusOS.notifications.listActive()
     setActiveNotifications(response.active)
   }, [])
+
+  const refreshNotifications = useCallback(async (): Promise<void> => {
+    await Promise.all([refreshActive(), refreshDueCheckIns()])
+  }, [refreshActive, refreshDueCheckIns])
 
   const performAction = useCallback(
     async (
@@ -143,10 +148,18 @@ export function NotificationProvider({
       activeNotifications,
       dueCheckInEntries,
       refreshDueCheckIns,
+      refreshNotifications,
       performAction,
       onMicroBreakDispatched,
     }),
-    [activeNotifications, dueCheckInEntries, refreshDueCheckIns, performAction, onMicroBreakDispatched]
+    [
+      activeNotifications,
+      dueCheckInEntries,
+      refreshDueCheckIns,
+      refreshNotifications,
+      performAction,
+      onMicroBreakDispatched,
+    ]
   )
 
   return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>

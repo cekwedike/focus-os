@@ -4,8 +4,8 @@ import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import type { ClientProjectRow } from '@shared/types/db'
 import type { NotificationDispatchedPayload } from '@shared/types/notifications'
 import { useChatContext } from '@renderer/context/useChatContext'
-import { HudCard } from '../JarvisCard'
-import { JarvisMiniBars, type JarvisBarDatum } from '../JarvisMiniBars'
+import { HudCard } from '../HudCard'
+import { HudMiniBars, type HudBarDatum } from '../HudMiniBars'
 
 export function StalenessHudCard(): React.JSX.Element {
   const { sendMessage } = useChatContext()
@@ -56,7 +56,7 @@ export function StalenessHudCard(): React.JSX.Element {
     })
   }, [])
 
-  const radarBars = useMemo((): JarvisBarDatum[] => {
+  const radarBars = useMemo((): HudBarDatum[] => {
     return staleClients.slice(0, 6).map((client) => {
       const hours = client.last_touched_at
         ? (Date.now() - new Date(client.last_touched_at).getTime()) / (60 * 60 * 1000)
@@ -80,14 +80,14 @@ export function StalenessHudCard(): React.JSX.Element {
       expanded={expanded || !healthy}
       onClick={() => setExpanded((o) => !o)}
     >
-      <p className="hud-kicker">Staleness radar</p>
+      <p className="hud-kicker">Staleness Radar</p>
       {healthy ? (
-        <p className="mt-2 text-sm text-accent-mint">All clients recently active</p>
+        <p className="mt-2 text-sm text-accent-mint">All Clients Recently Active</p>
       ) : (
         <>
           <p className="mt-1 text-sm text-accent-amber">{staleClients.length} client(s) need touch</p>
           <div className="mt-3">
-            <JarvisMiniBars
+            <HudMiniBars
               data={radarBars}
               height={44}
               onBarClick={(datum) => void sendMessage(`touch ${datum.status}`)}

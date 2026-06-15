@@ -1,7 +1,7 @@
 import { useId } from 'react'
 import { motion } from 'framer-motion'
 
-interface JarvisRingGaugeProps {
+interface HudRingGaugeProps {
   value: number
   max?: number
   size?: number
@@ -11,7 +11,7 @@ interface JarvisRingGaugeProps {
   active?: boolean
 }
 
-export function JarvisRingGauge({
+export function HudRingGauge({
   value,
   max = 100,
   size = 72,
@@ -19,7 +19,7 @@ export function JarvisRingGauge({
   label,
   color = '#00e5a8',
   active = true,
-}: JarvisRingGaugeProps): React.JSX.Element {
+}: HudRingGaugeProps): React.JSX.Element {
   const gradientId = useId()
   const radius = (size - stroke) / 2
   const circumference = 2 * Math.PI * radius
@@ -74,7 +74,7 @@ export function JarvisRingGauge({
       >
         {max === 100 ? `${Math.round(progress * 100)}` : Math.round(clamped)}
       </div>
-      {label ? <span className="text-[10px] uppercase tracking-wider text-text-muted">{label}</span> : null}
+      {label ? <span className="text-[10px] tracking-wide text-text-muted">{label}</span> : null}
     </div>
   )
 }

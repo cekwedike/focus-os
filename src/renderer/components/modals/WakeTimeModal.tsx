@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { FormField } from '@renderer/components/ui/FormField'
 import { NumberInput } from '@renderer/components/ui/NumberInput'
 import { TimeInput } from '@renderer/components/ui/TimeInput'
+import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 import { getCurrentTimeHHMM } from '@renderer/utils/date'
 
 interface WakeTimeModalProps {
@@ -21,18 +22,19 @@ export function WakeTimeModal({
   defaultCapacityHours,
   onConfirm,
 }: WakeTimeModalProps): React.JSX.Element | null {
-  const [wakeTime, setWakeTime] = useState(getCurrentTimeHHMM)
+  const { timezone } = useDisplayPreferences()
+  const [wakeTime, setWakeTime] = useState(() => getCurrentTimeHHMM(timezone))
   const [sleepTargetTime, setSleepTargetTime] = useState(defaultSleepTime)
   const [capacityHours, setCapacityHours] = useState(defaultCapacityHours)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (open) {
-      setWakeTime(getCurrentTimeHHMM())
+      setWakeTime(getCurrentTimeHHMM(timezone))
       setSleepTargetTime(defaultSleepTime)
       setCapacityHours(defaultCapacityHours)
     }
-  }, [open, defaultSleepTime, defaultCapacityHours])
+  }, [open, defaultSleepTime, defaultCapacityHours, timezone])
 
   if (!open) {
     return null

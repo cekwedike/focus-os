@@ -3,10 +3,10 @@ import type { AllocationOutput } from '@shared/allocation/types'
 import type { ClientProjectRow } from '@shared/types/db'
 import type { FixedBlockOverride, DailySettingsNotes } from '@shared/types/schedule'
 import { isSystemUnassignedClient } from '@shared/constants/systemClient'
-import { getTodayDateString } from '@renderer/utils/date'
+import { useTodayDateString } from '@renderer/hooks/useTodayDateString'
 
 export function useDailyWorkspace() {
-  const today = getTodayDateString()
+  const today = useTodayDateString()
   const [wakeTime, setWakeTime] = useState('08:00')
   const [sleepTargetTime, setSleepTargetTime] = useState('22:00')
   const [capacityHours, setCapacityHours] = useState(8)

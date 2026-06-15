@@ -1,8 +1,10 @@
-export function getTodayDateString(): string {
-  return new Date().toISOString().slice(0, 10)
+import { resolveDefaultTimezone } from '@shared/constants/timezones'
+import { getDateStringInTimezone, getTimeHHMMInTimezone } from '@shared/utils/displayTime'
+
+export function getTodayDateString(timeZone = resolveDefaultTimezone()): string {
+  return getDateStringInTimezone(new Date(), timeZone)
 }
 
-export function getCurrentTimeHHMM(): string {
-  const now = new Date()
-  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+export function getCurrentTimeHHMM(timeZone = resolveDefaultTimezone()): string {
+  return getTimeHHMMInTimezone(new Date(), timeZone)
 }

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-export interface JarvisBarDatum {
+export interface HudBarDatum {
   id: string | number
   label: string
   value: number
@@ -8,19 +8,19 @@ export interface JarvisBarDatum {
   status?: string
 }
 
-interface JarvisMiniBarsProps {
-  data: JarvisBarDatum[]
+interface HudMiniBarsProps {
+  data: HudBarDatum[]
   maxValue?: number
   height?: number
-  onBarClick?: (datum: JarvisBarDatum) => void
+  onBarClick?: (datum: HudBarDatum) => void
 }
 
-export function JarvisMiniBars({
+export function HudMiniBars({
   data,
   maxValue,
   height = 64,
   onBarClick,
-}: JarvisMiniBarsProps): React.JSX.Element {
+}: HudMiniBarsProps): React.JSX.Element {
   const peak = maxValue ?? Math.max(1, ...data.map((d) => d.value))
 
   return (

@@ -134,3 +134,72 @@ export function isValidHHMM(value: string): boolean {
   const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value)
   return Boolean(match)
 }
+
+function readDatePartsInTimezone(
+  date: Date,
+  timeZone: string
+): { year: string; month: string; day: string } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+
+  return {
+    year: parts.find((part) => part.type === 'year')?.value ?? '0000',
+    month: parts.find((part) => part.type === 'month')?.value ?? '01',
+    day: parts.find((part) => part.type === 'day')?.value ?? '01',
+  }
+}
+
+export function getDateStringInTimezone(date: Date, timeZone: string): string {
+  const { year, month, day } = readDatePartsInTimezone(date, timeZone)
+  return `${year}-${month}-${day}`
+}
+
+export function getTimeHHMMInTimezone(date: Date, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date)
+
+  const hour = parts.find((part) => part.type === 'hour')?.value ?? '00'
+  const minute = parts.find((part) => part.type === 'minute')?.value ?? '00'
+  return `${hour}:${minute}`
+}
+
+export function getWeekdayInTimezone(date: Date, timeZone: string, style: 'short' | 'long' = 'short'): string {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    weekday: style,
+  }).format(date)
+}
+
+export function getTimezoneAbbreviation(date: Date, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    timeZoneName: 'short',
+  }).formatToParts(date)
+
+  return parts.find((part) => part.type === 'timeZoneName')?.value ?? timeZone
+}
+
+export function getTimezoneOffsetLabel(date: Date, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    timeZoneName: 'shortOffset',
+  }).formatToParts(date)
+
+  return parts.find((part) => part.type === 'timeZoneName')?.value ?? ''
+}
+
+export function formatMonthDayInTimezone(date: Date, timeZone: string): string {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    month: 'short',
+    day: 'numeric',
+  }).format(date)
+}

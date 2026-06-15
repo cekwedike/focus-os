@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FaithLogRow } from '@shared/types/db'
 import type { JournalStatsResponse } from '@shared/types/journal'
-import { getTodayDateString } from '@renderer/utils/date'
+import { useTodayDateString } from '@renderer/hooks/useTodayDateString'
 
 export function useJournal() {
-  const today = getTodayDateString()
+  const today = useTodayDateString()
   const [todayEntry, setTodayEntry] = useState<FaithLogRow | null>(null)
   const [history, setHistory] = useState<FaithLogRow[]>([])
   const [stats, setStats] = useState<JournalStatsResponse | null>(null)

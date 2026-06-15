@@ -15,7 +15,7 @@ export function UpNextCard({ variant = 'dashboard' }: UpNextCardProps): React.JS
 
   return (
     <section className={`${panelClass} h-full min-w-0`}>
-      <p className="focus-metric-label">Up next</p>
+      <p className="focus-metric-label">Up Next</p>
       {nextBlock ? (
         <>
           <p

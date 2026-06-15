@@ -8,6 +8,7 @@ import {
   EXPECTED_TABLE_NAMES,
 } from '../../src/main/db/migrations/seed'
 import { getLatestSchemaVersion, listUserTableNames, runMigrations } from '../../src/main/db/migrations/runner'
+import { applyTimezoneLegacyFixMigration } from '../../src/main/db/migrations/015_timezone_legacy_fix'
 
 function createTempDatabasePath(): string {
   const directory = mkdtempSync(join(tmpdir(), 'focus-os-test-'))
@@ -40,7 +41,7 @@ describe('database migrations', () => {
       expect(tableNames).toContain(tableName)
     }
 
-    expect(getLatestSchemaVersion(testDb)).toBe(14)
+    expect(getLatestSchemaVersion(testDb)).toBe(15)
   })
 
   it('is idempotent when migrations run multiple times', () => {
@@ -68,7 +69,7 @@ describe('database migrations', () => {
     expect(secondTableNames).toEqual(firstTableNames)
     expect(secondProtectedCount).toBe(firstProtectedCount)
     expect(secondSettingsCount).toBe(firstSettingsCount)
-    expect(getLatestSchemaVersion(testDb)).toBe(14)
+    expect(getLatestSchemaVersion(testDb)).toBe(15)
   })
 
   it('seeds protected_blocks with all 5 expected block types', () => {
@@ -135,6 +136,24 @@ describe('database migrations', () => {
 
     expect(typeof JSON.parse(timezone.value)).toBe('string')
     expect(JSON.parse(timezone.value).length).toBeGreaterThan(0)
+  })
+
+  it('migrates legacy UTC timezone to the system timezone', () => {
+    dbPath = createTempDatabasePath()
+    testDb = openDatabase(dbPath)
+    runMigrations(testDb)
+
+    testDb
+      .prepare('UPDATE app_settings SET value = ?, updated_at = ? WHERE key = ?')
+      .run(JSON.stringify('UTC'), new Date().toISOString(), 'timezone')
+
+    applyTimezoneLegacyFixMigration(testDb)
+
+    const timezone = testDb
+      .prepare('SELECT value FROM app_settings WHERE key = ?')
+      .get('timezone') as { value: string }
+
+    expect(JSON.parse(timezone.value)).not.toBe('UTC')
   })
 
   it('seeds system unassigned client', () => {

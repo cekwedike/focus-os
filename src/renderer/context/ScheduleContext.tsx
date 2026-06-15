@@ -10,6 +10,7 @@ import {
 import type { DayBundle } from '@shared/types/schedule'
 import type { DailyScheduleRow, ProtectedBlockRow } from '@shared/types/db'
 import { isBlockSkippable } from '@shared/schedule/blockSkippable'
+import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 import { getTodayDateString } from '@renderer/utils/date'
 
 interface ScheduleContextValue {
@@ -27,11 +28,24 @@ interface ScheduleContextValue {
 const ScheduleContext = createContext<ScheduleContextValue | null>(null)
 
 export function ScheduleProvider({ children }: { children: ReactNode }): React.JSX.Element {
-  const [date] = useState(getTodayDateString)
+  const { timezone } = useDisplayPreferences()
+  const [date, setDate] = useState(() => getTodayDateString(timezone))
   const [dayBundle, setDayBundle] = useState<DayBundle | null>(null)
   const [protectedBlocks, setProtectedBlocks] = useState<ProtectedBlockRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setDate(getTodayDateString(timezone))
+    const intervalId = window.setInterval(() => {
+      setDate((current) => {
+        const next = getTodayDateString(timezone)
+        return current === next ? current : next
+      })
+    }, 60_000)
+
+    return () => window.clearInterval(intervalId)
+  }, [timezone])
 
   const refresh = useCallback(async () => {
     setLoading(true)

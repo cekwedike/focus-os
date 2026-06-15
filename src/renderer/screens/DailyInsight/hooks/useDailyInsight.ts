@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { InsightLogRow } from '@shared/types/insights'
-import { getTodayDateString } from '@renderer/utils/date'
+import { useTodayDateString } from '@renderer/hooks/useTodayDateString'
 
 export function useDailyInsight() {
-  const today = getTodayDateString()
+  const today = useTodayDateString()
   const [todayInsight, setTodayInsight] = useState<InsightLogRow | null>(null)
   const [history, setHistory] = useState<InsightLogRow[]>([])
   const [loading, setLoading] = useState(true)

@@ -2,11 +2,20 @@ import { BrowserWindow, Menu, app, type MenuItemConstructorOptions } from 'elect
 import { APP_NAV_ITEMS } from './navigationItems'
 
 export function setApplicationMenu(): void {
-  const viewSubmenu: MenuItemConstructorOptions[] = []
+  const viewSubmenu: MenuItemConstructorOptions[] = [
+    {
+      label: 'Refresh',
+      accelerator: 'CmdOrCtrl+R',
+      click: (_menuItem, browserWindow) => {
+        if (browserWindow instanceof BrowserWindow) {
+          browserWindow.webContents.reload()
+        }
+      },
+    },
+  ]
 
   if (!app.isPackaged) {
     viewSubmenu.push(
-      { role: 'reload' },
       { role: 'forceReload' },
       { role: 'toggleDevTools' },
       { type: 'separator' }

@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "build:exe": "pnpm build && electron-builder --win",
+    "build:exe": "pnpm build && pnpm generate:installer && electron-builder --win",
     "typecheck": "pnpm typecheck:node && pnpm typecheck:web",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
@@ -33,6 +33,7 @@
     "predev": "pnpm exec electron-builder install-app-deps",
     "preview": "electron-vite preview",
     "generate:icons": "node scripts/generate-icons.mjs",
+    "generate:installer": "node scripts/generate-installer-assets.mjs",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
@@ -89,14 +90,37 @@
       "**/node_modules/better-sqlite3/**/*"
     ],
     "win": {
-      "icon": "resources/icon.png",
+      "icon": "resources/icon.ico",
       "target": [
-        "nsis"
-      ]
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "publisherName": "Focus OS",
+      "legalTrademarks": "Focus OS"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "installerIcon": "resources/icon.ico",
+      "uninstallerIcon": "resources/icon.ico",
+      "installerHeaderIcon": "resources/icon.ico",
+      "installerHeader": "resources/installer/header.bmp",
+      "installerSidebar": "resources/installer/sidebar.bmp",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Focus OS",
+      "menuCategory": "Focus OS",
+      "artifactName": "${productName}-${version}-Setup.${ext}",
+      "uninstallDisplayName": "Focus OS",
+      "runAfterFinish": true,
+      "unicode": true,
+      "deleteAppDataOnUninstall": false,
+      "installerLanguages": ["en_US"],
+      "language": "1033"
     }
   }
 }

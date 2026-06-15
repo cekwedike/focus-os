@@ -60,7 +60,7 @@ export function StalenessAlertList({
 
   return (
     <section className={`${panelClass} h-full min-w-0`}>
-      <p className="focus-metric-label">Staleness radar</p>
+      <p className="focus-metric-label">Staleness Radar</p>
       {staleClients.length === 0 ? (
         <p className="mt-3 text-sm text-text-muted">All clients recently active.</p>
       ) : (

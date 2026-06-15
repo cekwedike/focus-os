@@ -33,7 +33,7 @@ export function UntilBreakCountdown({
 
   return (
     <section className={`${panelClass} h-full min-w-0`}>
-      <p className="focus-metric-label">Next break</p>
+      <p className="focus-metric-label">Next Break</p>
       {nextMicroBreak ? (
         <p className="mt-3 font-mono text-lg text-accent-cyan">
           {formatHHMM(extractLocalTimeHHMM(nextMicroBreak.planned_start))}
