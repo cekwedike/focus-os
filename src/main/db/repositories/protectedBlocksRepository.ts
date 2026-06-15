@@ -4,6 +4,7 @@ import type {
   ProtectedBlockRow,
   UpdateProtectedBlockInput,
 } from '@shared/types/db'
+import { defaultSkippableForBlockType } from '@shared/schedule/blockSkippable'
 import { nowIso } from '@shared/utils/time'
 
 export function listProtectedBlocks(db: Database.Database): ProtectedBlockRow[] {
@@ -39,10 +40,10 @@ export function createProtectedBlock(
       `
       INSERT INTO protected_blocks (
         block_type, label, duration_minutes, anchor_type, anchor_value,
-        sort_order, is_enabled, created_at, updated_at
+        sort_order, is_enabled, skippable, created_at, updated_at
       ) VALUES (
         @block_type, @label, @duration_minutes, @anchor_type, @anchor_value,
-        @sort_order, @is_enabled, @created_at, @updated_at
+        @sort_order, @is_enabled, @skippable, @created_at, @updated_at
       )
     `
     )
@@ -54,6 +55,14 @@ export function createProtectedBlock(
       anchor_value: input.anchor_value,
       sort_order: input.sort_order ?? 0,
       is_enabled: input.is_enabled === false ? 0 : 1,
+      skippable:
+        input.skippable === undefined
+          ? defaultSkippableForBlockType(input.block_type)
+            ? 1
+            : 0
+          : input.skippable
+            ? 1
+            : 0,
       created_at: timestamp,
       updated_at: timestamp,
     })
@@ -83,6 +92,8 @@ export function updateProtectedBlock(
     sort_order: input.sort_order ?? existing.sort_order,
     is_enabled:
       input.is_enabled === undefined ? existing.is_enabled : input.is_enabled ? 1 : 0,
+    skippable:
+      input.skippable === undefined ? existing.skippable : input.skippable ? 1 : 0,
     updated_at: nowIso(),
   }
 
@@ -97,6 +108,7 @@ export function updateProtectedBlock(
       anchor_value = @anchor_value,
       sort_order = @sort_order,
       is_enabled = @is_enabled,
+      skippable = @skippable,
       updated_at = @updated_at
     WHERE id = @id
   `

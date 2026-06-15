@@ -47,7 +47,15 @@ export function ScheduleProvider({ children }: { children: ReactNode }): React.J
     const intervalId = window.setInterval(() => {
       void refresh()
     }, 30_000)
-    return () => window.clearInterval(intervalId)
+
+    const unsubscribe = window.focusOS.onScheduleBlockChanged(() => {
+      void refresh()
+    })
+
+    return () => {
+      window.clearInterval(intervalId)
+      unsubscribe()
+    }
   }, [refresh])
 
   const activeBlock = useMemo(

@@ -17,6 +17,7 @@ import type {
   AppNavigatePayload,
   ChatAssistantMessagePayload,
   CheckInStateChangedPayload,
+  ScheduleBlockChangedPayload,
   CheckInsGetDueResponse,
   MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
@@ -96,6 +97,7 @@ const eventChannels: IpcEventChannel[] = [
   'app:navigate',
   'chat:assistant-message',
   'check-in:state-changed',
+  'schedule:block-changed',
 ]
 
 function createInvoke<T>(channel: IpcInvokeChannel, payload?: unknown): Promise<IpcResult<T>> {
@@ -241,6 +243,8 @@ const focusOSApi: FocusOSApi = {
     subscribeToEvent<ChatAssistantMessagePayload>('chat:assistant-message', callback),
   onCheckInStateChanged: (callback) =>
     subscribeToEvent<CheckInStateChangedPayload>('check-in:state-changed', callback),
+  onScheduleBlockChanged: (callback) =>
+    subscribeToEvent<ScheduleBlockChangedPayload>('schedule:block-changed', callback),
 }
 
 contextBridge.exposeInMainWorld('focusOS', focusOSApi)

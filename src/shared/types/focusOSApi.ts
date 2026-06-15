@@ -15,6 +15,7 @@ import type {
   AppNavigatePayload,
   ChatAssistantMessagePayload,
   CheckInStateChangedPayload,
+  ScheduleBlockChangedPayload,
   MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
   ProtectedBlockGetPayload,
@@ -159,4 +160,5 @@ export interface FocusOSApi {
   onNavigate(callback: (payload: AppNavigatePayload) => void): Unsubscribe
   onAssistantMessage(callback: (payload: ChatAssistantMessagePayload) => void): Unsubscribe
   onCheckInStateChanged(callback: (payload: CheckInStateChangedPayload) => void): Unsubscribe
+  onScheduleBlockChanged(callback: (payload: ScheduleBlockChangedPayload) => void): Unsubscribe
 }

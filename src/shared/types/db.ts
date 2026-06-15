@@ -45,6 +45,7 @@ export interface ProtectedBlockRow {
   anchor_value: string
   sort_order: number
   is_enabled: number
+  skippable: number
   created_at: string
   updated_at: string
 }
@@ -88,6 +89,7 @@ export interface CreateProtectedBlockInput {
   anchor_value: string
   sort_order?: number
   is_enabled?: boolean
+  skippable?: boolean
 }
 
 export interface UpdateProtectedBlockInput {
@@ -99,6 +101,7 @@ export interface UpdateProtectedBlockInput {
   anchor_value?: string
   sort_order?: number
   is_enabled?: boolean
+  skippable?: boolean
 }
 
 export interface DbHealthResponse {

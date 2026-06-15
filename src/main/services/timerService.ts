@@ -3,6 +3,7 @@ import { getDatabase } from '../db/connection'
 import { getActiveBlock } from '../db/repositories/dailyScheduleRepository'
 import { getActiveLongBreak } from '../db/repositories/breaksLogRepository'
 import { getAllSettings } from '../db/repositories/appSettingsRepository'
+import { autoCompleteActiveBlockIfDue } from './scheduleService'
 
 let activeWorkSeconds = 0
 let tickInterval: ReturnType<typeof setInterval> | null = null
@@ -18,6 +19,31 @@ function getIntervalMinutes(): number {
 
 function isLongBreakActive(): boolean {
   return getActiveLongBreak(getDatabase(), todayDateString()) !== null
+}
+
+function emitScheduleBlockChanged(payload: {
+  scheduleDate: string
+  blockId: number
+  reason: 'auto_completed'
+}): void {
+  if (mainWindow) {
+    mainWindow.webContents.send('schedule:block-changed', payload)
+  }
+}
+
+function tickAutoComplete(): void {
+  const scheduleDate = todayDateString()
+  const completed = autoCompleteActiveBlockIfDue(getDatabase(), scheduleDate)
+  if (!completed) {
+    return
+  }
+
+  activeWorkSeconds = 0
+  emitScheduleBlockChanged({
+    scheduleDate,
+    blockId: completed.id,
+    reason: 'auto_completed',
+  })
 }
 
 function emitMicroBreakDue(): void {
@@ -48,13 +74,23 @@ function tickActiveWork(): void {
   }
 }
 
+function tick(): void {
+  if (!mainWindow) {
+    return
+  }
+
+  tickAutoComplete()
+  tickActiveWork()
+}
+
 export function startTimerService(window: BrowserWindow): void {
   mainWindow = window
   if (tickInterval) {
     return
   }
 
-  tickInterval = setInterval(tickActiveWork, 1000)
+  tick()
+  tickInterval = setInterval(tick, 1000)
 }
 
 export function stopTimerService(): void {

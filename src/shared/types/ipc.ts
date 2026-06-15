@@ -71,6 +71,7 @@ export type IpcEventChannel =
   | 'app:navigate'
   | 'chat:assistant-message'
   | 'check-in:state-changed'
+  | 'schedule:block-changed'
 
 export interface AppNavigatePayload {
   path: string
@@ -112,6 +113,12 @@ export interface CheckInsGetDueResponse {
 
 export interface CheckInStateChangedPayload {
   due: DueCheckInEntry[]
+}
+
+export interface ScheduleBlockChangedPayload {
+  scheduleDate: string
+  blockId: number
+  reason: 'auto_completed'
 }
 
 export interface AppPingResponse {

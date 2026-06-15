@@ -1,6 +1,7 @@
 import type Database from 'better-sqlite3'
 import type { ScheduleBlock } from '@shared/allocation/types'
 import type { DailyScheduleRow, ScheduleBlockStatus } from '@shared/types/db'
+import { computeShiftedBlockTimes } from '@shared/schedule/blockTimeShift'
 import { nowIso } from '@shared/utils/time'
 
 export function listBlocksForDate(
@@ -220,4 +221,42 @@ export function hasCommittedBlocksForDate(db: Database.Database, scheduleDate: s
     )
     .get({ scheduleDate }) as { count: number }
   return row.count > 0
+}
+
+export function findNextPlannedBlock(
+  db: Database.Database,
+  scheduleDate: string
+): DailyScheduleRow | null {
+  const blocks = listBlocksForDate(db, scheduleDate).filter((block) => block.status === 'planned')
+  if (blocks.length === 0) {
+    return null
+  }
+
+  return blocks.sort((left, right) => left.priority_order - right.priority_order)[0]
+}
+
+export function shiftSubsequentBlocks(
+  db: Database.Database,
+  scheduleDate: string,
+  afterPriorityOrder: number,
+  deltaMinutes: number,
+  statuses: ScheduleBlockStatus[] = ['planned', 'active']
+): void {
+  const blocks = listBlocksForDate(db, scheduleDate).filter(
+    (block) => block.priority_order > afterPriorityOrder && statuses.includes(block.status)
+  )
+
+  for (const block of blocks) {
+    const shifted = computeShiftedBlockTimes(
+      block.planned_start,
+      block.planned_end,
+      deltaMinutes
+    )
+
+    updateBlock(db, block.id, {
+      planned_start: shifted.plannedStart,
+      planned_end: shifted.plannedEnd,
+      planned_duration_minutes: shifted.plannedDurationMinutes,
+    })
+  }
 }

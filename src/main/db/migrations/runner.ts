@@ -7,6 +7,7 @@ import { applyUnassignedClientMigration } from './005_unassigned_client'
 import { applyUserDisplayNameMigration } from './006_user_display_name'
 import { applyClientRemindersAndStartupMigration } from './007_client_reminders_and_startup'
 import { applyCheckInsLogMigration } from './008_check_ins_log'
+import { applyProtectedBlocksSkippableMigration } from './009_protected_blocks_skippable'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -71,6 +72,13 @@ const migrations: MigrationDefinition[] = [
     name: 'check_ins_log',
     up: (db) => {
       applyCheckInsLogMigration(db)
+    },
+  },
+  {
+    version: 9,
+    name: 'protected_blocks_skippable',
+    up: (db) => {
+      applyProtectedBlocksSkippableMigration(db)
     },
   },
 ]

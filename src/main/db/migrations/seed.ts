@@ -10,6 +10,11 @@ interface ProtectedBlockSeed {
   anchor_value: string
   sort_order: number
   is_enabled: number
+  skippable: number
+}
+
+function skippableForType(blockType: ProtectedBlockType): number {
+  return blockType === 'meal' || blockType === 'micro_break' ? 1 : 0
 }
 
 /**
@@ -30,6 +35,7 @@ export const PROTECTED_BLOCK_SEEDS: ProtectedBlockSeed[] = [
     anchor_value: '15',
     sort_order: 0,
     is_enabled: 1,
+    skippable: skippableForType('morning_routine'),
   },
   {
     block_type: 'faith',
@@ -39,6 +45,7 @@ export const PROTECTED_BLOCK_SEEDS: ProtectedBlockSeed[] = [
     anchor_value: '45',
     sort_order: 1,
     is_enabled: 1,
+    skippable: skippableForType('faith'),
   },
   {
     block_type: 'meal',
@@ -48,6 +55,7 @@ export const PROTECTED_BLOCK_SEEDS: ProtectedBlockSeed[] = [
     anchor_value: '12:30',
     sort_order: 2,
     is_enabled: 1,
+    skippable: skippableForType('meal'),
   },
   {
     block_type: 'micro_break',
@@ -57,6 +65,7 @@ export const PROTECTED_BLOCK_SEEDS: ProtectedBlockSeed[] = [
     anchor_value: '90',
     sort_order: 3,
     is_enabled: 0,
+    skippable: skippableForType('micro_break'),
   },
   {
     block_type: 'winddown',
@@ -66,6 +75,7 @@ export const PROTECTED_BLOCK_SEEDS: ProtectedBlockSeed[] = [
     anchor_value: '22:00',
     sort_order: 4,
     is_enabled: 1,
+    skippable: skippableForType('winddown'),
   },
 ]
 
@@ -104,10 +114,10 @@ export function seedInitialData(db: Database.Database): void {
     const insertProtected = db.prepare(`
       INSERT INTO protected_blocks (
         block_type, label, duration_minutes, anchor_type, anchor_value,
-        sort_order, is_enabled, created_at, updated_at
+        sort_order, is_enabled, skippable, created_at, updated_at
       ) VALUES (
         @block_type, @label, @duration_minutes, @anchor_type, @anchor_value,
-        @sort_order, @is_enabled, @created_at, @updated_at
+        @sort_order, @is_enabled, @skippable, @created_at, @updated_at
       )
     `)
 

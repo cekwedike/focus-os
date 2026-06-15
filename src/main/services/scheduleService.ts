@@ -34,6 +34,7 @@ import {
   bumpTasksToDate,
   listTasksForAllocation,
 } from '../db/repositories/tasksRepository'
+import { shouldAutoCompleteBlock } from '@shared/schedule/blockAutoComplete'
 
 function addDays(dateStr: string, days: number): string {
   const date = new Date(`${dateStr}T12:00:00`)
@@ -123,13 +124,17 @@ export function startBlock(db: Database.Database, blockId: number): DailySchedul
   return updated
 }
 
-export function completeBlock(db: Database.Database, blockId: number): DailyScheduleRow {
+export function completeBlock(
+  db: Database.Database,
+  blockId: number,
+  options?: { endTime?: string }
+): DailyScheduleRow {
   const block = getBlockById(db, blockId)
   if (!block) {
     throw new Error('BLOCK_NOT_FOUND')
   }
 
-  const endTime = nowIso()
+  const endTime = options?.endTime ?? nowIso()
   let actualDuration = block.planned_duration_minutes
 
   if (block.actual_start) {
@@ -244,4 +249,17 @@ export function getActiveBlockForDate(
   scheduleDate: string
 ): DailyScheduleRow | null {
   return getActiveBlock(db, scheduleDate)
+}
+
+export function autoCompleteActiveBlockIfDue(
+  db: Database.Database,
+  scheduleDate: string,
+  nowMs = Date.now()
+): DailyScheduleRow | null {
+  const activeBlock = getActiveBlock(db, scheduleDate)
+  if (!activeBlock || !shouldAutoCompleteBlock(activeBlock, nowMs)) {
+    return null
+  }
+
+  return completeBlock(db, activeBlock.id, { endTime: activeBlock.planned_end })
 }
