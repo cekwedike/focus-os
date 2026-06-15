@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react'
-import type { QuickReplyChip, ChatAttachment } from '@shared/types/chat'
 import {
   getAssistantAttachments,
   getAssistantContent,

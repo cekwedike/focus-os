@@ -22,7 +22,6 @@ import {
   isLocalScheduleInstant,
   normalizeScheduleInstant,
 } from '@shared/utils/scheduleTimestamp'
-import type { ScheduleBlock } from '@shared/allocation/types'
 
 function createTempDatabasePath(): string {
   const directory = mkdtempSync(join(tmpdir(), 'focus-os-schedule-ts-'))

@@ -12,13 +12,11 @@ export function HudWaveform({
   className = '',
 }: HudWaveformProps): React.JSX.Element {
   const reduceMotion = useReducedMotion()
-  const intensity = active ? 1 : 0.45
 
   return (
     <div className={`flex h-9 items-end justify-center gap-0.5 ${className}`} aria-hidden="true">
       {Array.from({ length: bars }, (_, index) => {
         const baseHeight = 28 + (index % 5) * 10
-        const peak = baseHeight * intensity + (active ? 18 : 6)
 
         if (reduceMotion) {
           return (

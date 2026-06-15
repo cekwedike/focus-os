@@ -15,7 +15,7 @@ import {
 import { routeNotificationAction } from './notificationActionRouter'
 import { setDesktopNotificationWindow, showDesktopNotification } from './desktopNotification'
 
-interface ActiveNotificationEntry extends ActiveNotificationSummary {}
+type ActiveNotificationEntry = ActiveNotificationSummary
 
 let mainWindow: BrowserWindow | null = null
 const activeByDedupeKey = new Map<string, ActiveNotificationEntry>()

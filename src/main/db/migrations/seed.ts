@@ -141,7 +141,8 @@ export function seedInitialData(db: Database.Database): void {
         if (hasSkippable) {
           insertProtected.run({ ...row, created_at: timestamp, updated_at: timestamp })
         } else {
-          const { skippable: _skippable, ...legacyRow } = row
+          const { skippable, ...legacyRow } = row
+          void skippable
           insertProtected.run({ ...legacyRow, created_at: timestamp, updated_at: timestamp })
         }
       }

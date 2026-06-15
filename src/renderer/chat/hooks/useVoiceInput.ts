@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { mergeVoiceTranscript } from '@shared/chat/voiceTranscript'
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionInstance
 
