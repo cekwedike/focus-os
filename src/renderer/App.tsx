@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { DisplayPreferencesProvider } from './context/DisplayPreferencesContext'
+import { CheckInDueProvider } from './context/CheckInDueContext'
 import { ScheduleProvider } from './context/ScheduleContext'
 import { FaithEntryProvider } from './context/FaithEntryContext'
 import { BreakProvider } from './context/BreakContext'
@@ -49,7 +50,8 @@ function AppRoutes(): React.JSX.Element {
 export default function App(): React.JSX.Element {
   return (
     <DisplayPreferencesProvider>
-      <ScheduleProvider>
+      <CheckInDueProvider>
+        <ScheduleProvider>
         <ChatProvider>
           <FaithEntryProvider>
             <BreakProvider>
@@ -57,7 +59,8 @@ export default function App(): React.JSX.Element {
             </BreakProvider>
           </FaithEntryProvider>
         </ChatProvider>
-      </ScheduleProvider>
+        </ScheduleProvider>
+      </CheckInDueProvider>
     </DisplayPreferencesProvider>
   )
 }

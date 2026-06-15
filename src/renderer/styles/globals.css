@@ -179,6 +179,11 @@
     text-shadow: 0 0 20px rgba(0, 229, 168, 0.35);
   }
 
+  .focus-timer-overdue {
+    @apply text-accent-amber;
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.35);
+  }
+
   .focus-hero-panel {
     @apply focus-panel focus-panel-active col-span-full p-4 sm:p-6 md:p-8;
   }

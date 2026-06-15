@@ -48,7 +48,11 @@ export function RightNowCard(): React.JSX.Element {
           </p>
           {activeBlock.actual_start && (
             <div className="mt-4">
-              <ActiveBlockTimer startedAt={activeBlock.actual_start} paused={paused} />
+              <ActiveBlockTimer
+                startedAt={activeBlock.actual_start}
+                paused={paused}
+                endsAt={activeBlock.planned_end}
+              />
             </div>
           )}
         </div>

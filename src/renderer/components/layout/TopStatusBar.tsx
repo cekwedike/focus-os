@@ -42,7 +42,7 @@ interface TopStatusBarProps {
 export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React.JSX.Element {
   const { formatClock } = useDisplayPreferences()
   const { activeBlock, dayBundle, refresh } = useScheduleContext()
-  const { longBreakActive, longBreakStartedAt, openLongBreakModal, endLongBreak } = useBreakContext()
+  const { longBreakActive, longBreakStartedAt, longBreakPlannedMinutes, openLongBreakModal, endLongBreak } = useBreakContext()
   const { stats: faithStats } = useFaithStreak()
   const { isFaithBlockActive, openFaithEntry } = useFaithEntry()
   const [currentTime, setCurrentTime] = useState(() => formatClock(new Date()))
@@ -104,12 +104,15 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
 
         {longBreakActive && longBreakStartedAt ? (
           <div className="hidden shrink-0 sm:block">
-            <ActiveBlockTimer startedAt={longBreakStartedAt} />
+            <ActiveBlockTimer
+              startedAt={longBreakStartedAt}
+              durationMinutes={longBreakPlannedMinutes}
+            />
           </div>
         ) : null}
         {activeBlock?.status === 'active' && activeBlock.actual_start && !longBreakActive ? (
           <div className="hidden shrink-0 sm:block">
-            <ActiveBlockTimer startedAt={activeBlock.actual_start} />
+            <ActiveBlockTimer startedAt={activeBlock.actual_start} endsAt={activeBlock.planned_end} />
           </div>
         ) : null}
       </div>

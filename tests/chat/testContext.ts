@@ -41,6 +41,7 @@ export function createTestContext(overrides: Partial<RouterContext> = {}): Route
     defaultCapacityMinutes: 480,
     defaultBufferPercent: 10,
     nowIso: '2026-06-15T14:30:00.000Z',
+    dueCheckInClients: [],
     ...overrides,
   }
 }

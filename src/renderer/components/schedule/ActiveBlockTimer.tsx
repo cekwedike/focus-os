@@ -1,32 +1,43 @@
 import { useEffect, useState } from 'react'
+import { computeCountdownSeconds, formatCountdownMmSs } from '@shared/utils/remainingTime'
 
 export function ActiveBlockTimer({
   startedAt,
   paused,
+  endsAt,
+  durationMinutes,
 }: {
   startedAt: string
   paused?: boolean
+  endsAt?: string
+  durationMinutes?: number | null
 }): React.JSX.Element {
-  const [elapsed, setElapsed] = useState(0)
+  const [remainingSeconds, setRemainingSeconds] = useState(0)
 
   useEffect(() => {
     if (paused) {
       return
     }
+
     const update = (): void => {
-      setElapsed(Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)))
+      setRemainingSeconds(
+        computeCountdownSeconds({
+          nowMs: Date.now(),
+          endsAt,
+          startedAt,
+          durationMinutes,
+        })
+      )
     }
+
     update()
     const intervalId = window.setInterval(update, 1000)
     return () => window.clearInterval(intervalId)
-  }, [startedAt, paused])
-
-  const minutes = Math.floor(elapsed / 60)
-  const seconds = elapsed % 60
+  }, [startedAt, paused, endsAt, durationMinutes])
 
   return (
-    <span className="focus-timer">
-      {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+    <span className={remainingSeconds < 0 ? 'focus-timer focus-timer-overdue' : 'focus-timer'}>
+      {formatCountdownMmSs(remainingSeconds)}
     </span>
   )
 }

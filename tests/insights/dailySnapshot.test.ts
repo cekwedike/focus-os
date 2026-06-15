@@ -93,6 +93,7 @@ describe('composeDailySnapshot', () => {
         taskCompletionRate: null,
         scheduledTaskBlocks: 0,
         completedTaskBlocks: 0,
+        checkInSummaries: [],
       },
       bumpedTasks: [],
     })

@@ -28,6 +28,7 @@ export interface RouterContext {
   defaultCapacityMinutes: number
   defaultBufferPercent: number
   nowIso: string
+  dueCheckInClients: Array<{ id: number; name: string }>
 }
 
 export interface WakeTimeExtracted {
@@ -55,12 +56,18 @@ export interface FaithLogExtracted {
   blockId?: number
 }
 
+export interface AcknowledgeCheckInExtracted {
+  clientId: number
+  clientName: string
+}
+
 export type IntentExtracted =
   | WakeTimeExtracted
   | AddTaskExtracted
   | BlockActionExtracted
   | LongBreakExtracted
   | FaithLogExtracted
+  | AcknowledgeCheckInExtracted
   | Record<string, never>
 
 export interface IntentMatch {

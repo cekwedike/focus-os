@@ -5,6 +5,7 @@ import { DateRangeSelector } from './components/DateRangeSelector'
 import { PlannedActualChart } from './components/PlannedActualChart'
 import { ProtectedBlocksSummary } from './components/ProtectedBlocksSummary'
 import { BreakAnalysisSection } from './components/BreakAnalysisSection'
+import { CheckInSummarySection } from './components/CheckInSummarySection'
 import { TaskCompletionRate } from './components/TaskCompletionRate'
 
 const screen = getScreenDefinition('/review')
@@ -48,6 +49,7 @@ export function ReviewScreen(): React.JSX.Element {
             longBreaks={summary.longBreaks}
             longBreakReasons={summary.longBreakReasons}
           />
+          <CheckInSummarySection summaries={summary.checkInSummaries} />
         </>
       )}
     </div>

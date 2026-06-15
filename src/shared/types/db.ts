@@ -26,6 +26,16 @@ export interface ClientProjectRow {
   updated_at: string
 }
 
+export interface CheckInLogRow {
+  id: number
+  client_project_id: number
+  check_in_date: string
+  scheduled_at: string
+  acknowledged_at: string
+  actual_interval_minutes: number | null
+  created_at: string
+}
+
 export interface ProtectedBlockRow {
   id: number
   block_type: ProtectedBlockType

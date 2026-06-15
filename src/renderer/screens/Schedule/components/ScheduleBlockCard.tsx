@@ -81,7 +81,11 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
           )}
           {block.status === 'active' && block.actual_start && (
             <div className="mt-2">
-              <ActiveBlockTimer startedAt={block.actual_start} paused={paused} />
+              <ActiveBlockTimer
+                startedAt={block.actual_start}
+                paused={paused}
+                endsAt={block.planned_end}
+              />
             </div>
           )}
         </div>

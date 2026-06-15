@@ -42,6 +42,7 @@ export interface ReviewSummary {
   taskCompletionRate: number | null
   scheduledTaskBlocks: number
   completedTaskBlocks: number
+  checkInSummaries: import('@shared/review/checkInSummary').CheckInClientSummary[]
 }
 
 export interface ReviewScheduleRow {

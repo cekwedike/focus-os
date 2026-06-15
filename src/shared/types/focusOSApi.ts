@@ -14,6 +14,7 @@ import type {
   IpcResult,
   AppNavigatePayload,
   ChatAssistantMessagePayload,
+  CheckInStateChangedPayload,
   MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
   ProtectedBlockGetPayload,
@@ -149,8 +150,13 @@ export interface FocusOSApi {
   work: {
     setPaused(payload: { paused: boolean }): Promise<{ paused: boolean }>
   }
+  checkIns: {
+    getDue(): Promise<import('./ipc').CheckInsGetDueResponse>
+    acknowledge(payload: { clientId: number }): Promise<import('./ipc').CheckInsGetDueResponse>
+  }
   onMicroBreakDue(callback: (payload: MicroBreakDuePayload) => void): Unsubscribe
   onStalenessAlert(callback: (payload: StalenessAlertPayload) => void): Unsubscribe
   onNavigate(callback: (payload: AppNavigatePayload) => void): Unsubscribe
   onAssistantMessage(callback: (payload: ChatAssistantMessagePayload) => void): Unsubscribe
+  onCheckInStateChanged(callback: (payload: CheckInStateChangedPayload) => void): Unsubscribe
 }

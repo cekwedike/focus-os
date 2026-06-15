@@ -8,7 +8,8 @@ Foreign keys are enforced: `PRAGMA foreign_keys = ON`.
 
 ```
 clients_projects ──┬──< tasks
-                   └──< daily_schedule (client_id nullable for non-client blocks)
+                   ├──< daily_schedule (client_id nullable for non-client blocks)
+                   └──< check_ins_log
 
 protected_blocks (template/config, not per-day instances)
 
@@ -37,9 +38,9 @@ Dynamic clients and projects created by the user. A single table treats "client"
 | `fixed_block_enabled` | INTEGER | NOT NULL DEFAULT 0 | Boolean: use daily fixed window |
 | `fixed_block_start` | TEXT | NULL | `HH:MM` local time, if fixed block enabled |
 | `fixed_block_duration_minutes` | INTEGER | NULL | Duration of fixed daily window |
-| `reminder_enabled` | INTEGER | NOT NULL DEFAULT 0 | Boolean: recurring check-in while this client's block is active |
-| `reminder_interval_minutes` | INTEGER | NULL | Interval between check-ins when enabled |
-| `reminder_label` | TEXT | NULL | Custom reminder text; defaults to "Check in" at fire time if empty |
+| `reminder_enabled` | INTEGER | NOT NULL DEFAULT 0 | Boolean: recurring check-in during client's fixed-block window |
+| `reminder_interval_minutes` | INTEGER | NULL | Countdown interval between acknowledgments when enabled |
+| `reminder_label` | TEXT | NULL | Custom reminder text; defaults to "Check in" at due time if empty |
 | `last_touched_at` | TEXT | NULL | ISO 8601; updated when user works a block or completes task |
 | `staleness_threshold_hours` | INTEGER | NULL | Override global default; NULL uses app setting |
 | `sort_order` | INTEGER | NOT NULL DEFAULT 0 | Sidebar/matrix ordering |
@@ -54,6 +55,32 @@ Dynamic clients and projects created by the user. A single table treats "client"
 **System client convention**
 
 Migration 005 seeds a hidden row named `__unassigned__` with `weight_percent = 0`. Task Matrix quick-add assigns tasks here when no client is detected. The allocation engine excludes zero-weight clients from weighted distribution. Settings UI hides this row from the client list.
+
+**Reminder eligibility**
+
+Recurring check-ins require `reminder_enabled`, `fixed_block_enabled`, and a valid start/duration. Flexible-only clients with reminders enabled are ignored until a fixed window is configured.
+
+### 1b. `check_ins_log`
+
+Acknowledged client check-ins during fixed-block windows.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PK, AUTOINCREMENT | |
+| `client_project_id` | INTEGER | NOT NULL, FK → clients_projects.id | |
+| `check_in_date` | TEXT | NOT NULL | `YYYY-MM-DD` of the fixed-block window's schedule date |
+| `scheduled_at` | TEXT | NOT NULL | ISO 8601 when the countdown reached zero (became due) |
+| `acknowledged_at` | TEXT | NOT NULL | ISO 8601 when user clicked Done |
+| `actual_interval_minutes` | INTEGER | NULL | Minutes since previous acknowledgment today; NULL for first check-in of the day |
+| `created_at` | TEXT | NOT NULL | |
+
+**`actual_interval_minutes` notes**
+
+Computed as `round((acknowledged_at - previous_ack.acknowledged_at) / 60_000)` for the same client and `check_in_date`. Can exceed `reminder_interval_minutes` when the user acknowledges late (overdue). NULL when there is no prior acknowledgment that day.
+
+**Indexes**
+
+- `idx_check_ins_log_client_date` ON (`client_project_id`, `check_in_date`, `acknowledged_at`)
 
 ### 2. `tasks`
 

@@ -1,12 +1,15 @@
 import type Database from 'better-sqlite3'
 import type { ReviewBreakRow, ReviewDateRangePayload, ReviewScheduleRow, ReviewSummary } from '@shared/types/review'
 import { analyzeBreaks } from '@shared/review/breakAnalysis'
+import { aggregateCheckInSummaries } from '@shared/review/checkInSummary'
 import {
   aggregateClientGroups,
   aggregateProtectedDaySummaries,
   aggregateProtectedGroups,
 } from '@shared/review/plannedVsActual'
 import { calculateTaskCompletionRate } from '@shared/review/taskCompletion'
+import { listCheckInsInRange } from './checkInsRepository'
+import { listClients } from './clientsRepository'
 
 export function listScheduleRowsInRange(
   db: Database.Database,
@@ -66,6 +69,15 @@ export function getReviewSummary(
   const protectedDaySummaries = aggregateProtectedDaySummaries(scheduleRows)
   const breakAnalysis = analyzeBreaks(breakRows)
   const taskCompletion = calculateTaskCompletionRate(scheduleRows)
+  const checkInRows = listCheckInsInRange(db, payload.startDate, payload.endDate)
+  const reminderClients = listClients(db)
+    .filter((client) => client.reminder_enabled === 1)
+    .map((client) => ({
+      id: client.id,
+      name: client.name,
+      reminder_interval_minutes: client.reminder_interval_minutes,
+    }))
+  const checkInSummaries = aggregateCheckInSummaries(checkInRows, reminderClients)
 
   return {
     startDate: payload.startDate,
@@ -79,5 +91,6 @@ export function getReviewSummary(
     taskCompletionRate: taskCompletion.taskCompletionRate,
     scheduledTaskBlocks: taskCompletion.scheduledTaskBlocks,
     completedTaskBlocks: taskCompletion.completedTaskBlocks,
+    checkInSummaries,
   }
 }

@@ -16,6 +16,8 @@ import type {
   IpcResult,
   AppNavigatePayload,
   ChatAssistantMessagePayload,
+  CheckInStateChangedPayload,
+  CheckInsGetDueResponse,
   MicroBreakDuePayload,
   ProtectedBlockDeletePayload,
   ProtectedBlockGetPayload,
@@ -84,6 +86,8 @@ const invokeChannels: IpcInvokeChannel[] = [
   'breaks:update',
   'breaks:log',
   'work:set-paused',
+  'check-ins:get-due',
+  'check-ins:acknowledge',
 ]
 
 const eventChannels: IpcEventChannel[] = [
@@ -91,6 +95,7 @@ const eventChannels: IpcEventChannel[] = [
   'staleness:alert',
   'app:navigate',
   'chat:assistant-message',
+  'check-in:state-changed',
 ]
 
 function createInvoke<T>(channel: IpcInvokeChannel, payload?: unknown): Promise<IpcResult<T>> {
@@ -222,6 +227,11 @@ const focusOSApi: FocusOSApi = {
     setPaused: async (payload: { paused: boolean }) =>
       unwrap(await createInvoke('work:set-paused', payload)),
   },
+  checkIns: {
+    getDue: async () => unwrap(await createInvoke<CheckInsGetDueResponse>('check-ins:get-due')),
+    acknowledge: async (payload: { clientId: number }) =>
+      unwrap(await createInvoke<CheckInsGetDueResponse>('check-ins:acknowledge', payload)),
+  },
   onMicroBreakDue: (callback) =>
     subscribeToEvent<MicroBreakDuePayload>('break:micro-break-due', callback),
   onStalenessAlert: (callback) =>
@@ -229,6 +239,8 @@ const focusOSApi: FocusOSApi = {
   onNavigate: (callback) => subscribeToEvent<AppNavigatePayload>('app:navigate', callback),
   onAssistantMessage: (callback) =>
     subscribeToEvent<ChatAssistantMessagePayload>('chat:assistant-message', callback),
+  onCheckInStateChanged: (callback) =>
+    subscribeToEvent<CheckInStateChangedPayload>('check-in:state-changed', callback),
 }
 
 contextBridge.exposeInMainWorld('focusOS', focusOSApi)

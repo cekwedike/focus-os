@@ -9,6 +9,7 @@ import {
 import {
   blockCompleted,
   blockStarted,
+  checkInAcknowledged,
   endBreakAcknowledged,
   faithLogSaved,
   faithStreakSummary,
@@ -28,9 +29,11 @@ import type {
   FaithLogExtracted,
   LongBreakExtracted,
   WakeTimeExtracted,
+  AcknowledgeCheckInExtracted,
 } from '@shared/chat/routerContext'
 import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
+import { useCheckInDue } from '@renderer/context/CheckInDueContext'
 import { getTodayDateString } from '@renderer/utils/date'
 
 interface ExtendedConversationState extends ConversationState {
@@ -76,6 +79,7 @@ export function useChatOrchestrator({
   deliverAssistantMessage,
 }: UseChatOrchestratorOptions) {
   const { dayBundle, activeBlock, nextBlock, refresh } = useScheduleContext()
+  const { dueEntries, acknowledge: acknowledgeCheckIn } = useCheckInDue()
   const [conversation, setConversation] = useState<ExtendedConversationState>(
     createExtendedConversationState
   )
@@ -145,6 +149,10 @@ export function useChatOrchestrator({
       defaultCapacityMinutes,
       defaultBufferPercent,
       nowIso: new Date().toISOString(),
+      dueCheckInClients: dueEntries.map((entry) => ({
+        id: entry.clientId,
+        name: entry.clientName,
+      })),
     }),
     [
       conversation,
@@ -155,6 +163,7 @@ export function useChatOrchestrator({
       defaultSleepTime,
       defaultCapacityMinutes,
       defaultBufferPercent,
+      dueEntries,
     ]
   )
 
@@ -383,6 +392,12 @@ export function useChatOrchestrator({
             await deliverAssistantMessage(faithStreakSummary(stats.currentStreak, stats.longestStreak))
             break
           }
+          case 'acknowledge_check_in': {
+            const extracted = match.extracted as AcknowledgeCheckInExtracted
+            await acknowledgeCheckIn(extracted.clientId)
+            await deliverAssistantMessage(checkInAcknowledged(extracted.clientName))
+            break
+          }
           default:
             await deliverAssistantMessage(unrecognized())
         }
@@ -400,6 +415,7 @@ export function useChatOrchestrator({
       conversation.longBreakBreakId,
       conversation.longBreakStartedAt,
       nextBlock,
+      acknowledgeCheckIn,
     ]
   )
 

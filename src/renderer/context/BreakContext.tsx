@@ -13,6 +13,7 @@ import { getTodayDateString } from '@renderer/utils/date'
 interface BreakContextValue {
   longBreakActive: boolean
   longBreakStartedAt: string | null
+  longBreakPlannedMinutes: number | null
   longBreakReason: string
   replanSummary: ReplanSummary | null
   openLongBreakModal: () => void
@@ -38,6 +39,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
   const [showLongBreakModal, setShowLongBreakModal] = useState(false)
   const [longBreakActive, setLongBreakActive] = useState(false)
   const [longBreakStartedAt, setLongBreakStartedAt] = useState<string | null>(null)
+  const [longBreakPlannedMinutes, setLongBreakPlannedMinutes] = useState<number | null>(null)
   const [longBreakReason, setLongBreakReason] = useState('')
   const [longBreakBreakId, setLongBreakBreakId] = useState<number | null>(null)
   const [replanSummary, setReplanSummary] = useState<ReplanSummary | null>(null)
@@ -58,6 +60,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
     })
     setLongBreakActive(true)
     setLongBreakStartedAt(startedAt)
+    setLongBreakPlannedMinutes(plannedMinutes ?? null)
     setLongBreakReason(reason)
     setLongBreakBreakId(created.id)
     setShowLongBreakModal(false)
@@ -90,6 +93,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
     setReplanSummary(result.replanSummary)
     setLongBreakActive(false)
     setLongBreakStartedAt(null)
+    setLongBreakPlannedMinutes(null)
     setLongBreakReason('')
     setLongBreakBreakId(null)
   }, [longBreakBreakId, longBreakStartedAt])
@@ -120,6 +124,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
     () => ({
       longBreakActive,
       longBreakStartedAt,
+      longBreakPlannedMinutes,
       longBreakReason,
       replanSummary,
       openLongBreakModal,
@@ -132,6 +137,7 @@ export function BreakProvider({ children }: { children: ReactNode }): React.JSX.
     [
       longBreakActive,
       longBreakStartedAt,
+      longBreakPlannedMinutes,
       longBreakReason,
       replanSummary,
       openLongBreakModal,

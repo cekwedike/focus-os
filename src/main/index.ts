@@ -13,7 +13,7 @@ import { setApplicationMenu } from './menus/applicationMenu'
 import { getDatabase } from './db/connection'
 import { getAllSettings, upsertSettings } from './db/repositories/appSettingsRepository'
 import { isAppQuitting, setAppQuitting } from './appState'
-import { startClientReminderService, stopClientReminderService } from './services/clientReminderService'
+import { startCheckInService, stopCheckInService } from './services/checkInService'
 import { syncLaunchAtLoginFromSettings } from './services/loginItemService'
 import { showDesktopNotification } from './services/notificationService'
 import { startStalenessService, stopStalenessService } from './services/stalenessService'
@@ -78,7 +78,7 @@ function createWindow(): void {
     mainWindow?.show()
     startTimerService(mainWindow!)
     startStalenessService(mainWindow!)
-    startClientReminderService(mainWindow!)
+    startCheckInService(mainWindow!)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -121,7 +121,7 @@ app.on('before-quit', () => {
   setAppQuitting(true)
   stopTimerService()
   stopStalenessService()
-  stopClientReminderService()
+  stopCheckInService()
   destroyTray()
 })
 

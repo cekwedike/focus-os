@@ -6,6 +6,7 @@ import { applyTimezoneMigration } from './004_timezone'
 import { applyUnassignedClientMigration } from './005_unassigned_client'
 import { applyUserDisplayNameMigration } from './006_user_display_name'
 import { applyClientRemindersAndStartupMigration } from './007_client_reminders_and_startup'
+import { applyCheckInsLogMigration } from './008_check_ins_log'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -63,6 +64,13 @@ const migrations: MigrationDefinition[] = [
     name: 'client_reminders_and_startup',
     up: (db) => {
       applyClientRemindersAndStartupMigration(db)
+    },
+  },
+  {
+    version: 8,
+    name: 'check_ins_log',
+    up: (db) => {
+      applyCheckInsLogMigration(db)
     },
   },
 ]

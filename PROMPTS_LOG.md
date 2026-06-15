@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-15: Self-Resetting Check-in Countdown (Supersedes Block-Tied Reminders)
+
+**Prompt summary:** Replace active-block-tied reminder timer with self-resetting countdown during each client's fixed-block window. Due state persists until acknowledged. `check_ins_log` table, global banner, chat acknowledgment intents, Review aggregations.
+
+**Outcome:** Migration 008 `check_ins_log`. `checkInService` + `checkInCountdownLogic` + `fixedBlockWindow`. `CheckInDueBanner` in AppShell. `acknowledge_check_in` intent (due-only client matching). Review `CheckInSummarySection`. Supersedes prior `clientReminderService` block-tied design.
+
+**Files / phases:** src/shared/reminders/, src/main/services/checkInService.ts, CheckInDueContext, acknowledgeCheckInIntent, checkInSummary aggregator.
+
+**Follow-ups:** Phase 15 rich inline Done button in chat when attachment system ships.
+
 ### 2026-06-15: Client Form, Reminders, Sidebar, Tray (Fix/Addition Pass)
 
 **Prompt summary:** Edit Client form fixes (weight label, hours/minutes duration, empty placeholders), per-client recurring reminders while block is active, persisted sidebar state, Windows auto-launch, system tray with hide-on-close background operation.

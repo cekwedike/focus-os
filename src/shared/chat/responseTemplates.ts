@@ -146,3 +146,7 @@ export function noMatchingBlock(action: 'start' | 'complete'): string {
     ? 'I could not find a planned block matching that name.'
     : 'I could not find a block to complete matching that name.'
 }
+
+export function checkInAcknowledged(clientName: string): string {
+  return `Got it. ${clientName} check-in marked complete.`
+}

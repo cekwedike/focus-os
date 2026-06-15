@@ -92,7 +92,7 @@ src/main/
 ├── services/
 │   ├── timerService.ts      # Micro-break accumulator
 │   ├── stalenessService.ts  # Client staleness alerts
-│   ├── clientReminderService.ts  # Per-client check-in reminders
+│   ├── checkInService.ts           # Self-resetting check-in countdown
 │   ├── workPauseService.ts  # Pause state from Schedule/Dashboard
 │   ├── notificationService.ts    # Desktop notifications
 │   ├── trayService.ts            # System tray
@@ -353,11 +353,11 @@ UI shows last cached insight, partial template, or friendly offline message. Sch
 |---------|--------|
 | Micro-break due | timerService (~90 min focus elapsed) |
 | Staleness warning | stalenessService periodic check |
-| Client check-in | clientReminderService while client's block is active |
+| Client check-in due | checkInService once per due cycle |
 | Tray close tip | index.ts first hide-to-tray (one-time) |
 | Daily Insight ready | aiService completion (optional) |
 
-Respects `app_settings.notifications` (per category, including `clientReminder`). Desktop notifications fire when the window is hidden or unfocused; in-app chat delivery always runs when the renderer is loaded.
+Respects `app_settings.notifications` (per category, including `clientReminder`). Desktop notifications are dismissible by the OS and do not persist; the in-app `CheckInDueBanner` is the persistent due-state UI. One desktop notification fires per due cycle (no repeat spam while unacknowledged).
 
 ## Timer System
 
@@ -366,13 +366,15 @@ Respects `app_settings.notifications` (per category, including `clientReminder`)
 - **Micro-break scheduler**: Accumulates seconds only while a schedule block is `active`; fires `break:micro-break-due` at configured interval.
 - **Staleness checker**: `stalenessService.ts` compares `last_touched_at` per active client; emits `staleness:alert`.
 
-`clientReminderService.ts` polls every second:
+`checkInService.ts` polls every second for clients with `reminder_enabled` and a fixed-block window (including daily overrides from `daily_settings.notes`):
 
-- Loads the active `daily_schedule` block and its `clients_projects` row.
-- If `reminder_enabled` and interval set, accumulates seconds and fires `chat:assistant-message` with `[label] - [client name]`.
-- Resets on block change, completion, long break, or `work:set-paused` from Schedule/Dashboard Pause buttons.
+- Countdown anchor = max(window start, last acknowledgment today).
+- When anchor + `reminder_interval_minutes` elapses, client enters **due** state (stays due until acknowledged).
+- On due: one `chat:assistant-message`, one desktop notification, persistent banner via `check-in:state-changed`.
+- Acknowledgment writes `check_ins_log` and restarts countdown from now.
+- Outside the fixed-block window, due state and countdown pause until the next window.
 
-All three services keep running while the window is hidden to tray.
+All services keep running while the window is hidden to tray.
 
 ## Background and Tray
 

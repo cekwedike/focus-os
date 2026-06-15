@@ -62,12 +62,15 @@ export type IpcInvokeChannel =
   | 'breaks:update'
   | 'breaks:log'
   | 'work:set-paused'
+  | 'check-ins:get-due'
+  | 'check-ins:acknowledge'
 
 export type IpcEventChannel =
   | 'break:micro-break-due'
   | 'staleness:alert'
   | 'app:navigate'
   | 'chat:assistant-message'
+  | 'check-in:state-changed'
 
 export interface AppNavigatePayload {
   path: string
@@ -93,6 +96,22 @@ export interface WorkSetPausedPayload {
 
 export interface WorkSetPausedResponse {
   paused: boolean
+}
+
+export interface DueCheckInEntry {
+  clientId: number
+  clientName: string
+  label: string
+  dueAt: string
+  overdueMinutes: number
+}
+
+export interface CheckInsGetDueResponse {
+  due: DueCheckInEntry[]
+}
+
+export interface CheckInStateChangedPayload {
+  due: DueCheckInEntry[]
 }
 
 export interface AppPingResponse {

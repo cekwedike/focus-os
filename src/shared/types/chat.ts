@@ -22,6 +22,7 @@ export type ChatIntentType =
   | 'faith_log'
   | 'query_schedule'
   | 'query_streak'
+  | 'acknowledge_check_in'
   | 'unrecognized'
 
 export interface ChatScreenLink {
