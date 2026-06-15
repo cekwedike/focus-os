@@ -4,7 +4,8 @@ import { ChatInputBar } from '@renderer/chat/ChatInputBar'
 import { ChatThread } from '@renderer/chat/ChatThread'
 import { useProactiveGreeting } from '@renderer/chat/hooks/useProactiveGreeting'
 import { useChatContext } from '@renderer/context/ChatContext'
-import { JarvisWaveform } from '../jarvis/JarvisWaveform'
+import { HudWaveform } from '../jarvis/HudWaveform'
+import { HudScanline } from '../jarvis/HudScanline'
 import { DayPanelDrawer } from './DayPanelDrawer'
 import '../jarvis/jarvis.css'
 
@@ -29,10 +30,10 @@ export function ChatPanel(): React.JSX.Element {
   const systemActive = initialized && (aiThinking || isTyping)
 
   return (
-    <div className="jarvis-command-frame relative flex min-h-0 min-w-[18rem] flex-1 flex-col overflow-hidden">
-      <div className="jarvis-scanline" aria-hidden="true" />
-      <span className="jarvis-corner-bracket jarvis-corner-tl" aria-hidden="true" />
-      <span className="jarvis-corner-bracket jarvis-corner-tr" aria-hidden="true" />
+    <div className="hud-command-frame relative flex min-h-0 min-w-[18rem] flex-1 flex-col overflow-hidden">
+      <HudScanline />
+      <span className="hud-corner-bracket hud-corner-tl" aria-hidden="true" />
+      <span className="hud-corner-bracket hud-corner-tr" aria-hidden="true" />
 
       <header className="relative z-10 shrink-0 border-b border-accent-cyan/15 px-3 py-3 sm:px-5 sm:py-4">
         <div className="flex items-start justify-between gap-3">
@@ -41,7 +42,7 @@ export function ChatPanel(): React.JSX.Element {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35 }}
           >
-            <p className="jarvis-kicker">Neural command interface</p>
+            <p className="hud-kicker">Command interface</p>
             <h1 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
               <span className="text-gradient-mint">Focus</span>
               <span className="text-text-primary"> Assistant</span>
@@ -52,13 +53,13 @@ export function ChatPanel(): React.JSX.Element {
           </motion.div>
 
           <div className="flex shrink-0 flex-col items-end gap-2">
-            <JarvisWaveform active={systemActive} className="hidden sm:flex" />
+            <HudWaveform active={systemActive || initialized} className="hidden sm:flex" />
             <button
               type="button"
               className="focus-btn-ghost text-xs lg:hidden"
               onClick={() => setDayPanelOpen(true)}
             >
-              HUD
+              Telemetry
             </button>
           </div>
         </div>

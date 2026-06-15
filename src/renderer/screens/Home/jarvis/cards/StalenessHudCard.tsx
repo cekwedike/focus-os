@@ -4,7 +4,7 @@ import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import type { ClientProjectRow } from '@shared/types/db'
 import type { NotificationDispatchedPayload } from '@shared/types/notifications'
 import { useChatContext } from '@renderer/context/ChatContext'
-import { JarvisCard } from '../JarvisCard'
+import { HudCard } from '../JarvisCard'
 import { JarvisMiniBars, type JarvisBarDatum } from '../JarvisMiniBars'
 
 export function StalenessHudCard(): React.JSX.Element {
@@ -74,13 +74,13 @@ export function StalenessHudCard(): React.JSX.Element {
   const healthy = staleClients.length === 0
 
   return (
-    <JarvisCard
+    <HudCard
       span="full"
       accent="amber"
       expanded={expanded || !healthy}
       onClick={() => setExpanded((o) => !o)}
     >
-      <p className="jarvis-kicker">Staleness radar</p>
+      <p className="hud-kicker">Staleness radar</p>
       {healthy ? (
         <p className="mt-2 text-sm text-accent-mint">All clients recently active</p>
       ) : (
@@ -116,6 +116,6 @@ export function StalenessHudCard(): React.JSX.Element {
           ))}
         </motion.ul>
       ) : null}
-    </JarvisCard>
+    </HudCard>
   )
 }

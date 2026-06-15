@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from 'framer-motion'
 
-export function HudScanline(): React.JSX.Element {
+export function HudScanline(): React.JSX.Element | null {
   const reduceMotion = useReducedMotion()
 
   if (reduceMotion) {

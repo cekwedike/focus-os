@@ -34,7 +34,7 @@ export function ChatThread(): React.JSX.Element {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 py-4 sm:px-5 sm:py-6 md:px-8">
       {!initialized && (
-        <p className="jarvis-kicker animate-pulse">Initializing neural link...</p>
+        <p className="hud-kicker animate-pulse">Starting assistant...</p>
       )}
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
         {messages.map((message) => (

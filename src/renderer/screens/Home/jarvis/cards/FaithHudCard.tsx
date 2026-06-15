@@ -21,16 +21,16 @@ export function FaithHudCard(): React.JSX.Element {
       accent="violet"
       expanded={expanded}
       onClick={() => setExpanded((o) => !o)}
-      className={isFaithBlockActive ? 'jarvis-card-expanded' : ''}
+      className={isFaithBlockActive ? 'hud-card-expanded' : ''}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="jarvis-kicker">Faith streak</p>
+          <p className="hud-kicker">Faith streak</p>
           {loading || !stats ? (
             <p className="mt-2 text-sm text-text-muted">Syncing...</p>
           ) : (
             <>
-              <p className="jarvis-value mt-1 text-2xl">{current}d</p>
+              <p className="hud-value mt-1 text-2xl">{current}d</p>
               <p className="text-[10px] text-text-muted">Record {longest}d</p>
             </>
           )}
@@ -67,6 +67,6 @@ export function FaithHudCard(): React.JSX.Element {
           )}
         </motion.div>
       ) : null}
-    </JarvisCard>
+    </HudCard>
   )
 }

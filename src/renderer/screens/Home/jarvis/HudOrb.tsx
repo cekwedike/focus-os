@@ -7,6 +7,7 @@ interface HudOrbProps {
 
 export function HudOrb({ active = false, size = 56 }: HudOrbProps): React.JSX.Element {
   const reduceMotion = useReducedMotion()
+  const inner = Math.max(8, size - 10)
 
   if (reduceMotion) {
     return (
@@ -19,39 +20,46 @@ export function HudOrb({ active = false, size = 56 }: HudOrbProps): React.JSX.El
   }
 
   return (
-    <motion.div
-      className={active ? 'hud-orb hud-orb-active' : 'hud-orb hud-orb-idle'}
-      style={{ width: size, height: size, transformStyle: 'preserve-3d' }}
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
       aria-hidden="true"
-      animate={
-        active
-          ? {
-              rotateY: [0, 360],
-              scale: [1, 1.06, 1],
-              boxShadow: [
-                '0 0 24px rgba(0, 229, 168, 0.35)',
-                '0 0 42px rgba(34, 211, 238, 0.55)',
-                '0 0 24px rgba(0, 229, 168, 0.35)',
-              ],
-            }
-          : {
-              scale: [1, 1.04, 1],
-              opacity: [0.65, 0.9, 0.65],
-            }
-      }
-      transition={
-        active
-          ? {
-              rotateY: { duration: 5, repeat: Infinity, ease: 'linear' },
-              scale: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
-              boxShadow: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
-            }
-          : {
-              duration: 3.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }
-      }
-    />
+    >
+      <motion.div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: active
+            ? 'conic-gradient(from 0deg, transparent 0%, rgba(0,229,168,0.9) 18%, rgba(34,211,238,0.7) 32%, transparent 50%)'
+            : 'conic-gradient(from 0deg, transparent 0%, rgba(100,116,139,0.5) 25%, transparent 45%)',
+        }}
+        animate={{ rotate: 360 }}
+        transition={{
+          duration: active ? 2.8 : 6,
+          repeat: Infinity,
+          ease: 'linear',
+        }}
+      />
+      <motion.div
+        className={`relative rounded-full ${active ? 'hud-orb hud-orb-active' : 'hud-orb hud-orb-idle'}`}
+        style={{ width: inner, height: inner }}
+        animate={
+          active
+            ? {
+                scale: [1, 1.08, 1],
+                boxShadow: [
+                  '0 0 20px rgba(0, 229, 168, 0.35)',
+                  '0 0 36px rgba(34, 211, 238, 0.55)',
+                  '0 0 20px rgba(0, 229, 168, 0.35)',
+                ],
+              }
+            : { scale: [1, 1.05, 1], opacity: [0.6, 0.85, 0.6] }
+        }
+        transition={{
+          duration: active ? 2.2 : 3.8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+    </div>
   )
 }

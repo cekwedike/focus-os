@@ -29,8 +29,8 @@ export function DayPanelDrawer({ open, onClose }: DayPanelDrawerProps): React.JS
         <div className="flex h-full flex-col shadow-panel-active">
           <div className="flex items-center justify-between border-b border-accent-cyan/20 bg-surface-card/95 px-4 py-3">
             <div>
-              <p className="jarvis-kicker">Telemetry</p>
-              <h2 className="font-display text-lg font-bold text-text-primary">HUD Panel</h2>
+              <p className="hud-kicker">Day panel</p>
+              <h2 className="font-display text-lg font-bold text-text-primary">Telemetry</h2>
             </div>
             <button type="button" className="focus-btn-ghost text-xs" onClick={onClose}>
               Close

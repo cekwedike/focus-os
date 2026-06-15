@@ -43,10 +43,10 @@ export function BreakHudCard(): React.JSX.Element {
       : 0
 
   return (
-    <JarvisCard accent="cyan" expanded={expanded} onClick={() => setExpanded((o) => !o)}>
+    <HudCard accent="cyan" expanded={expanded} onClick={() => setExpanded((o) => !o)}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="jarvis-kicker">Recovery window</p>
+          <p className="hud-kicker">Next break</p>
           {nextMicroBreak ? (
             <>
               <p className="mt-1 font-mono text-lg text-accent-cyan">
@@ -79,6 +79,6 @@ export function BreakHudCard(): React.JSX.Element {
           </button>
         </motion.div>
       ) : null}
-    </JarvisCard>
+    </HudCard>
   )
 }

@@ -8,6 +8,7 @@ import { FocusHudCard } from './cards/FocusHudCard'
 import { FaithHudCard } from './cards/FaithHudCard'
 import { BreakHudCard } from './cards/BreakHudCard'
 import { StalenessHudCard } from './cards/StalenessHudCard'
+import { HudScanline } from './HudScanline'
 import './jarvis.css'
 
 export function JarvisTelemetryPanel(): React.JSX.Element {
@@ -23,16 +24,16 @@ export function JarvisTelemetryPanel(): React.JSX.Element {
   const blockCount = dayBundle?.blocks.length ?? 0
 
   return (
-    <aside className="jarvis-hud flex h-full min-h-0 w-full flex-col overflow-hidden border-l border-accent-cyan/15">
-      <div className="jarvis-scanline" aria-hidden="true" />
+    <aside className="hud-shell flex h-full min-h-0 w-full flex-col overflow-hidden border-l border-accent-cyan/15">
+      <HudScanline />
 
       <header className="relative z-10 shrink-0 border-b border-accent-cyan/15 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
           <div>
-            <p className="jarvis-kicker">Telemetry array</p>
+            <p className="hud-kicker">Day telemetry</p>
             <h2 className="font-display text-sm font-bold tracking-wide text-text-primary sm:text-base">
-              <span className="text-gradient-mint">J.A.R.V.I.S</span>
-              <span className="text-text-muted"> // HUD</span>
+              <span className="text-gradient-mint">Systems</span>
+              <span className="text-text-muted"> overview</span>
             </h2>
           </div>
           <div className="text-right">

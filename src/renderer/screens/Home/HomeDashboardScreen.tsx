@@ -3,7 +3,7 @@ import { DayPanel } from './components/DayPanel'
 
 export function HomeDashboardScreen(): React.JSX.Element {
   return (
-    <div className="jarvis-command-deck flex min-h-0 min-w-0 flex-1 overflow-hidden">
+    <div className="hud-command-deck flex min-h-0 min-w-0 flex-1 overflow-hidden">
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
         <ChatPanel />
       </div>
