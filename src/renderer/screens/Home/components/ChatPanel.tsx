@@ -22,7 +22,7 @@ export function ChatPanel(): React.JSX.Element {
   })
 
   return (
-    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+    <div className="relative flex min-h-0 min-w-[20rem] flex-1 flex-col">
       <div className="shrink-0 border-b border-surface-border/80 px-3 py-3 sm:px-4 md:px-6">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -37,7 +37,7 @@ export function ChatPanel(): React.JSX.Element {
           </div>
           <button
             type="button"
-            className="focus-btn-ghost shrink-0 text-xs md:hidden"
+            className="focus-btn-ghost shrink-0 text-xs xl:hidden"
             onClick={() => setDayPanelOpen(true)}
           >
             Day

@@ -27,7 +27,7 @@ export function ChatMessageBubble({
 
   return (
     <div className={`flex ${alignment}`}>
-      <div className="flex max-w-[min(100%,32rem)] flex-col gap-2 sm:max-w-[85%]">
+      <div className="flex max-w-[min(100%,32rem)] flex-col gap-1.5 sm:max-w-[85%]">
         <div
           className={`whitespace-pre-wrap break-words rounded-panel border px-3 py-2.5 text-sm leading-relaxed shadow-panel sm:px-4 sm:py-3 ${bubbleClass}`}
         >
@@ -35,11 +35,13 @@ export function ChatMessageBubble({
           {message.content}
         </div>
         {!isUser && message.quickReplies && message.quickReplies.length > 0 && onQuickReply ? (
-          <InlineQuickReplies
-            chips={message.quickReplies}
-            disabled={chipsDisabled}
-            onSelect={onQuickReply}
-          />
+          <div className="ml-1 border-l-2 border-accent-mint/25 pl-3">
+            <InlineQuickReplies
+              chips={message.quickReplies}
+              disabled={chipsDisabled}
+              onSelect={onQuickReply}
+            />
+          </div>
         ) : null}
       </div>
     </div>

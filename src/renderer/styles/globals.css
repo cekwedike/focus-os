@@ -158,6 +158,10 @@
     @apply focus-btn border border-accent-amber/40 bg-accent-amber/10 text-accent-amber hover:bg-accent-amber/20;
   }
 
+  .focus-chip {
+    @apply inline-flex shrink-0 items-center rounded-badge border border-surface-border bg-surface-elevated/60 px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-accent-mint/40 hover:bg-accent-mint/10 hover:text-accent-mint disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
   .focus-input {
     @apply w-full rounded-button border border-surface-border bg-surface-elevated/80 px-3 py-2.5 text-sm text-text-primary outline-none backdrop-blur-sm transition-colors placeholder:text-text-muted focus:border-accent-mint/50 focus:shadow-glow-sm disabled:opacity-50;
   }

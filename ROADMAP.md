@@ -273,6 +273,16 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Goal:** Move remaining Daily Workspace, Settings, and other screen workflows into chat-first flows where appropriate.
 
+## Follow-up Work (not yet scheduled as phases)
+
+### Capacity-aware buffer sizing
+
+Review and fix capacity-aware buffer sizing in the allocation engine. Buffer block duration should be bounded relative to `total_capacity_hours` / `remaining_minutes_at_wake` and not consume a disproportionate share of the day at high `buffer_percent`. Add Settings UI guidance when buffer values above a threshold are likely misconfigurations.
+
+### Schedule block timestamp consistency
+
+Fix inconsistent `planned_start` / `planned_end` ISO formats (local vs UTC-suffixed) on buffer and protected blocks, especially when blocks become active before their planned start via auto-progression. Mismatched timestamps inflate live countdowns (observed 2026-06-15: 76 min buffer showing ~350+ min remaining).
+
 ## Phase Dependency Graph
 
 ```

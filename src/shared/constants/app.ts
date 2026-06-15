@@ -1,7 +1,7 @@
 export const APP_BACKGROUND_COLOR = '#050810'
 
-export const MIN_WINDOW_WIDTH = 1280
-export const MIN_WINDOW_HEIGHT = 800
+export const MIN_WINDOW_WIDTH = 960
+export const MIN_WINDOW_HEIGHT = 720
 
 export const DEFAULT_WINDOW_WIDTH = 1400
 export const DEFAULT_WINDOW_HEIGHT = 900

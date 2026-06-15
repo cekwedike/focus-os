@@ -51,6 +51,8 @@ export interface WelcomeBackInput {
   now?: Date
 }
 
+import { formatDurationProse } from '@shared/utils/remainingTime'
+
 export function minutesUntil(isoEnd: string, now: Date): number {
   const endMs = new Date(isoEnd).getTime()
   const diffMs = endMs - now.getTime()
@@ -80,7 +82,7 @@ export function buildWelcomeBackMessage(input: WelcomeBackInput): string {
   if (input.activeBlock) {
     const minutesLeft = minutesUntil(input.activeBlock.planned_end, now)
     parts.push(
-      `Welcome back. You're in your ${input.activeBlock.title} block, ${minutesLeft} minutes left.`
+      `Welcome back. You're in your ${input.activeBlock.title} block, ${formatDurationProse(minutesLeft)} left.`
     )
     return parts.join(' ')
   }

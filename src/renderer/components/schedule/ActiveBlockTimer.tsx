@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { computeCountdownSeconds, formatCountdownMmSs } from '@shared/utils/remainingTime'
+import { computeCountdownSeconds, formatCountdown } from '@shared/utils/remainingTime'
 
 export function ActiveBlockTimer({
   startedAt,
@@ -37,7 +37,7 @@ export function ActiveBlockTimer({
 
   return (
     <span className={remainingSeconds < 0 ? 'focus-timer focus-timer-overdue' : 'focus-timer'}>
-      {formatCountdownMmSs(remainingSeconds)}
+      {formatCountdown(remainingSeconds)}
     </span>
   )
 }

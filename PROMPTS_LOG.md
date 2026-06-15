@@ -29,6 +29,31 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-15: Time Formatting, Responsive Layout, and Chat Chip Fixes
+
+**Prompt summary:** Universal countdown formatting (H:MM:SS when >= 60 min), responsive merged Dashboard layout, chat contextual chip pill styling, Buffer block ~418 min investigation.
+
+**Outcome:** `formatCountdown`, `formatCountdownFromMinutes`, and `formatDurationProse` in `remainingTime.ts` with expanded unit tests. All live timers (`ActiveBlockTimer`, status bar, Right Now card, schedule cards) use shared formatting. Day panel uses drawer below `xl` (1280px); chat column `min-w-[20rem]`; Electron min window 960x720. `.focus-chip` CSS and nested chip grouping under assistant bubbles.
+
+**Buffer investigation (live DB 2026-06-15):**
+
+| Field | Value |
+|-------|-------|
+| `buffer_percent` | 10 (default; not 50%) |
+| `remaining_minutes_at_wake` | 480 |
+| Buffer `planned_duration_minutes` | **76** (correct for ~10% of free time) |
+| Reported ~418 min symptom | **Display bug** (`418:00` MM:SS) plus **inflated live countdown** |
+
+Allocation sizing is correct at 76 minutes. The inflated countdown (~353 to 418 min at query time) comes from inconsistent `planned_end` timestamps on the active Buffer block: `planned_start` is local (`2026-06-15T20:54:00`) while `planned_end` is UTC-suffixed (`2026-06-15T20:10:00.000Z`, matching wind-down start). Block became active at 12:17 UTC, well before its planned evening start, so `computeCountdownSeconds` counts toward the mismatched `planned_end` (~5.9 hours ahead). Wind-down row shares the same UTC/local inconsistency.
+
+**Conclusion:** Not an allocation-engine buffer_percent bug. Fix display (done). Separate follow-up needed for ISO timestamp consistency on schedule blocks when active early or after progression.
+
+**Layout verification:** At 1920px inline day panel + wide chat; at 1280px inline panel at xl breakpoint; below 1280px Day drawer toggle; at 960px min window chat stays >= 320px with collapsed rail option.
+
+**Files / phases:** `remainingTime.ts`, `ActiveBlockTimer.tsx`, `UpNextCard.tsx`, `ScheduleBlockCard.tsx`, `greeting.ts`, `HomeDashboardScreen.tsx`, `ChatPanel.tsx`, `DayPanelDrawer.tsx`, `app.ts`, `globals.css`, `ChatMessageBubble.tsx`, `InlineQuickReplies.tsx`, `PROMPTS_LOG.md`, `ROADMAP.md`.
+
+**Follow-ups:** ROADMAP items for capacity-aware buffer sizing and schedule timestamp consistency (see ROADMAP).
+
 ### 2026-06-15: Centralized Notification System
 
 **Prompt summary:** Build a single `notify()` service for desktop (Electron Notification) and in-app (chat + persistent banner) alerts. Add `notifications_log` table, `NotificationContext`, generalized `PersistentNotificationBanner`, refactor micro-breaks, check-ins, block warnings/progression, staleness, and faith reminders through the central service.

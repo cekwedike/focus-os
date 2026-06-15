@@ -5,6 +5,7 @@ import { ActiveBlockTimer } from '@renderer/components/schedule/ActiveBlockTimer
 import { TimeInput } from '@renderer/components/ui/TimeInput'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { useFaithEntry } from '@renderer/context/FaithEntryContext'
+import { formatCountdownFromMinutes } from '@shared/utils/remainingTime'
 
 interface ScheduleBlockCardProps {
   block: DailyScheduleRow
@@ -68,7 +69,8 @@ export function ScheduleBlockCard({ block, clientColor }: ScheduleBlockCardProps
           </p>
           {!editing ? (
             <p className="mt-1 font-mono text-xs text-text-secondary">
-              {formatHHMM(plannedStart)} - {formatHHMM(plannedEnd)} ({block.planned_duration_minutes} min)
+              {formatHHMM(plannedStart)} - {formatHHMM(plannedEnd)} (
+              {formatCountdownFromMinutes(block.planned_duration_minutes)})
             </p>
           ) : (
             <div className="mt-2 flex gap-2">
