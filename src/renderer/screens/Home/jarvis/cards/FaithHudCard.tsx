@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useFaithStreak } from '@renderer/hooks/useFaithStreak'
 import { useFaithEntry } from '@renderer/context/FaithEntryContext'
-import { useChatContext } from '@renderer/context/ChatContext'
+import { useChatContext } from '@renderer/context/useChatContext'
 import { HudCard } from '../JarvisCard'
 import { JarvisRingGauge } from '../JarvisRingGauge'
 

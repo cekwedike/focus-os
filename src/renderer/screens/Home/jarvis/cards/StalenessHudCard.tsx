@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import type { ClientProjectRow } from '@shared/types/db'
 import type { NotificationDispatchedPayload } from '@shared/types/notifications'
-import { useChatContext } from '@renderer/context/ChatContext'
+import { useChatContext } from '@renderer/context/useChatContext'
 import { HudCard } from '../JarvisCard'
 import { JarvisMiniBars, type JarvisBarDatum } from '../JarvisMiniBars'
 

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
-import { useChatContext } from '@renderer/context/ChatContext'
+import { useChatContext } from '@renderer/context/useChatContext'
 import { HudCard } from '../JarvisCard'
 import { JarvisRingGauge } from '../JarvisRingGauge'
 import { JarvisMiniBars, type JarvisBarDatum } from '../JarvisMiniBars'

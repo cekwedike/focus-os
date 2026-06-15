@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useEffect, useRef } from 'react'
-import { useChatContext } from '@renderer/context/ChatContext'
+import { useChatContext } from '@renderer/context/useChatContext'
 import { useNotifications } from '@renderer/context/NotificationContext'
 import type { ChatMessage } from '@shared/types/chat'
 import type { QuickReplyChip } from '@shared/types/chat'

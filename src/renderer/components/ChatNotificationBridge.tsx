@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { NotificationProvider } from '@renderer/context/NotificationContext'
-import { useChatInternals } from '@renderer/context/ChatContext'
+import { useChatInternals } from '@renderer/context/useChatContext'
 
 export function ChatNotificationBridge({
   children,

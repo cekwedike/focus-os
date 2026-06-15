@@ -1,42 +1,10 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useAssistantDelivery } from '@renderer/chat/hooks/useAssistantDelivery'
 import { useChatOrchestrator } from '@renderer/chat/hooks/useChatOrchestrator'
 import { useChatSession } from '@renderer/chat/hooks/useChatSession'
-import type { AssistantDeliveryInput } from '@shared/chat/assistantDelivery'
 import { isGreetingSentThisSession, clearGreetingSentThisSession } from '@shared/chat/proactiveGreetingSession'
 import type { QuickReplyChip } from '@shared/types/chat'
-
-interface ChatContextValue {
-  messages: ReturnType<typeof useChatSession>['messages']
-  sendMessage: (text: string) => Promise<void>
-  sending: boolean
-  initialized: boolean
-  isTyping: boolean
-  aiThinking: boolean
-  greetingComplete: boolean
-  deliverAssistantMessages: (messages: AssistantDeliveryInput[]) => Promise<void>
-  setGreetingComplete: (complete: boolean) => void
-  clearChat: () => void
-}
-
-interface ChatInternalsValue extends ChatContextValue {
-  deliverNotificationToChat: (input: {
-    content: string
-    quickReplies?: QuickReplyChip[]
-    notificationId?: number
-  }) => Promise<void>
-  resolveNotificationMessage: (notificationId: number) => void
-}
-
-const ChatContext = createContext<ChatContextValue | null>(null)
-const ChatInternalsContext = createContext<ChatInternalsValue | null>(null)
+import { ChatContext, ChatInternalsContext } from './chatContexts'
 
 export function ChatProvider({ children }: { children: ReactNode }): React.JSX.Element {
   const { messages, appendAssistantMessage, appendUserMessage, resolveNotificationMessage, clearMessages } =
@@ -129,20 +97,4 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
       <ChatContext.Provider value={publicValue}>{children}</ChatContext.Provider>
     </ChatInternalsContext.Provider>
   )
-}
-
-export function useChatContext(): ChatContextValue {
-  const context = useContext(ChatContext)
-  if (!context) {
-    throw new Error('useChatContext must be used within ChatProvider')
-  }
-  return context
-}
-
-export function useChatInternals(): ChatInternalsValue {
-  const context = useContext(ChatInternalsContext)
-  if (!context) {
-    throw new Error('useChatInternals must be used within ChatProvider')
-  }
-  return context
 }

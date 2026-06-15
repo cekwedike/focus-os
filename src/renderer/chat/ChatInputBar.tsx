@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useChatContext } from '@renderer/context/ChatContext'
+import { useChatContext } from '@renderer/context/useChatContext'
 import { useVoiceInput } from './hooks/useVoiceInput'
 import { mergeVoiceTranscript } from '@shared/chat/voiceTranscript'
 import { useVoiceOutput } from './hooks/useVoiceOutput'
