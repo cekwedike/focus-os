@@ -34,6 +34,7 @@ const baseSettings: AppSettings = {
   },
   themeAccent: '#2DD4A0',
   onboardingComplete: false,
+  userDisplayName: '',
 }
 
 const snapshot: DailyInsightSnapshot = {

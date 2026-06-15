@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react'
 import { useChatContext } from '@renderer/context/ChatContext'
-import { ChatMessageBubble } from './ChatMessageBubble'
+import { AnimatedChatMessageBubble } from './AnimatedChatMessageBubble'
+import { TypingIndicator } from './TypingIndicator'
 
 export function ChatThread(): React.JSX.Element {
-  const { messages, initialized } = useChatContext()
+  const { messages, initialized, isTyping } = useChatContext()
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages, isTyping])
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 py-4 sm:px-4 sm:py-6 md:px-8">
@@ -17,8 +18,9 @@ export function ChatThread(): React.JSX.Element {
       )}
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
         {messages.map((message) => (
-          <ChatMessageBubble key={message.id} message={message} />
+          <AnimatedChatMessageBubble key={message.id} message={message} />
         ))}
+        {isTyping ? <TypingIndicator /> : null}
         <div ref={bottomRef} />
       </div>
     </div>

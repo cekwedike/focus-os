@@ -20,7 +20,6 @@ import {
   taskAdded,
   unrecognized,
   wakeTimeConfirmedSummary,
-  wakeTimePrompt,
 } from '@shared/chat/responseTemplates'
 import { CHAT_SCREEN_LINKS } from '@shared/chat/routerContext'
 import type {
@@ -70,13 +69,11 @@ function mapBlocks(
 }
 
 interface UseChatOrchestratorOptions {
-  appendAssistantMessage: (content: string) => void
-  onWakePromptNeeded?: () => void
+  deliverAssistantMessage: (content: string) => Promise<void>
 }
 
 export function useChatOrchestrator({
-  appendAssistantMessage,
-  onWakePromptNeeded,
+  deliverAssistantMessage,
 }: UseChatOrchestratorOptions) {
   const { dayBundle, activeBlock, nextBlock, refresh } = useScheduleContext()
   const [conversation, setConversation] = useState<ExtendedConversationState>(
@@ -126,12 +123,11 @@ export function useChatOrchestrator({
           ...current,
           pendingPrompt: 'wake_time',
         }))
-        onWakePromptNeeded?.()
       }
 
       setInitialized(true)
     })()
-  }, [onWakePromptNeeded])
+  }, [])
 
   const routerContext: RouterContext = useMemo(
     () => ({
@@ -217,16 +213,16 @@ export function useChatOrchestrator({
       const match = classifyIntent(input, routerContext)
 
       if (match.ambiguousMessage) {
-        appendAssistantMessage(match.ambiguousMessage)
+        await deliverAssistantMessage(match.ambiguousMessage)
         return
       }
 
       if (!shouldInvokeIpc(match)) {
         if (match.intent === 'menu') {
-          appendAssistantMessage(menuList(CHAT_SCREEN_LINKS))
+          await deliverAssistantMessage(menuList(CHAT_SCREEN_LINKS))
           return
         }
-        appendAssistantMessage(unrecognized())
+        await deliverAssistantMessage(unrecognized())
         return
       }
 
@@ -235,7 +231,7 @@ export function useChatOrchestrator({
           case 'wake_time': {
             const extracted = match.extracted as WakeTimeExtracted
             const response = await executeWakeTime(extracted)
-            appendAssistantMessage(response)
+            await deliverAssistantMessage(response)
             break
           }
           case 'add_task': {
@@ -250,25 +246,25 @@ export function useChatOrchestrator({
             })
             const clientName =
               clients.find((client) => client.id === created.client_id)?.name ?? 'Unassigned'
-            appendAssistantMessage(taskAdded(created.title, clientName))
+            await deliverAssistantMessage(taskAdded(created.title, clientName))
             break
           }
           case 'start_block': {
             const extracted = match.extracted as BlockActionExtracted
             await window.focusOS.schedule.startBlock({ blockId: extracted.blockId })
             await refresh()
-            appendAssistantMessage(blockStarted(extracted.title))
+            await deliverAssistantMessage(blockStarted(extracted.title))
             break
           }
           case 'complete_block': {
             const extracted = match.extracted as BlockActionExtracted | undefined
             if (!extracted) {
-              appendAssistantMessage(noActiveBlockToComplete())
+              await deliverAssistantMessage(noActiveBlockToComplete())
               break
             }
             await window.focusOS.schedule.completeBlock({ blockId: extracted.blockId })
             await refresh()
-            appendAssistantMessage(blockCompleted(extracted.title))
+            await deliverAssistantMessage(blockCompleted(extracted.title))
             break
           }
           case 'long_break': {
@@ -287,13 +283,13 @@ export function useChatOrchestrator({
               longBreakBreakId: created.id,
               longBreakStartedAt: startedAt,
             }))
-            appendAssistantMessage(
+            await deliverAssistantMessage(
               longBreakStarted(extracted.reason, extracted.plannedMinutes)
             )
             break
           }
           case 'end_break': {
-            appendAssistantMessage(endBreakAcknowledged())
+            await deliverAssistantMessage(endBreakAcknowledged())
             const endedAt = new Date().toISOString()
             const startedAt = conversation.longBreakStartedAt
             const durationMinutes = startedAt
@@ -326,7 +322,7 @@ export function useChatOrchestrator({
               longBreakStartedAt: null,
             }))
             await refresh()
-            appendAssistantMessage(replanSummaryText(result.replanSummary))
+            await deliverAssistantMessage(replanSummaryText(result.replanSummary))
             break
           }
           case 'faith_log': {
@@ -338,21 +334,21 @@ export function useChatOrchestrator({
                 bible_reference: extracted.bibleReference,
                 prayer_notes: extracted.prayerNotes ?? null,
               })
-              appendAssistantMessage(faithLogSaved(extracted.bibleReference))
+              await deliverAssistantMessage(faithLogSaved(extracted.bibleReference))
             } else if (extracted.bibleReference) {
               await window.focusOS.journal.upsert({
                 entry_date: today,
                 bible_reference: extracted.bibleReference,
                 prayer_notes: extracted.prayerNotes ?? null,
               })
-              appendAssistantMessage(faithLogSaved(extracted.bibleReference))
+              await deliverAssistantMessage(faithLogSaved(extracted.bibleReference))
             } else if (extracted.prayerNotes) {
               await window.focusOS.journal.upsert({
                 entry_date: today,
                 bible_reference: 'Prayer notes',
                 prayer_notes: extracted.prayerNotes,
               })
-              appendAssistantMessage(`Logged prayer notes: ${extracted.prayerNotes}`)
+              await deliverAssistantMessage(`Logged prayer notes: ${extracted.prayerNotes}`)
             }
             await refresh()
             break
@@ -364,7 +360,7 @@ export function useChatOrchestrator({
               nextBlock ??
               bundle.blocks.find((block) => block.status === 'planned') ??
               null
-            appendAssistantMessage(
+            await deliverAssistantMessage(
               scheduleOverview(
                 blocks,
                 upcoming
@@ -384,19 +380,19 @@ export function useChatOrchestrator({
           }
           case 'query_streak': {
             const stats = await window.focusOS.journal.stats({ today: getTodayDateString() })
-            appendAssistantMessage(faithStreakSummary(stats.currentStreak, stats.longestStreak))
+            await deliverAssistantMessage(faithStreakSummary(stats.currentStreak, stats.longestStreak))
             break
           }
           default:
-            appendAssistantMessage(unrecognized())
+            await deliverAssistantMessage(unrecognized())
         }
       } catch (error) {
-        appendAssistantMessage(`Something went wrong: ${String(error)}`)
+        await deliverAssistantMessage(`Something went wrong: ${String(error)}`)
       }
     },
     [
       routerContext,
-      appendAssistantMessage,
+      deliverAssistantMessage,
       executeWakeTime,
       unassignedClientId,
       clients,
@@ -407,16 +403,10 @@ export function useChatOrchestrator({
     ]
   )
 
-  const promptWakeTimeIfNeeded = useCallback(() => {
-    if (conversation.pendingPrompt === 'wake_time') {
-      appendAssistantMessage(wakeTimePrompt())
-    }
-  }, [appendAssistantMessage, conversation.pendingPrompt])
-
   return {
     initialized,
     processMessage,
-    promptWakeTimeIfNeeded,
     pendingWakePrompt: conversation.pendingPrompt === 'wake_time',
+    longBreakActive: conversation.longBreakActive,
   }
 }

@@ -271,6 +271,7 @@ Global key-value configuration.
 | `notifications` | object | Per-category booleans |
 | `theme_accent` | string | Default `#2DD4A0` |
 | `onboarding_complete` | boolean | First-run flag |
+| `user_display_name` | string | Optional display name for chat greetings |
 
 **Security note**
 

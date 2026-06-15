@@ -25,6 +25,7 @@ export interface AppSettings {
   notifications: NotificationPreferences
   themeAccent: string
   onboardingComplete: boolean
+  userDisplayName: string
 }
 
 export type AppSettingsUpdate = Partial<AppSettings>

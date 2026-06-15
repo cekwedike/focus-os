@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { useChatContext } from '@renderer/context/ChatContext'
 
 export function ChatInputBar(): React.JSX.Element {
-  const { sendMessage, sending } = useChatContext()
+  const { sendMessage, sending, isTyping } = useChatContext()
   const [draft, setDraft] = useState('')
 
   const handleSubmit = (): void => {
-    if (!draft.trim() || sending) {
+    if (!draft.trim() || sending || isTyping) {
       return
     }
     void sendMessage(draft).then(() => setDraft(''))
@@ -28,7 +28,7 @@ export function ChatInputBar(): React.JSX.Element {
             rows={2}
             placeholder="Tell Focus OS what you need..."
             className="focus-input min-h-[48px] resize-none pr-11 sm:min-h-[52px] sm:pr-12"
-            disabled={sending}
+            disabled={sending || isTyping}
           />
           <button
             type="button"
@@ -45,7 +45,7 @@ export function ChatInputBar(): React.JSX.Element {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={sending || !draft.trim()}
+          disabled={sending || isTyping || !draft.trim()}
           className="focus-btn-primary w-full shrink-0 disabled:opacity-50 sm:w-auto sm:self-end"
         >
           {sending ? 'Sending...' : 'Send'}

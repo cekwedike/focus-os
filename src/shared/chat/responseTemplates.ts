@@ -8,7 +8,7 @@ function formatClock(iso: string): string {
 }
 
 export function wakeTimePrompt(): string {
-  return 'Morning. What time did you wake up?'
+  return 'What time did you wake up?'
 }
 
 export function wakeTimeConfirmedSummary(

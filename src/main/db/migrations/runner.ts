@@ -4,6 +4,7 @@ import { applySettingsKeysMigration } from './002_settings_keys'
 import { applyDisplayPreferencesMigration } from './003_display_preferences'
 import { applyTimezoneMigration } from './004_timezone'
 import { applyUnassignedClientMigration } from './005_unassigned_client'
+import { applyUserDisplayNameMigration } from './006_user_display_name'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -47,6 +48,13 @@ const migrations: MigrationDefinition[] = [
     name: 'unassigned_client',
     up: (db) => {
       applyUnassignedClientMigration(db)
+    },
+  },
+  {
+    version: 6,
+    name: 'user_display_name',
+    up: (db) => {
+      applyUserDisplayNameMigration(db)
     },
   },
 ]

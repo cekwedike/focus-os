@@ -3,6 +3,7 @@ import { TIMEZONE_OPTIONS, getTimezoneLabel } from '@shared/constants/timezones'
 import { FormField } from '@renderer/components/ui/FormField'
 import { SegmentedControl } from '@renderer/components/ui/SegmentedControl'
 import { SettingsSectionCard } from '@renderer/components/ui/SettingsSectionCard'
+import { TextInput } from '@renderer/components/ui/TextInput'
 import { TimeInput } from '@renderer/components/ui/TimeInput'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 import { formatClockTime, formatDateLabel, formatHHMM, isValidHHMM } from '@shared/utils/displayTime'
@@ -53,6 +54,17 @@ export function DisplayPreferencesSection({
       title="Time And Calendar"
       description="Choose how clocks, dates, time zones, and your day boundaries look across Focus OS."
     >
+      <FormField
+        label="Your Name"
+        hint="Optional. Used in chat greetings like Good morning, Alex."
+      >
+        <TextInput
+          value={display.userDisplayName ?? ''}
+          onChange={(userDisplayName) => void patch({ userDisplayName })}
+          placeholder="How should Focus OS greet you?"
+        />
+      </FormField>
+
       <FormField
         label="Clock Format"
         hint="Affects the top bar clock and times shown on client cards"

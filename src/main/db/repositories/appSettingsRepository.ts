@@ -29,6 +29,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   },
   themeAccent: '#2DD4A0',
   onboardingComplete: false,
+  userDisplayName: '',
 }
 
 const KEY_MAP: Record<keyof AppSettings, string> = {
@@ -48,6 +49,7 @@ const KEY_MAP: Record<keyof AppSettings, string> = {
   notifications: 'notifications',
   themeAccent: 'theme_accent',
   onboardingComplete: 'onboarding_complete',
+  userDisplayName: 'user_display_name',
 }
 
 function parseSettingValue<T>(raw: string): T {

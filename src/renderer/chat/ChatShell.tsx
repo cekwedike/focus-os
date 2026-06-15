@@ -1,7 +1,28 @@
 import { ChatInputBar } from './ChatInputBar'
 import { ChatThread } from './ChatThread'
+import { SuggestionChips } from './SuggestionChips'
+import { useProactiveGreeting } from './hooks/useProactiveGreeting'
+import { useChatContext } from '@renderer/context/ChatContext'
 
 export function ChatShell(): React.JSX.Element {
+  const {
+    initialized,
+    greetingComplete,
+    setGreetingComplete,
+    deliverAssistantMessages,
+    suggestionChips,
+    sendMessage,
+    sending,
+    isTyping,
+  } = useChatContext()
+
+  useProactiveGreeting({
+    initialized,
+    greetingComplete,
+    setGreetingComplete,
+    deliverAssistantMessages,
+  })
+
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="shrink-0 border-b border-surface-border/80 px-3 py-3 sm:px-4 md:px-8">
@@ -14,6 +35,11 @@ export function ChatShell(): React.JSX.Element {
         </div>
       </div>
       <ChatThread />
+      <SuggestionChips
+        chips={suggestionChips}
+        disabled={sending || isTyping}
+        onSelect={(text) => void sendMessage(text)}
+      />
       <ChatInputBar />
     </div>
   )

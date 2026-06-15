@@ -29,6 +29,16 @@ Keep entries concise but specific enough that a future you (or Cursor) can resum
 
 ## Entries
 
+### 2026-06-15: Phase 13 Gap-Fill (Proactive Greeting, Typing, Chips)
+
+**Prompt summary:** Complete missed Phase 13 requirement 1: proactive time-aware greeting on chat load, typing indicator before all assistant messages, Framer Motion message entrance animations, contextual quick-action chips. Optional user display name in Settings.
+
+**Outcome:** Gap-fill complete (not a new roadmap phase). `user_display_name` in app_settings (migration 006). Shared modules: `greeting.ts`, `typingDelay.ts` (650-1100ms delay), `suggestionChips.ts`, `proactiveGreetingSession.ts`. Renderer: `TypingIndicator`, `AnimatedChatMessageBubble`, `SuggestionChips`, `useAssistantDelivery`, `useProactiveGreeting`. Session-once greeting via `focus-os-greeting-sent-v1`. framer-motion added. New unit tests for greeting boundaries, chips, typing delay, session flag.
+
+**Files / phases:** src/shared/chat/greeting.ts, src/renderer/chat/, migration 006, DisplayPreferencesSection, ARCHITECTURE.md, ROADMAP Phase 13 note. Phase 13 gap-fill only.
+
+**Follow-ups:** Phase 14 AI fallback for unrecognized chat input.
+
 ### 2026-06-15: Phase 13 Chat-First Shell and Intent Router
 
 **Prompt summary:** Extended roadmap Phase 13: chat-first primary interface, deterministic intent router routing to existing IPC, template responses, icon rail for legacy screens, proactive wake-time in chat, sessionStorage history, unit tests.

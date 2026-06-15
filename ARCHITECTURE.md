@@ -123,10 +123,15 @@ src/renderer/
 │   ├── ChatShell.tsx
 │   ├── ChatThread.tsx
 │   ├── ChatInputBar.tsx
+│   ├── TypingIndicator.tsx
+│   ├── AnimatedChatMessageBubble.tsx
+│   ├── SuggestionChips.tsx
 │   ├── ScreenIconRail.tsx
 │   └── hooks/
 │       ├── useChatSession.ts
-│       └── useChatOrchestrator.ts
+│       ├── useChatOrchestrator.ts
+│       ├── useAssistantDelivery.ts
+│       └── useProactiveGreeting.ts
 ├── context/
 │   ├── ChatContext.tsx
 │   ├── ScheduleContext.tsx
@@ -151,6 +156,10 @@ src/renderer/
 
 src/shared/chat/             # Testable intent router (no Electron)
 ├── intentRouter.ts          # classifyIntent()
+├── greeting.ts              # Time-aware greeting and welcome-back copy
+├── typingDelay.ts           # Assistant typing delay helpers
+├── suggestionChips.ts       # Contextual quick-action chips
+├── proactiveGreetingSession.ts
 ├── responseTemplates.ts     # Template-based assistant text
 ├── routerContext.ts
 ├── parsers/                 # Wake time, duration, client, block title
@@ -170,12 +179,28 @@ User types in ChatInputBar
   → if unrecognized or ambiguous: responseTemplates only (no IPC)
   → else: window.focusOS.* IPC calls (existing handlers, unchanged)
   → responseTemplates build assistant text from IPC results
-  → ChatMessage appended to thread (sessionStorage, last 80 messages)
+  → useAssistantDelivery shows typing indicator (650-1100ms) then appends message
+  → ChatMessage persisted in sessionStorage (last 80 messages)
 ```
 
 ### Persistence
 
-Chat history uses **sessionStorage** (`focus-os-chat-v1`), capped at 80 messages. No database table in Phase 13; a future phase may add SQLite persistence once rich attachment shapes stabilize.
+Chat history uses **sessionStorage** (`focus-os-chat-v1`), capped at 80 messages. Proactive greeting uses **sessionStorage** (`focus-os-greeting-sent-v1`) so it fires once per app session. Optional display name for greetings: `app_settings.user_display_name` (Settings → Time And Calendar → Your Name).
+
+### Proactive greeting and typing delivery
+
+On Chat mount, `useProactiveGreeting` checks wake time and schedule state, then delivers one or two assistant messages via `useAssistantDelivery`:
+
+1. Time-aware greeting (`Good morning.` or `Good morning, Name.`)
+2. Wake-time follow-up if wake time not logged (`What time did you wake up?`)
+
+If wake time is already logged, a welcome-back message references the active block, next block, or missing schedule.
+
+Before each assistant message, a **typing indicator** shows for 650-1100ms (random), with a 350ms gap between sequential greeting messages. All intent-router responses use the same delivery pipeline.
+
+**Framer Motion** (limited scope, not full Phase 17): `TypingIndicator` dot animation, `AnimatedChatMessageBubble` slide-up + fade (200ms).
+
+**Suggestion chips** below the thread (above input) are contextual: wake shortcuts, day-ready actions, or long-break actions. Chips call the same `sendMessage` path as typed input.
 
 ### Conversation State
 
