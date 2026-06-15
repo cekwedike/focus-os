@@ -3,7 +3,11 @@ import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import type { ClientProjectRow } from '@shared/types/db'
 import type { NotificationDispatchedPayload } from '@shared/types/notifications'
 
-export function StalenessAlertList(): React.JSX.Element {
+export function StalenessAlertList({
+  variant = 'dashboard',
+}: {
+  variant?: 'dashboard' | 'sidebar'
+}): React.JSX.Element {
   const [staleClients, setStaleClients] = useState<ClientProjectRow[]>([])
 
   useEffect(() => {
@@ -51,8 +55,11 @@ export function StalenessAlertList(): React.JSX.Element {
     })
   }, [])
 
+  const panelClass =
+    variant === 'sidebar' ? 'focus-panel focus-panel-sidebar' : 'focus-panel'
+
   return (
-    <section className="focus-panel h-full">
+    <section className={`${panelClass} h-full min-w-0`}>
       <p className="focus-metric-label">Staleness radar</p>
       {staleClients.length === 0 ? (
         <p className="mt-3 text-sm text-text-muted">All clients recently active.</p>

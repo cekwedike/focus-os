@@ -2,7 +2,11 @@ import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { ActiveBlockTimer } from '@renderer/components/schedule/ActiveBlockTimer'
 import { useEffect, useState } from 'react'
 
-export function RightNowCard(): React.JSX.Element {
+interface RightNowCardProps {
+  variant?: 'dashboard' | 'sidebar'
+}
+
+export function RightNowCard({ variant = 'dashboard' }: RightNowCardProps): React.JSX.Element {
   const { activeBlock, refresh, isBlockSkippable } = useScheduleContext()
   const [paused, setPaused] = useState(false)
 
@@ -12,12 +16,29 @@ export function RightNowCard(): React.JSX.Element {
     })
   }, [activeBlock?.id])
 
+  const isSidebar = variant === 'sidebar'
+  const heroClass = isSidebar ? 'focus-hero-panel focus-hero-panel-sidebar' : 'focus-hero-panel'
+  const titleClass = isSidebar
+    ? 'mt-3 truncate font-display text-xl font-bold tracking-tight text-text-primary'
+    : 'mt-3 font-display text-2xl font-bold tracking-tight text-text-primary'
+  const actionsClass = isSidebar
+    ? 'flex flex-col gap-2'
+    : 'flex flex-col gap-2 sm:flex-row sm:flex-wrap'
+
   if (!activeBlock) {
     return (
-      <section className="focus-hero-panel">
+      <section className={heroClass}>
         <p className="focus-metric-label">Live execution</p>
-        <h2 className="mt-2 font-display text-2xl font-bold text-text-primary">Standby</h2>
-        <p className="mt-2 max-w-md text-sm text-text-secondary">
+        <h2
+          className={
+            isSidebar
+              ? 'mt-2 font-display text-xl font-bold text-text-primary'
+              : 'mt-2 font-display text-2xl font-bold text-text-primary'
+          }
+        >
+          Standby
+        </h2>
+        <p className={`mt-2 text-sm text-text-secondary ${isSidebar ? '' : 'max-w-md'}`}>
           No block is running. Your next block will start automatically when the schedule advances.
         </p>
       </section>
@@ -52,16 +73,14 @@ export function RightNowCard(): React.JSX.Element {
   }
 
   return (
-    <section className="focus-hero-panel">
-      <div className="flex flex-col gap-6">
-        <div>
+    <section className={heroClass}>
+      <div className="flex min-w-0 flex-col gap-4 sm:gap-6">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="focus-live-dot" aria-hidden="true" />
             <p className="focus-metric-label">Live execution</p>
           </div>
-          <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-text-primary">
-            {activeBlock.title}
-          </h2>
+          <h2 className={titleClass}>{activeBlock.title}</h2>
           <p className="mt-2 text-sm capitalize text-text-muted">
             {activeBlock.block_type.replace(/_/g, ' ')} · {activeBlock.status}
           </p>
@@ -75,15 +94,19 @@ export function RightNowCard(): React.JSX.Element {
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <button type="button" onClick={togglePause} className="focus-btn-ghost w-full sm:w-auto">
+        <div className="flex min-w-0 flex-col gap-2">
+          <div className={actionsClass}>
+            <button
+              type="button"
+              onClick={togglePause}
+              className={`focus-btn-ghost ${isSidebar ? 'w-full' : 'w-full sm:w-auto'}`}
+            >
               {paused ? 'Resume' : 'Pause'}
             </button>
             <button
               type="button"
               onClick={() => void extendBlock()}
-              className="focus-btn-ghost w-full sm:w-auto"
+              className={`focus-btn-ghost ${isSidebar ? 'w-full' : 'w-full sm:w-auto'}`}
             >
               Extend +5
             </button>
@@ -91,7 +114,7 @@ export function RightNowCard(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => void skipBlock()}
-                className="focus-btn-ghost w-full sm:w-auto"
+                className={`focus-btn-ghost ${isSidebar ? 'w-full' : 'w-full sm:w-auto'}`}
               >
                 Skip
               </button>
@@ -99,7 +122,7 @@ export function RightNowCard(): React.JSX.Element {
             <button
               type="button"
               onClick={() => void complete()}
-              className="focus-btn-primary w-full sm:w-auto"
+              className={`focus-btn-primary ${isSidebar ? 'w-full' : 'w-full sm:w-auto'}`}
             >
               Complete Block
             </button>

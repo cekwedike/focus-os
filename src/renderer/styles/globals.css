@@ -192,6 +192,18 @@
     @apply focus-panel focus-panel-active col-span-full p-4 sm:p-6 md:p-8;
   }
 
+  .focus-hero-panel-sidebar {
+    @apply p-4 sm:p-4 md:p-4;
+  }
+
+  .focus-panel-sidebar {
+    @apply p-3 sm:p-3;
+  }
+
+  .day-panel-shell {
+    @apply flex min-h-0 flex-col;
+  }
+
   .focus-subpanel {
     @apply rounded-button border border-surface-border/80 bg-surface-elevated/50 backdrop-blur-sm transition-colors hover:border-accent-mint/20;
   }

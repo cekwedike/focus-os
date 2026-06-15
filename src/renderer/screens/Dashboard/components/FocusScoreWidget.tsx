@@ -1,13 +1,19 @@
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 
-export function FocusScoreWidget(): React.JSX.Element {
+interface FocusScoreWidgetProps {
+  variant?: 'dashboard' | 'sidebar'
+}
+
+export function FocusScoreWidget({ variant = 'dashboard' }: FocusScoreWidgetProps): React.JSX.Element {
   const { dayBundle } = useScheduleContext()
   const score = dayBundle?.focusScore
+  const panelClass =
+    variant === 'sidebar' ? 'focus-panel focus-panel-sidebar' : 'focus-panel'
 
   return (
-    <section className="focus-panel h-full">
+    <section className={`${panelClass} h-full min-w-0`}>
       <p className="focus-metric-label">Focus score</p>
-      <p className="focus-metric-value mt-2">
+      <p className={`focus-metric-value mt-2 ${variant === 'sidebar' ? '!text-3xl' : ''}`}>
         {score === null || score === undefined ? '--' : `${score}%`}
       </p>
       <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface-elevated">

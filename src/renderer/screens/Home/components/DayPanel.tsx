@@ -7,15 +7,15 @@ import { StalenessAlertList } from '@renderer/screens/Dashboard/components/Stale
 
 export function DayPanel(): React.JSX.Element {
   return (
-    <aside className="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto border-l border-surface-border/80 bg-surface-card/30 p-4">
-      <RightNowCard />
-      <UpNextCard />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-        <FocusScoreWidget />
-        <FaithStreakWidget />
+    <aside className="day-panel flex h-full min-h-0 min-w-0 w-full flex-col gap-4 overflow-y-auto overflow-x-hidden border-l border-surface-border/80 bg-surface-card/30 p-3 sm:p-4">
+      <RightNowCard variant="sidebar" />
+      <UpNextCard variant="sidebar" />
+      <div className="grid min-w-0 grid-cols-1 gap-4">
+        <FocusScoreWidget variant="sidebar" />
+        <FaithStreakWidget variant="sidebar" />
       </div>
-      <UntilBreakCountdown />
-      <StalenessAlertList />
+      <UntilBreakCountdown variant="sidebar" />
+      <StalenessAlertList variant="sidebar" />
     </aside>
   )
 }

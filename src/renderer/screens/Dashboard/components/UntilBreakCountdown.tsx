@@ -2,7 +2,13 @@ import { useMemo } from 'react'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 
-export function UntilBreakCountdown(): React.JSX.Element {
+interface UntilBreakCountdownProps {
+  variant?: 'dashboard' | 'sidebar'
+}
+
+export function UntilBreakCountdown({
+  variant = 'dashboard',
+}: UntilBreakCountdownProps): React.JSX.Element {
   const { dayBundle } = useScheduleContext()
   const { formatHHMM } = useDisplayPreferences()
 
@@ -21,8 +27,11 @@ export function UntilBreakCountdown(): React.JSX.Element {
     )
   }, [dayBundle])
 
+  const panelClass =
+    variant === 'sidebar' ? 'focus-panel focus-panel-sidebar' : 'focus-panel'
+
   return (
-    <section className="focus-panel h-full">
+    <section className={`${panelClass} h-full min-w-0`}>
       <p className="focus-metric-label">Next break</p>
       {nextMicroBreak ? (
         <p className="mt-3 font-mono text-lg text-accent-cyan">
