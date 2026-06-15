@@ -69,7 +69,7 @@ export function registerSettingsHandlers(): void {
   ipcMain.handle('settings:clear-openrouter-key', async () => {
     try {
       clearOpenRouterApiKey()
-      return success({ configured: false })
+      return success({ configured: isOpenRouterKeyConfigured() })
     } catch (error) {
       return failure('OPENROUTER_KEY_CLEAR_FAILED', String(error))
     }

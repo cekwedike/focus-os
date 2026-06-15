@@ -13,6 +13,7 @@ import type { ClientProjectRow, ProtectedBlockRow } from '@shared/types/db'
 import type { FixedBlockOverride } from '@shared/types/schedule'
 import { applyFixedBlockOverrides } from './allocationHelpers'
 import { getAllSettings } from '../db/repositories/appSettingsRepository'
+import { DEFAULT_MAX_BUFFER_MINUTES } from '@shared/allocation/constants'
 
 export interface TaskRowForAllocation {
   id: number
@@ -105,6 +106,7 @@ export function buildAllocationInput(
     clients,
     tasks: tasks.map(mapTask),
     minViableBlockMinutes: settings.minViableBlockMinutes,
+    maxBufferMinutes: settings.maxBufferMinutes ?? DEFAULT_MAX_BUFFER_MINUTES,
     capacityMinutes: params.capacityMinutes,
   }
 }

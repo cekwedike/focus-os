@@ -24,7 +24,7 @@ export function ChatInputBar(): React.JSX.Element {
     setDraft((current) => mergeVoiceTranscript(current, text, isFinal))
   }, [])
 
-  const { status, isListening, toggleListening } = useVoiceInput({
+  const { status, statusMessage, isListening, isTranscribing, toggleListening } = useVoiceInput({
     enabled: voiceInputEnabled,
     onTranscript: handleTranscript,
   })
@@ -37,16 +37,28 @@ export function ChatInputBar(): React.JSX.Element {
   }
 
   const micDisabled =
-    !voiceInputEnabled || status === 'unsupported' || status === 'denied' || sending || isTyping || aiThinking
+    !voiceInputEnabled ||
+    status === 'unsupported' ||
+    status === 'denied' ||
+    status === 'unavailable' ||
+    isTranscribing ||
+    sending ||
+    isTyping ||
+    aiThinking
 
   const micTitle =
-    status === 'unsupported'
+    statusMessage ??
+    (status === 'unsupported'
       ? 'Voice input not supported in this environment'
       : status === 'denied'
         ? 'Microphone access denied'
-        : isListening
-          ? 'Stop listening'
-          : 'Start voice input'
+        : status === 'unavailable'
+          ? 'OpenRouter API key required for voice input'
+          : isTranscribing
+            ? 'Transcribing speech...'
+            : isListening
+              ? 'Stop listening'
+              : 'Start voice input')
 
   return (
     <div className="shrink-0 border-t border-surface-border bg-surface-card/80 px-3 py-3 backdrop-blur-xl sm:px-4 sm:py-4 md:px-8">
@@ -74,7 +86,7 @@ export function ChatInputBar(): React.JSX.Element {
               title={micTitle}
               aria-label={micTitle}
               className={`absolute bottom-2 right-2 rounded-button p-1.5 sm:bottom-2.5 sm:right-2.5 sm:p-2 ${
-                isListening
+                isListening || isTranscribing
                   ? 'animate-pulse text-accent-mint'
                   : micDisabled
                     ? 'cursor-not-allowed text-text-muted opacity-50'

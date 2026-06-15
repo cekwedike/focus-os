@@ -1,3 +1,5 @@
+import { formatOpenRouterHttpError } from './openRouterErrors'
+
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
 export interface ChatProviderCallOptions {
@@ -93,7 +95,7 @@ export async function callOpenRouterChat(
 
   if (!response.ok) {
     const body = await response.text()
-    throw new Error(`OpenRouter HTTP ${response.status}: ${body}`)
+    throw new Error(formatOpenRouterHttpError(response.status, body))
   }
 
   const payload = (await response.json()) as unknown

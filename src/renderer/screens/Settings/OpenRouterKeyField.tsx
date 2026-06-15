@@ -53,8 +53,8 @@ export function OpenRouterKeyField({
         </span>
       </div>
       <p className="text-xs leading-relaxed text-text-muted">
-        Optional. Stored privately on this computer. Focus OS never shows the full key again after
-        you save it.
+        Optional. Stored privately on this computer, or loaded from `.env` as `OPENROUTER_API_KEY` during
+        development. Focus OS never shows the full key again after you save it here.
       </p>
       <FormField label="Paste A New Key" hint="Leave blank to keep your current key">
         <TextInput

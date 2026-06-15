@@ -1,4 +1,5 @@
-import { app, BrowserWindow, shell } from 'electron'
+import './config/loadEnv'
+import { app, BrowserWindow, session, shell } from 'electron'
 import { existsSync } from 'fs'
 import { join } from 'path'
 
@@ -129,6 +130,14 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+    callback(permission === 'media')
+  })
+
+  session.defaultSession.setPermissionCheckHandler((_webContents, permission) => {
+    return permission === 'media'
+  })
+
   bootstrapDatabase()
   const settings = getAllSettings(getDatabase())
   syncLaunchAtLoginFromSettings(settings.launchAtLogin)

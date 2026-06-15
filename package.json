@@ -42,6 +42,7 @@
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/syne": "^5.2.7",
     "better-sqlite3": "^11.10.0",
+    "dotenv": "^17.4.2",
     "framer-motion": "^12.40.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -95,7 +96,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "publisherName": "Focus OS",
@@ -120,7 +123,9 @@
       "runAfterFinish": true,
       "unicode": true,
       "deleteAppDataOnUninstall": false,
-      "installerLanguages": ["en_US"],
+      "installerLanguages": [
+        "en_US"
+      ],
       "language": "1033"
     }
   }

@@ -1,10 +1,11 @@
 import {
-  CHAT_AI_CHAIN_TIMEOUT_MS,
   CHAT_AI_MAX_OPENROUTER_ATTEMPTS,
   CHAT_AI_MAX_TOTAL_ATTEMPTS,
   CHAT_AI_PER_MODEL_TIMEOUT_MS,
+  CHAT_AI_CHAIN_TIMEOUT_MS,
   DEFAULT_OPENROUTER_FREE_MODELS,
 } from '@shared/constants/chatAi'
+import { resolveOpenRouterModel } from '@shared/config/openRouterConfig'
 import { parseChatAiResponse } from '@shared/chat/parseChatAiResponse'
 import { validateAiExecuteResponse } from '@shared/chat/validateAiIntent'
 import type {
@@ -44,6 +45,16 @@ async function withRetry<T>(operation: () => Promise<T>): Promise<T> {
 function resolveFreeModels(settings: AppSettings): string[] {
   const models = settings.openrouterFreeModels.filter((model) => model.trim().length > 0)
   return models.length > 0 ? models : DEFAULT_OPENROUTER_FREE_MODELS
+}
+
+function resolveOpenRouterModels(settings: AppSettings): string[] {
+  const primary = resolveOpenRouterModel(settings)
+  const freeModels = resolveFreeModels(settings)
+  const models = primary
+    ? [primary, ...freeModels.filter((model) => model !== primary)]
+    : freeModels
+
+  return models.slice(0, CHAT_AI_MAX_OPENROUTER_ATTEMPTS)
 }
 
 function intentToAction(intent: string | null): string {
@@ -112,7 +123,7 @@ export async function resolveChatAiFallback(
     return parsed
   }
 
-  const freeModels = resolveFreeModels(input.settings).slice(0, CHAT_AI_MAX_OPENROUTER_ATTEMPTS)
+  const freeModels = resolveOpenRouterModels(input.settings)
 
   if (isOpenRouterKeyConfigured()) {
     const apiKey = getOpenRouterApiKeyForMainProcess()

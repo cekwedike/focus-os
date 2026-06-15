@@ -7,6 +7,7 @@ import type {
   TestAiProvidersResponse,
 } from '@shared/types/insights'
 import type { AppSettings } from '@shared/types/settings'
+import { resolveOpenRouterModel } from '@shared/config/openRouterConfig'
 import { callOllama } from '../ai/ollamaProvider'
 import { callOpenRouter } from '../ai/openRouterProvider'
 import { getOpenRouterApiKeyForMainProcess, isOpenRouterKeyConfigured } from './secretsService'
@@ -34,7 +35,7 @@ async function withRetry<T>(operation: () => Promise<T>): Promise<T> {
 }
 
 function canUseOpenRouter(settings: AppSettings): boolean {
-  return isOpenRouterKeyConfigured() && Boolean(settings.openrouterModel.trim())
+  return isOpenRouterKeyConfigured() && Boolean(resolveOpenRouterModel(settings))
 }
 
 function canUseOllama(settings: AppSettings): boolean {
@@ -56,7 +57,7 @@ export async function generateInsightContent(
         const result = await withRetry(() =>
           callOpenRouter({
             apiKey,
-            model: settings.openrouterModel,
+            model: resolveOpenRouterModel(settings),
             snapshotJson,
           })
         )
@@ -125,7 +126,7 @@ async function testProvider(
     try {
       await callOpenRouter({
         apiKey,
-        model: settings.openrouterModel,
+        model: resolveOpenRouterModel(settings),
         snapshotJson: '{}',
         testMode: true,
       })

@@ -20,6 +20,7 @@ export function baseInput(overrides: Partial<AllocationInput> = {}): AllocationI
     clients: defaultClients(),
     tasks: [],
     minViableBlockMinutes: 15,
+    maxBufferMinutes: 60,
     ...overrides,
   }
 }

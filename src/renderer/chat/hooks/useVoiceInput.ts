@@ -1,40 +1,53 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-type SpeechRecognitionCtor = new () => SpeechRecognitionInstance
+const MAX_RECORDING_MS = 30_000
 
-interface SpeechRecognitionInstance extends EventTarget {
-  continuous: boolean
-  interimResults: boolean
-  lang: string
-  onresult: ((event: SpeechRecognitionEventLike) => void) | null
-  onerror: ((event: { error: string }) => void) | null
-  onend: (() => void) | null
-  start(): void
-  stop(): void
-  abort(): void
+function pickRecorderMimeType(): string {
+  const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4']
+  for (const candidate of candidates) {
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(candidate)) {
+      return candidate
+    }
+  }
+
+  return 'audio/webm'
 }
 
-interface SpeechRecognitionEventLike {
-  resultIndex: number
-  results: ArrayLike<{
-    isFinal: boolean
-    0: { transcript: string }
-  }>
+function mimeTypeToFormat(mimeType: string): string {
+  if (mimeType.includes('ogg')) {
+    return 'ogg'
+  }
+  if (mimeType.includes('mp4')) {
+    return 'mp4'
+  }
+  return 'webm'
 }
 
-interface SpeechRecognitionWindow extends Window {
-  SpeechRecognition?: SpeechRecognitionCtor
-  webkitSpeechRecognition?: SpeechRecognitionCtor
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const result = reader.result
+      if (typeof result !== 'string') {
+        reject(new Error('Failed to read audio data'))
+        return
+      }
+
+      const commaIndex = result.indexOf(',')
+      resolve(commaIndex >= 0 ? result.slice(commaIndex + 1) : result)
+    }
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read audio data'))
+    reader.readAsDataURL(blob)
+  })
 }
 
-const SILENCE_STOP_MS = 3000
-
-function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
-  const win = window as SpeechRecognitionWindow
-  return win.SpeechRecognition ?? win.webkitSpeechRecognition ?? null
-}
-
-export type VoiceInputStatus = 'idle' | 'listening' | 'unsupported' | 'denied'
+export type VoiceInputStatus =
+  | 'idle'
+  | 'listening'
+  | 'transcribing'
+  | 'unsupported'
+  | 'denied'
+  | 'unavailable'
 
 export interface UseVoiceInputOptions {
   enabled: boolean
@@ -43,123 +56,195 @@ export interface UseVoiceInputOptions {
 
 export function useVoiceInput({ enabled, onTranscript }: UseVoiceInputOptions) {
   const [status, setStatus] = useState<VoiceInputStatus>('idle')
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
-  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [statusMessage, setStatusMessage] = useState<string | null>(null)
+  const mediaStreamRef = useRef<MediaStream | null>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const chunksRef = useRef<BlobPart[]>([])
+  const mimeTypeRef = useRef('audio/webm')
+  const maxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const stopRecordingRef = useRef<() => void>(() => {})
 
-  const clearSilenceTimer = useCallback((): void => {
-    if (silenceTimerRef.current) {
-      clearTimeout(silenceTimerRef.current)
-      silenceTimerRef.current = null
+  const clearMaxDurationTimer = useCallback((): void => {
+    if (maxDurationTimerRef.current) {
+      clearTimeout(maxDurationTimerRef.current)
+      maxDurationTimerRef.current = null
     }
   }, [])
 
-  const stopListening = useCallback((): void => {
-    clearSilenceTimer()
-    recognitionRef.current?.stop()
-    setStatus((current) => (current === 'denied' || current === 'unsupported' ? current : 'idle'))
-  }, [clearSilenceTimer])
+  const releaseStream = useCallback((): void => {
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop())
+    mediaStreamRef.current = null
+  }, [])
 
-  const scheduleSilenceStop = useCallback((): void => {
-    clearSilenceTimer()
-    silenceTimerRef.current = setTimeout(() => {
-      stopListening()
-    }, SILENCE_STOP_MS)
-  }, [clearSilenceTimer, stopListening])
+  const transcribeRecording = useCallback(
+    async (blob: Blob): Promise<void> => {
+      if (blob.size === 0) {
+        setStatusMessage('No speech detected. Try again.')
+        setStatus('idle')
+        return
+      }
+
+      setStatus('transcribing')
+      setStatusMessage('Transcribing...')
+
+      try {
+        const audioBase64 = await blobToBase64(blob)
+        const result = await window.focusOS.voice.transcribe({
+          audioBase64,
+          format: mimeTypeToFormat(mimeTypeRef.current),
+        })
+
+        if (result.text.trim()) {
+          onTranscript(result.text.trim(), true)
+          setStatusMessage(null)
+        } else {
+          setStatusMessage('No speech detected. Try again.')
+        }
+      } catch (error) {
+        setStatusMessage(String(error))
+      } finally {
+        setStatus('idle')
+      }
+    },
+    [onTranscript]
+  )
+
+  const stopRecording = useCallback((): void => {
+    clearMaxDurationTimer()
+    const recorder = mediaRecorderRef.current
+    if (recorder && recorder.state !== 'inactive') {
+      recorder.stop()
+      return
+    }
+
+    releaseStream()
+    setStatus((current) =>
+      current === 'denied' || current === 'unsupported' || current === 'unavailable'
+        ? current
+        : 'idle'
+    )
+  }, [clearMaxDurationTimer, releaseStream])
+
+  stopRecordingRef.current = stopRecording
 
   useEffect(() => {
     if (!enabled) {
-      stopListening()
+      stopRecording()
       return
     }
 
-    const Ctor = getSpeechRecognitionCtor()
-    if (!Ctor) {
+    if (typeof window.focusOS?.voice?.transcribe !== 'function') {
       setStatus('unsupported')
+      setStatusMessage('Voice input is unavailable in this build.')
       return
     }
 
-    const recognition = new Ctor()
-    recognition.continuous = true
-    recognition.interimResults = true
-    recognition.lang = 'en-US'
-
-    recognition.onresult = (event) => {
-      scheduleSilenceStop()
-      let interim = ''
-      let finalText = ''
-
-      for (let index = event.resultIndex; index < event.results.length; index += 1) {
-        const result = event.results[index]
-        const transcript = result[0]?.transcript ?? ''
-        if (result.isFinal) {
-          finalText += transcript
-        } else {
-          interim += transcript
-        }
-      }
-
-      if (finalText) {
-        onTranscript(finalText.trim(), true)
-      } else if (interim) {
-        onTranscript(interim.trim(), false)
-      }
+    if (
+      typeof navigator === 'undefined' ||
+      !navigator.mediaDevices?.getUserMedia ||
+      typeof MediaRecorder === 'undefined'
+    ) {
+      setStatus('unsupported')
+      setStatusMessage('Microphone recording is not supported here.')
+      return
     }
 
-    recognition.onerror = (event) => {
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-        setStatus('denied')
+    void window.focusOS.settings.openRouterKeyStatus().then((response) => {
+      if (!response.configured) {
+        setStatus('unavailable')
+        setStatusMessage('Add an OpenRouter API key in Settings to use voice input.')
       }
-      stopListening()
-    }
-
-    recognition.onend = () => {
-      clearSilenceTimer()
-      setStatus((current) =>
-        current === 'denied' || current === 'unsupported' ? current : 'idle'
-      )
-    }
-
-    recognitionRef.current = recognition
+    })
 
     return () => {
-      recognition.abort()
-      recognitionRef.current = null
-      clearSilenceTimer()
+      stopRecording()
     }
-  }, [enabled, onTranscript, scheduleSilenceStop, stopListening, clearSilenceTimer])
+  }, [enabled, stopRecording])
 
-  const startListening = useCallback((): void => {
-    if (!enabled || status === 'unsupported' || status === 'denied') {
+  const startListening = useCallback(async (): Promise<void> => {
+    if (!enabled || status === 'unsupported' || status === 'denied' || status === 'unavailable') {
       return
     }
 
-    const recognition = recognitionRef.current
-    if (!recognition) {
-      setStatus('unsupported')
+    const keyStatus = await window.focusOS.settings.openRouterKeyStatus()
+    if (!keyStatus.configured) {
+      setStatus('unavailable')
+      setStatusMessage('Add an OpenRouter API key in Settings to use voice input.')
       return
     }
 
     try {
-      recognition.start()
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaStreamRef.current = stream
+      chunksRef.current = []
+
+      const mimeType = pickRecorderMimeType()
+      mimeTypeRef.current = mimeType
+      const recorder = new MediaRecorder(stream, { mimeType })
+      mediaRecorderRef.current = recorder
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data)
+        }
+      }
+
+      recorder.onerror = () => {
+        setStatusMessage('Recording failed. Try again.')
+        releaseStream()
+        setStatus('idle')
+      }
+
+      recorder.onstop = () => {
+        clearMaxDurationTimer()
+        releaseStream()
+        const blob = new Blob(chunksRef.current, { type: mimeTypeRef.current })
+        chunksRef.current = []
+        mediaRecorderRef.current = null
+        void transcribeRecording(blob)
+      }
+
+      recorder.start()
       setStatus('listening')
-      scheduleSilenceStop()
-    } catch {
+      setStatusMessage('Listening... click mic again to stop.')
+
+      clearMaxDurationTimer()
+      maxDurationTimerRef.current = setTimeout(() => {
+        stopRecordingRef.current()
+      }, MAX_RECORDING_MS)
+    } catch (error) {
+      releaseStream()
+      const message = String(error)
+      if (message.toLowerCase().includes('denied') || message.toLowerCase().includes('not allowed')) {
+        setStatus('denied')
+        setStatusMessage('Microphone access denied.')
+        return
+      }
+
+      setStatusMessage(message)
       setStatus('idle')
     }
-  }, [enabled, scheduleSilenceStop, status])
+  }, [clearMaxDurationTimer, enabled, releaseStream, status, transcribeRecording])
 
   const toggleListening = useCallback((): void => {
     if (status === 'listening') {
-      stopListening()
+      stopRecording()
       return
     }
-    startListening()
-  }, [startListening, status, stopListening])
+
+    if (status === 'transcribing') {
+      return
+    }
+
+    void startListening()
+  }, [startListening, status, stopRecording])
 
   return {
     status,
+    statusMessage,
     isListening: status === 'listening',
+    isTranscribing: status === 'transcribing',
     toggleListening,
-    stopListening,
+    stopListening: stopRecording,
   }
 }

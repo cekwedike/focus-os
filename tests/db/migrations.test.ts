@@ -42,7 +42,7 @@ describe('database migrations', () => {
       expect(tableNames).toContain(tableName)
     }
 
-    expect(getLatestSchemaVersion(testDb)).toBe(15)
+    expect(getLatestSchemaVersion(testDb)).toBe(16)
   })
 
   it('is idempotent when migrations run multiple times', () => {
@@ -70,7 +70,7 @@ describe('database migrations', () => {
     expect(secondTableNames).toEqual(firstTableNames)
     expect(secondProtectedCount).toBe(firstProtectedCount)
     expect(secondSettingsCount).toBe(firstSettingsCount)
-    expect(getLatestSchemaVersion(testDb)).toBe(15)
+    expect(getLatestSchemaVersion(testDb)).toBe(16)
   })
 
   it('seeds protected_blocks with all 5 expected block types', () => {
@@ -100,6 +100,18 @@ describe('database migrations', () => {
 
     expect(JSON.parse(buffer.value)).toBe(10)
     expect(JSON.parse(doomscroll.value)).toBe(5)
+  })
+
+  it('seeds max_buffer_minutes setting', () => {
+    dbPath = createTempDatabasePath()
+    testDb = openDatabase(dbPath)
+    runMigrations(testDb)
+
+    const maxBuffer = testDb
+      .prepare('SELECT value FROM app_settings WHERE key = ?')
+      .get('max_buffer_minutes') as { value: string }
+
+    expect(JSON.parse(maxBuffer.value)).toBe(60)
   })
 
   it('seeds display preference defaults', () => {

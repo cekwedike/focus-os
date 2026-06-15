@@ -47,13 +47,30 @@ export function AppSettingsSection({
       >
         <FormField
           label="Extra Breathing Room (%)"
-          hint="Leave some open time in your day for surprises and overruns"
+          hint="Percentage of your unscheduled flexible time reserved as buffer. 10-15% is recommended. Very high values leave little time for actual client work."
         >
           <NumberInput
             value={settings.defaultBufferPercent}
             min={0}
             max={50}
             onChange={(defaultBufferPercent) => void patch({ defaultBufferPercent })}
+          />
+          {settings.defaultBufferPercent > 30 ? (
+            <p className="mt-2 text-xs text-amber-400/90">
+              This reserves a large portion of your flexible time. Consider a lower value unless you
+              have frequent unplanned work.
+            </p>
+          ) : null}
+        </FormField>
+        <FormField
+          label="Maximum Buffer Block (Minutes)"
+          hint="Hard ceiling on buffer block duration. If your buffer percentage would exceed this, the extra time goes to client work instead."
+        >
+          <NumberInput
+            value={settings.maxBufferMinutes}
+            min={15}
+            max={180}
+            onChange={(maxBufferMinutes) => void patch({ maxBufferMinutes })}
           />
         </FormField>
         <FormField
@@ -88,7 +105,7 @@ export function AppSettingsSection({
           configured={openrouterKeyConfigured}
           onConfiguredChange={onOpenrouterKeyConfiguredChange}
         />
-        <FormField label="Cloud AI Model" hint="Used when an API key is saved">
+        <FormField label="Cloud AI Model" hint="Used when an API key is saved. Falls back to OPENROUTER_MODEL from .env in development.">
           <select
             value={settings.openrouterModel}
             onChange={(event) => void patch({ openrouterModel: event.target.value })}
@@ -177,7 +194,7 @@ export function AppSettingsSection({
 
       <SettingsSectionCard
         title="Voice"
-        description="Optional speech-to-text in chat and text-to-speech for assistant replies. Voice input never auto-sends; review text before sending."
+        description="Speech-to-text uses OpenRouter Whisper transcription (requires an API key). Text-to-speech uses your system voices. A new assistant message cancels any speech in progress."
       >
         <Toggle
           label="Show Microphone In Chat"

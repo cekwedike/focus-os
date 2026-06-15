@@ -176,6 +176,9 @@ export interface FocusOSApi {
       routerContext: RouterContext
     }): Promise<ChatAiFallbackResult>
   }
+  voice: {
+    transcribe(payload: import('./voice').VoiceTranscribePayload): Promise<import('./voice').VoiceTranscribeResponse>
+  }
   notifications: {
     listActive(): Promise<NotificationListActiveResponse>
     action(payload: NotificationActionPayload): Promise<NotificationActionResponse>

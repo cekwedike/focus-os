@@ -21,6 +21,7 @@ export interface AppSettings {
   microBreakIntervalMinutes: number
   minViableBlockMinutes: number
   defaultBufferPercent: number
+  maxBufferMinutes: number
   doomscrollAllowanceMinutes: number
   timeFormat: TimeFormat
   weekStartsOn: WeekStartDay

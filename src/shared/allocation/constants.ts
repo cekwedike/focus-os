@@ -1,3 +1,4 @@
 export const DEFAULT_TASK_ESTIMATE_MINUTES = 25
 export const DEFAULT_MVB_MINUTES = 15
+export const DEFAULT_MAX_BUFFER_MINUTES = 60
 export const DEFAULT_SLEEP_TIME = '23:00'

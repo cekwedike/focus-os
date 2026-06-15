@@ -7,8 +7,8 @@ export const CHAT_AI_MAX_OPENROUTER_ATTEMPTS = 4
 export const CHAT_AI_MAX_TOTAL_ATTEMPTS = 5
 
 export const DEFAULT_OPENROUTER_FREE_MODELS: string[] = [
+  'qwen/qwen3-next-80b-a3b-instruct:free',
   'google/gemma-2-9b-it:free',
   'meta-llama/llama-3.2-3b-instruct:free',
-  'qwen/qwen-2.5-7b-instruct:free',
   'mistralai/mistral-7b-instruct:free',
 ]

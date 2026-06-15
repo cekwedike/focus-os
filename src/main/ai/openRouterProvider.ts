@@ -1,5 +1,7 @@
 import { AI_TEST_PROMPT, buildInsightUserPrompt, INSIGHT_SYSTEM_PROMPT } from './promptTemplate'
 
+import { formatOpenRouterHttpError } from './openRouterErrors'
+
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
 const REQUEST_TIMEOUT_MS = 30_000
 
@@ -74,7 +76,7 @@ export async function callOpenRouter(options: OpenRouterCallOptions): Promise<Pr
 
   if (!response.ok) {
     const body = await response.text()
-    throw new Error(`OpenRouter HTTP ${response.status}: ${body}`)
+    throw new Error(formatOpenRouterHttpError(response.status, body))
   }
 
   const payload = (await response.json()) as unknown

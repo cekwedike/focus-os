@@ -96,6 +96,7 @@ const invokeChannels: IpcInvokeChannel[] = [
   'check-ins:get-due',
   'check-ins:acknowledge',
   'chat:ai-fallback',
+  'voice:transcribe',
   'notification:list-active',
   'notification:action',
 ]
@@ -249,6 +250,9 @@ const focusOSApi: FocusOSApi = {
   },
   chat: {
     aiFallback: async (payload) => unwrap(await createInvoke('chat:ai-fallback', payload)),
+  },
+  voice: {
+    transcribe: async (payload) => unwrap(await createInvoke('voice:transcribe', payload)),
   },
   notifications: {
     listActive: async () =>

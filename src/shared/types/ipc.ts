@@ -69,6 +69,7 @@ export type IpcInvokeChannel =
   | 'check-ins:get-due'
   | 'check-ins:acknowledge'
   | 'chat:ai-fallback'
+  | 'voice:transcribe'
   | 'notification:list-active'
   | 'notification:action'
 

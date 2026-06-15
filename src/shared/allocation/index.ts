@@ -70,14 +70,24 @@ export function allocateDay(input: AllocationInput): AllocationOutput {
 
   state = placeFixedClientBlocks(state, input.clients, input.scheduleDate, protectedIntervals)
 
-  const { state: afterBuffer, bufferMinutes } = applyBuffer(
+  const { state: afterBuffer, bufferMinutes, distributableMinutes } = applyBuffer(
     state,
-    input.bufferPercent,
-    input.scheduleDate
+    input.scheduleDate,
+    {
+      bufferPercent: input.bufferPercent,
+      maxBufferMinutes: input.maxBufferMinutes,
+      capacityMinutes: input.capacityMinutes,
+    }
   )
   state = afterBuffer
 
-  state = distributeWeighted(state, input.clients, input.scheduleDate, minViable, input.capacityMinutes)
+  state = distributeWeighted(
+    state,
+    input.clients,
+    input.scheduleDate,
+    minViable,
+    distributableMinutes
+  )
   state = fillTasksByPriority(state, input.scheduleDate, minViable)
 
   return finalizeAllocation(state, {
