@@ -122,7 +122,7 @@ export interface ScheduleBlockChangedPayload {
   scheduleDate: string
   blockId: number
   nextBlockId?: number | null
-  reason: 'auto_completed' | 'manual_completed' | 'skipped' | 'extended'
+  reason: 'auto_completed' | 'manual_completed' | 'skipped' | 'extended' | 'due_started'
 }
 
 export interface AppPingResponse {

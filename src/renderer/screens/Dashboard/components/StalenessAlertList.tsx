@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { isSystemUnassignedClient } from '@shared/constants/systemClient'
+import { listStaleClients } from '@shared/insights/stalenessSnapshot'
 import type { ClientProjectRow } from '@shared/types/db'
 import type { NotificationDispatchedPayload } from '@shared/types/notifications'
 
@@ -16,22 +16,13 @@ export function StalenessAlertList({
         window.focusOS.clients.list(),
         window.focusOS.settings.get(),
       ])
-      const thresholdHours = settings.settings.defaultStalenessHours
-      const now = Date.now()
+      const staleIds = new Set(
+        listStaleClients(clients, {
+          defaultStalenessHours: settings.settings.defaultStalenessHours,
+        }).map((entry) => entry.clientId)
+      )
 
-      const stale = clients.filter((client) => {
-        if (client.is_active !== 1 || isSystemUnassignedClient(client.name)) {
-          return false
-        }
-        const threshold = client.staleness_threshold_hours ?? thresholdHours
-        if (!client.last_touched_at) {
-          return true
-        }
-        const hours = (now - new Date(client.last_touched_at).getTime()) / (60 * 60 * 1000)
-        return hours >= threshold
-      })
-
-      setStaleClients(stale)
+      setStaleClients(clients.filter((client) => staleIds.has(client.id)))
     })()
 
     return window.focusOS.onNotificationDispatched((payload: NotificationDispatchedPayload) => {

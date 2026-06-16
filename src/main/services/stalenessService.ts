@@ -20,6 +20,10 @@ function checkStaleness(): void {
   }
 
   const settings = getAllSettings(getDatabase())
+  if (!settings.notifications.staleness) {
+    return
+  }
+
   const staleClients = listStaleClients(listClients(getDatabase()), {
     defaultStalenessHours: settings.defaultStalenessHours,
   })

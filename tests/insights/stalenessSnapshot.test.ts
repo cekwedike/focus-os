@@ -46,14 +46,25 @@ describe('listStaleClients', () => {
     expect(stale[0]?.clientName).toBe('Acme')
   })
 
-  it('flags clients with no last touch as stale', () => {
+  it('flags clients with no last touch when created long ago', () => {
     const stale = listStaleClients(
-      [client({ id: 1, name: 'Acme', last_touched_at: null })],
+      [client({ id: 1, name: 'Acme', last_touched_at: null, created_at: '2026-06-01T00:00:00.000Z' })],
       { defaultStalenessHours: 48 },
       now
     )
 
-    expect(stale[0]?.hoursSinceTouch).toBe(49)
+    expect(stale).toHaveLength(1)
+    expect(stale[0]?.hoursSinceTouch).toBeGreaterThanOrEqual(48)
+  })
+
+  it('does not flag brand new clients with no last touch', () => {
+    const stale = listStaleClients(
+      [client({ id: 1, name: 'Acme', last_touched_at: null, created_at: '2026-06-14T08:00:00.000Z' })],
+      { defaultStalenessHours: 48 },
+      now
+    )
+
+    expect(stale).toEqual([])
   })
 
   it('ignores inactive and system clients', () => {

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { isSystemUnassignedClient } from '@shared/constants/systemClient'
+import { listStaleClients } from '@shared/insights/stalenessSnapshot'
 import type { ClientProjectRow } from '@shared/types/db'
+import type { SnapshotStaleClient } from '@shared/types/insights'
 import type { NotificationDispatchedPayload } from '@shared/types/notifications'
 import { useChatContext } from '@renderer/context/useChatContext'
 import { HudCard } from '../HudCard'
@@ -10,6 +11,7 @@ import { HudMiniBars, type HudBarDatum } from '../HudMiniBars'
 export function StalenessHudCard(): React.JSX.Element {
   const { sendMessage } = useChatContext()
   const [staleClients, setStaleClients] = useState<ClientProjectRow[]>([])
+  const [staleSnapshots, setStaleSnapshots] = useState<SnapshotStaleClient[]>([])
   const [thresholdHours, setThresholdHours] = useState(48)
   const [expanded, setExpanded] = useState(false)
 
@@ -21,21 +23,10 @@ export function StalenessHudCard(): React.JSX.Element {
       ])
       const hours = settings.settings.defaultStalenessHours
       setThresholdHours(hours)
-      const now = Date.now()
-
-      const stale = clients.filter((client) => {
-        if (client.is_active !== 1 || isSystemUnassignedClient(client.name)) {
-          return false
-        }
-        const limit = client.staleness_threshold_hours ?? hours
-        if (!client.last_touched_at) {
-          return true
-        }
-        const elapsed = (now - new Date(client.last_touched_at).getTime()) / (60 * 60 * 1000)
-        return elapsed >= limit
-      })
-
-      setStaleClients(stale)
+      const snapshots = listStaleClients(clients, { defaultStalenessHours: hours })
+      const staleIds = new Set(snapshots.map((entry) => entry.clientId))
+      setStaleSnapshots(snapshots)
+      setStaleClients(clients.filter((client) => staleIds.has(client.id)))
     }
 
     void refresh()
@@ -56,11 +47,14 @@ export function StalenessHudCard(): React.JSX.Element {
     })
   }, [])
 
+  const snapshotByClientId = useMemo(
+    () => new Map(staleSnapshots.map((entry) => [entry.clientId, entry])),
+    [staleSnapshots]
+  )
+
   const radarBars = useMemo((): HudBarDatum[] => {
     return staleClients.slice(0, 6).map((client) => {
-      const hours = client.last_touched_at
-        ? (Date.now() - new Date(client.last_touched_at).getTime()) / (60 * 60 * 1000)
-        : thresholdHours * 2
+      const hours = snapshotByClientId.get(client.id)?.hoursSinceTouch ?? thresholdHours
       return {
         id: client.id,
         label: client.name.slice(0, 6),
@@ -69,7 +63,7 @@ export function StalenessHudCard(): React.JSX.Element {
         status: client.name,
       }
     })
-  }, [staleClients, thresholdHours])
+  }, [staleClients, snapshotByClientId, thresholdHours])
 
   const healthy = staleClients.length === 0
 

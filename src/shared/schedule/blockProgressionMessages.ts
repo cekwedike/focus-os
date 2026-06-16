@@ -6,18 +6,31 @@ export type BlockProgressionReason =
 
 export function formatAutoProgressionMessage(
   completedTitle: string,
-  nextTitle: string | null
+  nextTitle: string | null,
+  options?: { nextStartsAt?: string }
 ): string {
   if (nextTitle) {
+    if (options?.nextStartsAt) {
+      return `${completedTitle} complete. Up next: ${nextTitle} at ${options.nextStartsAt}.`
+    }
+
     return `${completedTitle} complete. Up next: ${nextTitle}, starting now.`
   }
 
   return `${completedTitle} complete. That wraps your scheduled day.`
 }
 
-export function formatSkipMessage(skippedTitle: string, nextTitle: string | null): string {
+export function formatSkipMessage(
+  skippedTitle: string,
+  nextTitle: string | null,
+  options?: { nextStartsAt?: string }
+): string {
   if (nextTitle) {
-    return `Skipped ${skippedTitle}. Up next: ${nextTitle}.`
+    if (options?.nextStartsAt) {
+      return `Skipped ${skippedTitle}. Up next: ${nextTitle} at ${options.nextStartsAt}.`
+    }
+
+    return `Skipped ${skippedTitle}. Up next: ${nextTitle}, starting now.`
   }
 
   return `Skipped ${skippedTitle}. That wraps your scheduled day.`

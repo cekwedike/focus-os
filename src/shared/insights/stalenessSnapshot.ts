@@ -6,6 +6,10 @@ export interface StalenessSettings {
   defaultStalenessHours: number
 }
 
+function touchReferenceAt(client: ClientProjectRow): string {
+  return client.last_touched_at ?? client.created_at
+}
+
 export function listStaleClients(
   clients: ClientProjectRow[],
   settings: StalenessSettings,
@@ -19,18 +23,12 @@ export function listStaleClients(
     }
 
     const threshold = client.staleness_threshold_hours ?? settings.defaultStalenessHours
-
-    if (!client.last_touched_at) {
-      stale.push({
-        clientId: client.id,
-        clientName: client.name,
-        hoursSinceTouch: threshold + 1,
-      })
+    const referenceMs = new Date(touchReferenceAt(client)).getTime()
+    if (Number.isNaN(referenceMs)) {
       continue
     }
 
-    const hoursSince =
-      (nowMs - new Date(client.last_touched_at).getTime()) / (60 * 60 * 1000)
+    const hoursSince = (nowMs - referenceMs) / (60 * 60 * 1000)
 
     if (hoursSince >= threshold) {
       stale.push({

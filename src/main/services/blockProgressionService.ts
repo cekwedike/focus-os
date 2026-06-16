@@ -7,6 +7,9 @@ import {
   formatSkipMessage,
 } from '@shared/schedule/blockProgressionMessages'
 import { isBlockSkippable } from '@shared/schedule/blockSkippable'
+import { isBlockStartDue } from '@shared/schedule/blockStartTiming'
+import { extractLocalTimeHHMM } from '@shared/utils/scheduleTimestamp'
+import { formatHHMM } from '@shared/utils/displayTime'
 import {
   computeReclaimMinutes,
   shiftIsoByMinutes,
@@ -30,21 +33,41 @@ import { resetPauseTracking, isWorkPaused } from './workPauseService'
 
 import type { BlockProgressionResult } from '@shared/types/schedule'
 
-export function activateFirstBlockIfNone(
-  db: Database.Database,
-  scheduleDate: string
-): DailyScheduleRow | null {
-  const active = getActiveBlock(db, scheduleDate)
-  if (active) {
-    return active
-  }
+function formatBlockStartTime(plannedStart: string): string {
+  return formatHHMM(extractLocalTimeHHMM(plannedStart), '12h')
+}
 
+function tryStartNextDueBlock(
+  db: Database.Database,
+  scheduleDate: string,
+  nowMs: number
+): DailyScheduleRow | null {
   const next = findNextPlannedBlock(db, scheduleDate)
-  if (!next) {
+  if (!next || !isBlockStartDue(next, nowMs)) {
     return null
   }
 
   return startBlock(db, next.id)
+}
+
+export function tryActivateDueBlock(
+  db: Database.Database,
+  scheduleDate: string,
+  nowMs: number = Date.now()
+): DailyScheduleRow | null {
+  if (getActiveBlock(db, scheduleDate)) {
+    return null
+  }
+
+  return tryStartNextDueBlock(db, scheduleDate, nowMs)
+}
+
+/** @deprecated Use tryActivateDueBlock */
+export function activateFirstBlockIfNone(
+  db: Database.Database,
+  scheduleDate: string
+): DailyScheduleRow | null {
+  return tryActivateDueBlock(db, scheduleDate)
 }
 
 function postProgressionMessage(
@@ -80,7 +103,8 @@ export function advanceToNextBlock(
   db: Database.Database,
   scheduleDate: string,
   completedTitle: string,
-  reason: BlockProgressionReason
+  reason: BlockProgressionReason,
+  nowMs: number = Date.now()
 ): BlockProgressionResult {
   const next = findNextPlannedBlock(db, scheduleDate)
   resetBlockNotificationState()
@@ -101,10 +125,12 @@ export function advanceToNextBlock(
     }
   }
 
-  const started = startBlock(db, next.id)
+  const started = tryStartNextDueBlock(db, scheduleDate, nowMs)
   postProgressionMessage(
     db,
-    formatAutoProgressionMessage(completedTitle, started.title),
+    formatAutoProgressionMessage(completedTitle, next.title, {
+      nextStartsAt: started ? undefined : formatBlockStartTime(next.planned_start),
+    }),
     reason === 'manual_completed' ? 'manual_complete' : 'auto_progression',
     'block_complete'
   )
@@ -128,7 +154,16 @@ export function completeAndAdvance(
 
   const reason = options?.reason ?? 'manual_completed'
   const completed = completeBlock(db, blockId, { endTime: options?.endTime })
-  const progression = advanceToNextBlock(db, block.schedule_date, completed.title, reason)
+  const progressionNowMs = options?.endTime
+    ? new Date(options.endTime).getTime()
+    : Date.now()
+  const progression = advanceToNextBlock(
+    db,
+    block.schedule_date,
+    completed.title,
+    reason,
+    progressionNowMs
+  )
 
   return {
     completedBlock: completed,
@@ -190,10 +225,12 @@ export function skipBlock(db: Database.Database, blockId: number): BlockProgress
     }
   }
 
-  const started = startBlock(db, next.id)
+  const started = tryStartNextDueBlock(db, block.schedule_date, nowMs)
   postProgressionMessage(
     db,
-    formatSkipMessage(skipped.title, started.title),
+    formatSkipMessage(skipped.title, next.title, {
+      nextStartsAt: started ? undefined : formatBlockStartTime(next.planned_start),
+    }),
     'skip_confirmed',
     'block_skipped'
   )

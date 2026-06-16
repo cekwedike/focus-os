@@ -36,7 +36,6 @@ import {
 } from '../db/repositories/tasksRepository'
 import { normalizeScheduleInstant } from '@shared/utils/scheduleTimestamp'
 import { shouldAutoCompleteBlock } from '@shared/schedule/blockAutoComplete'
-import { activateFirstBlockIfNone } from './blockProgressionService'
 
 function addDays(dateStr: string, days: number): string {
   const date = new Date(`${dateStr}T12:00:00`)
@@ -97,7 +96,6 @@ export function commitDaySchedule(
   })
 
   commit()
-  activateFirstBlockIfNone(db, payload.scheduleDate)
   return getDayBundle(db, payload.scheduleDate)
 }
 
@@ -115,13 +113,6 @@ export function startBlock(db: Database.Database, blockId: number): DailySchedul
 
   if (!updated) {
     throw new Error('BLOCK_UPDATE_FAILED')
-  }
-
-  if (updated.client_id) {
-    db.prepare('UPDATE clients_projects SET last_touched_at = @ts, updated_at = @ts WHERE id = @id').run({
-      id: updated.client_id,
-      ts: nowIso(),
-    })
   }
 
   return updated
