@@ -92,7 +92,7 @@
       "**/node_modules/better-sqlite3/**/*"
     ],
     "win": {
-      "icon": "resources/icon.ico",
+      "icon": "resources/icon.png",
       "target": [
         {
           "target": "nsis",
@@ -100,9 +100,7 @@
             "x64"
           ]
         }
-      ],
-      "publisherName": "Focus OS",
-      "legalTrademarks": "Focus OS"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -118,7 +116,7 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Focus OS",
       "menuCategory": "Focus OS",
-      "artifactName": "${productName}-${version}-Setup.${ext}",
+      "artifactName": "${productName} Setup ${version}.${ext}",
       "uninstallDisplayName": "Focus OS",
       "runAfterFinish": true,
       "unicode": true,

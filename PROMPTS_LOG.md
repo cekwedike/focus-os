@@ -13,6 +13,16 @@ After each significant AI session:
 
 Keep entries concise but specific enough that a future you (or Cursor) can resume without re-reading entire chat threads.
 
+### 2026-06-16: v0.1.0 Release
+
+**Prompt summary:** Prepare Focus OS for v0.1.0 release: confirm package version, finalize CHANGELOG, build Windows installer, update ROADMAP Phase 12 and PROMPTS_LOG.
+
+**Outcome:** `package.json` version `0.1.0` confirmed. CHANGELOG `[0.1.0]` section dated 2026-06-16 with full feature list (Phases 1–18). `pnpm build:exe` produces `release/Focus OS Setup 0.1.0.exe`. ROADMAP Phase 12 release note added. 249 tests passing at release.
+
+**Files / phases:** CHANGELOG.md, ROADMAP.md, PROMPTS_LOG.md, package.json, `release/Focus OS Setup 0.1.0.exe`. Phase 12 release complete.
+
+**Follow-ups:** Push tag `v0.1.0` to trigger GitHub Release workflow; optional code signing.
+
 ### 2026-06-15: Capacity-Aware Buffer Sizing Fix
 
 **Prompt summary:** Fix allocation engine buffer sizing to use percent of flexible time (capacity minus protected minus fixed), add `max_buffer_minutes` cap (default 60), Settings UI guidance, migration 016, and regression tests.

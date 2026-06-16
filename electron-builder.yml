@@ -8,12 +8,11 @@ directories:
   output: release
 
 win:
-  icon: resources/icon.ico
+  icon: resources/icon.png
   target:
     - target: nsis
       arch:
         - x64
-  publisherName: Focus OS
 
 nsis:
   oneClick: false
@@ -23,4 +22,4 @@ nsis:
   installerHeader: resources/installer/header.bmp
   installerSidebar: resources/installer/sidebar.bmp
   shortcutName: Focus OS
-  artifactName: ${productName}-${version}-Setup.${ext}
+  artifactName: ${productName} Setup ${version}.${ext}

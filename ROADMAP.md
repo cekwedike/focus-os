@@ -224,6 +224,8 @@ Semantic version target for first release: **0.1.0** (see [CHANGELOG.md](./CHANG
 
 **Completed 2026-06-14:** NSIS installer via `pnpm build:exe`, output `release/Focus OS Setup 0.1.0.exe`, `asarUnpack` for better-sqlite3, release.yml artifact glob aligned, local smoke test passed (packaged exe launches).
 
+**Released 2026-06-16:** v0.1.0 tagged and shipped. Installer rebuilt with Phases 13–18 (chat-first shell, AI fallback, Eisenhower Task Matrix, capacity-aware buffer, notification system, scroll fixes). CHANGELOG and PROMPTS_LOG updated; 249 tests passing at release.
+
 ## Phase 13: Chat-First Shell and Intent Router
 
 **Status:** Complete
