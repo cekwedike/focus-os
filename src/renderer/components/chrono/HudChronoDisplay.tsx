@@ -1,13 +1,12 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { getTimezoneLabel } from '@shared/constants/timezones'
+import { resolveTimezoneDisplay } from '@shared/utils/displayTime'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 import { useLiveChrono } from '@renderer/hooks/useLiveChrono'
 import './hud-chrono.css'
 
 interface HudChronoDisplayProps {
-  variant: 'rail' | 'panel'
   showSeconds?: boolean
-  footer?: React.ReactNode
 }
 
 function HudTimeDigits({
@@ -48,37 +47,11 @@ function HudMetaDot(): React.JSX.Element {
   return <span className="hud-chrono-dot" aria-hidden="true" />
 }
 
-export function HudChronoDisplay({
-  variant,
-  showSeconds = true,
-  footer,
-}: HudChronoDisplayProps): React.JSX.Element {
+export function HudChronoDisplay({ showSeconds = true }: HudChronoDisplayProps): React.JSX.Element {
   const { timezone } = useDisplayPreferences()
   const chrono = useLiveChrono(showSeconds)
   const timezoneTitle = getTimezoneLabel(timezone)
-
-  if (variant === 'panel') {
-    return (
-      <div className="hud-chrono hud-chrono-panel text-right">
-        <p className="hud-chrono-kicker">Chrono Sync</p>
-        <time className="block" dateTime={chrono.isoDateTime}>
-          <HudTimeDigits time={chrono.time} showSeconds={showSeconds} />
-        </time>
-        <p className="hud-chrono-meta mt-0.5">
-          <span>{chrono.weekday}</span>
-          <HudMetaDot />
-          <span>{chrono.monthDay}</span>
-        </p>
-        <p className="hud-chrono-tz mt-1" title={timezoneTitle}>
-          <span className="hud-chrono-tz-badge">{chrono.timezoneAbbr}</span>
-          {chrono.timezoneOffset ? (
-            <span className="hud-chrono-offset">{chrono.timezoneOffset}</span>
-          ) : null}
-        </p>
-        {footer ? <div className="mt-1 text-[10px] text-text-muted">{footer}</div> : null}
-      </div>
-    )
-  }
+  const timezoneDisplay = resolveTimezoneDisplay(chrono.timezoneAbbr, chrono.timezoneOffset)
 
   return (
     <div className="hud-chrono hud-chrono-rail min-w-0" title={timezoneTitle}>
@@ -91,24 +64,18 @@ export function HudChronoDisplay({
         <HudTimeDigits time={chrono.time} showSeconds={showSeconds} />
       </time>
 
-      <p className="hud-chrono-meta min-w-0 truncate sm:hidden">
+      <p className="hud-chrono-meta min-w-0 truncate">
         <span className="hud-chrono-weekday">{chrono.weekday}</span>
         <HudMetaDot />
-        <span>{chrono.monthDay}</span>
+        <span className="sm:hidden">{chrono.monthDay}</span>
+        <span className="hidden sm:inline">{chrono.dateLabel}</span>
       </p>
 
-      <p className="hud-chrono-meta hidden min-w-0 truncate sm:block">
-        <span className="hud-chrono-weekday">{chrono.weekday}</span>
-        <HudMetaDot />
-        <span>{chrono.dateLabel}</span>
-      </p>
-
-      <p className="hud-chrono-tz hidden sm:flex">
-        <span className="hud-chrono-tz-badge">{chrono.timezoneAbbr}</span>
-        {chrono.timezoneOffset ? (
-          <span className="hud-chrono-offset">{chrono.timezoneOffset}</span>
-        ) : null}
-      </p>
+      {timezoneDisplay ? (
+        <p className="hud-chrono-tz">
+          <span className="hud-chrono-tz-badge">{timezoneDisplay}</span>
+        </p>
+      ) : null}
     </div>
   )
 }

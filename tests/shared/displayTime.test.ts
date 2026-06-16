@@ -10,6 +10,7 @@ import {
   getTimezoneOffsetLabel,
   getWeekdayInTimezone,
   formatMonthDayInTimezone,
+  resolveTimezoneDisplay,
   parseHHMM,
   to12HourParts,
 } from '@shared/utils/displayTime'
@@ -58,5 +59,12 @@ describe('displayTime utilities', () => {
     expect(formatMonthDayInTimezone(date, 'America/New_York')).toBe('Jun 15')
     expect(getTimezoneAbbreviation(date, 'America/New_York').length).toBeGreaterThan(0)
     expect(getTimezoneOffsetLabel(date, 'America/New_York')).toMatch(/GMT|UTC/)
+  })
+
+  it('deduplicates redundant timezone abbreviation and offset labels', () => {
+    expect(resolveTimezoneDisplay('GMT+2', 'GMT+2')).toBe('GMT+2')
+    expect(resolveTimezoneDisplay('GMT+2', 'GMT+3')).toBe('GMT+3')
+    expect(resolveTimezoneDisplay('EST', 'GMT-5')).toBe('EST')
+    expect(resolveTimezoneDisplay('', 'GMT+1')).toBe('GMT+1')
   })
 })

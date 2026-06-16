@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
-import { HudChronoDisplay } from '@renderer/components/chrono/HudChronoDisplay'
 import { ExecutionHudCard } from './cards/ExecutionHudCard'
 import { QueueHudCard } from './cards/QueueHudCard'
 import { FocusHudCard } from './cards/FocusHudCard'
@@ -27,11 +26,12 @@ export function HudTelemetryPanel(): React.JSX.Element {
               Systems Overview
             </h2>
           </div>
-          <HudChronoDisplay
-            variant="panel"
-            showSeconds={false}
-            footer={loading ? 'Syncing...' : `${blockCount} Blocks`}
-          />
+          <div className="text-right">
+            <p className="hud-kicker">Schedule</p>
+            <p className="font-mono text-xs text-text-muted">
+              {loading ? 'Syncing...' : `${blockCount} Blocks`}
+            </p>
+          </div>
         </div>
       </header>
 

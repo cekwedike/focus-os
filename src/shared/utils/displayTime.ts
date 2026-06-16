@@ -196,6 +196,34 @@ export function getTimezoneOffsetLabel(date: Date, timeZone: string): string {
   return parts.find((part) => part.type === 'timeZoneName')?.value ?? ''
 }
 
+/** Prefer one timezone label when abbreviation and offset repeat the same value (e.g. GMT+2 twice). */
+export function resolveTimezoneDisplay(abbr: string, offset: string): string {
+  const normalizedAbbr = abbr.trim()
+  const normalizedOffset = offset.trim()
+
+  if (!normalizedAbbr && !normalizedOffset) {
+    return ''
+  }
+
+  if (!normalizedOffset) {
+    return normalizedAbbr
+  }
+
+  if (!normalizedAbbr) {
+    return normalizedOffset
+  }
+
+  if (normalizedAbbr.toUpperCase() === normalizedOffset.toUpperCase()) {
+    return normalizedOffset
+  }
+
+  if (/^GMT[+-]/i.test(normalizedAbbr) && /^GMT[+-]/i.test(normalizedOffset)) {
+    return normalizedOffset
+  }
+
+  return normalizedAbbr
+}
+
 export function formatMonthDayInTimezone(date: Date, timeZone: string): string {
   return new Intl.DateTimeFormat('en-US', {
     timeZone,

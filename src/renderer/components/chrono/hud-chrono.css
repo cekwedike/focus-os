@@ -17,10 +17,6 @@
     0 0 18px rgba(34, 211, 238, 0.06);
 }
 
-.hud-chrono-panel {
-  min-width: 7.5rem;
-}
-
 .hud-chrono-bracket {
   position: absolute;
   width: 8px;
@@ -81,11 +77,6 @@
   font-size: 1rem;
 }
 
-.hud-chrono-panel .hud-chrono-time {
-  font-size: 0.875rem;
-  color: var(--chrono-cyan);
-}
-
 .hud-chrono-seconds {
   color: var(--chrono-mint);
 }
@@ -135,15 +126,4 @@
   text-transform: uppercase;
   color: var(--chrono-cyan);
   box-shadow: 0 0 12px rgba(34, 211, 238, 0.12);
-}
-
-.hud-chrono-offset {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  color: rgba(148, 163, 184, 0.8);
-}
-
-.hud-chrono-panel .hud-chrono-tz {
-  justify-content: flex-end;
 }

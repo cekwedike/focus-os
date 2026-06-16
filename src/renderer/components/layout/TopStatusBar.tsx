@@ -91,7 +91,7 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
           ) : (
             <span className="focus-live-dot-idle shrink-0" aria-hidden="true" />
           )}
-          <HudChronoDisplay variant="rail" showSeconds />
+          <HudChronoDisplay showSeconds />
         </div>
 
         <div className="hidden h-5 w-px shrink-0 bg-surface-border lg:block" aria-hidden="true" />
