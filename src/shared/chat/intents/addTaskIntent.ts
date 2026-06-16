@@ -24,7 +24,9 @@ export function matchAddTaskIntent(input: string, context: RouterContext): Inten
     return null
   }
 
-  const parseResult = parseQuickAddTask(body, context.clients, context.unassignedClientId)
+  const parseResult = parseQuickAddTask(body, context.clients, {
+    fallbackClientId: context.unassignedClientId,
+  })
 
   if (parseResult.ambiguousClients && parseResult.ambiguousClients.length > 1) {
     return {

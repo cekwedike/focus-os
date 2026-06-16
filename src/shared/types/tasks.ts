@@ -8,6 +8,7 @@ export interface TaskListFilters {
   priorityMax?: number
   status?: TaskStatus
   recentOnly?: boolean
+  quadrant?: 'do_first' | 'schedule' | 'delegate' | 'eliminate' | 'unset'
 }
 
 export interface CreateTaskInput {
@@ -15,6 +16,8 @@ export interface CreateTaskInput {
   title: string
   description?: string | null
   priority?: number
+  is_urgent?: boolean | null
+  is_important?: boolean | null
   deadline_date?: string | null
   estimated_minutes?: number | null
   status?: TaskStatus
@@ -26,6 +29,8 @@ export interface UpdateTaskInput {
   title?: string
   description?: string | null
   priority?: number
+  is_urgent?: boolean | null
+  is_important?: boolean | null
   deadline_date?: string | null
   estimated_minutes?: number | null
   status?: TaskStatus

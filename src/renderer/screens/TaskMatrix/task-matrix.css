@@ -1,0 +1,153 @@
+.task-matrix-shell {
+  --matrix-mint: #00e5a8;
+  --matrix-cyan: #22d3ee;
+  --matrix-amber: #fbbf24;
+  --matrix-panel: rgba(6, 14, 28, 0.88);
+  --matrix-border: rgba(34, 211, 238, 0.2);
+  position: relative;
+  isolation: isolate;
+}
+
+.task-matrix-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 45% at 15% 0%, rgba(0, 229, 168, 0.07), transparent 55%),
+    radial-gradient(ellipse 55% 35% at 90% 20%, rgba(34, 211, 238, 0.06), transparent 50%),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 48px,
+      rgba(34, 211, 238, 0.025) 48px,
+      rgba(34, 211, 238, 0.025) 49px
+    );
+  opacity: 0.85;
+  z-index: 0;
+}
+
+.task-matrix-stat {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--matrix-border);
+  background: var(--matrix-panel);
+  backdrop-filter: blur(14px);
+}
+
+.task-matrix-stat::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.07), transparent 50%);
+  pointer-events: none;
+}
+
+.task-matrix-job-pill {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 14, 26, 0.75);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.task-matrix-job-pill:hover {
+  border-color: rgba(34, 211, 238, 0.35);
+}
+
+.task-matrix-job-pill-active {
+  border-color: rgba(0, 229, 168, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(0, 229, 168, 0.15),
+    0 0 20px rgba(0, 229, 168, 0.12);
+}
+
+.task-matrix-column {
+  position: relative;
+  z-index: 1;
+  min-width: min(100%, 280px);
+  max-width: 320px;
+  flex: 1 1 260px;
+  border: 1px solid var(--matrix-border);
+  background: rgba(5, 10, 20, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.task-matrix-column-accent {
+  height: 3px;
+  border-radius: 999px;
+  margin: 0 12px 10px;
+  opacity: 0.9;
+}
+
+.task-matrix-task {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(10, 18, 32, 0.82);
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.task-matrix-task:hover {
+  border-color: rgba(0, 229, 168, 0.35);
+}
+
+.task-matrix-composer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin-top: 1.5rem;
+  border: 1px solid rgba(0, 229, 168, 0.28);
+  background: linear-gradient(180deg, rgba(8, 16, 30, 0.96), rgba(5, 10, 18, 0.98));
+  box-shadow:
+    0 -12px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px);
+}
+
+.task-matrix-preview-chip {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  background: rgba(34, 211, 238, 0.08);
+  color: var(--matrix-cyan);
+}
+
+.task-matrix-board-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.35) transparent;
+}
+
+.task-matrix-board-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.eisenhower-grid {
+  min-height: 280px;
+}
+
+.eisenhower-quadrant {
+  border: 1px solid var(--matrix-border);
+  background: rgba(5, 10, 20, 0.72);
+  backdrop-filter: blur(12px);
+  min-height: 220px;
+}
+
+.eisenhower-inbox {
+  border: 1px dashed rgba(100, 116, 139, 0.35);
+  background: rgba(8, 12, 22, 0.55);
+}
+
+.eisenhower-picker-tile {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 14, 26, 0.75);
+}
+
+.eisenhower-picker-tile-active {
+  background: rgba(10, 20, 36, 0.92);
+}

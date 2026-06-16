@@ -29,7 +29,7 @@ function AnimatedLegacyOutlet({ children }: { children: ReactNode }): React.JSX.
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -8 }}
         transition={{ duration: 0.2 }}
-        className="min-h-0 min-w-0 flex-1"
+        className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
       >
         {children}
       </motion.div>

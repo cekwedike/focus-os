@@ -17,7 +17,8 @@ import type { ChatAttachmentType } from '@shared/types/chat'
 import type { ChatRouterContextSummary } from '@shared/types/chatAi'
 
 interface ExtendedConversationState {
-  pendingPrompt: 'wake_time' | null
+  pendingPrompt: 'wake_time' | 'task_priority' | null
+  pendingTaskDraft: import('@shared/parsing/quickAddTask').QuickAddParseResult | null
   longBreakActive: boolean
   activeFaithBlockId: number | null
   longBreakBreakId: number | null
@@ -152,6 +153,7 @@ export function useChatOrchestrator({
       today,
       conversation: {
         pendingPrompt: conversation.pendingPrompt,
+        pendingTaskDraft: conversation.pendingTaskDraft,
         longBreakActive: conversation.longBreakActive,
         activeFaithBlockId: conversation.activeFaithBlockId,
       },
@@ -224,6 +226,7 @@ export function useChatOrchestrator({
         await deliverAssistantMessage({
           content: result.content,
           attachments: result.attachments,
+          quickReplies: result.quickReplies,
         })
       }
     },

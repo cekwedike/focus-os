@@ -1,4 +1,5 @@
 import type { QuickReplyChip } from '@shared/types/chat'
+import { buildTaskPriorityQuickReplies } from './intents/taskPriorityIntent'
 
 export type ChipContextKey =
   | 'welcome_active_skippable'
@@ -12,6 +13,7 @@ export type ChipContextKey =
   | 'skip_confirmed'
   | 'end_of_day'
   | 'awaiting_wake'
+  | 'awaiting_task_priority'
   | 'wake_no_schedule'
   | 'long_break'
 
@@ -99,6 +101,8 @@ export function resolveContextualChips(chipContext: ChipContextKey): QuickReplyC
         { label: '9am', sendText: '9am' },
         { label: '9:30', sendText: '9:30' },
       ]
+    case 'awaiting_task_priority':
+      return buildTaskPriorityQuickReplies()
     case 'wake_no_schedule':
       return [
         { label: "What's My Day Look Like?", sendText: "What's my day look like?" },

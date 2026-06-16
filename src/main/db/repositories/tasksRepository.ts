@@ -1,10 +1,57 @@
 import type Database from 'better-sqlite3'
 import { SYSTEM_UNASSIGNED_CLIENT_NAME } from '@shared/constants/systemClient'
+import {
+  priorityFromEisenhower,
+  type EisenhowerFlags,
+} from '@shared/tasks/eisenhower'
 import type { TaskRow } from '@shared/types/db'
 import type { CreateTaskInput, TaskListFilters, UpdateTaskInput } from '@shared/types/tasks'
 import { nowIso } from '@shared/utils/time'
 
 const RECENT_WINDOW_MS = 48 * 60 * 60 * 1000
+
+function toStoredFlag(value: boolean | null | undefined): number | null {
+  if (value == null) {
+    return null
+  }
+  return value ? 1 : 0
+}
+
+function resolveTaskPriority(
+  input: Pick<CreateTaskInput, 'priority' | 'is_urgent' | 'is_important'>
+): number {
+  if (input.is_urgent != null || input.is_important != null) {
+    return priorityFromEisenhower({
+      isUrgent: input.is_urgent ?? null,
+      isImportant: input.is_important ?? null,
+    })
+  }
+  return input.priority ?? 5
+}
+
+function appendQuadrantFilter(filters: TaskListFilters, conditions: string[]): void {
+  if (!filters.quadrant) {
+    return
+  }
+
+  switch (filters.quadrant) {
+    case 'do_first':
+      conditions.push('t.is_urgent = 1 AND t.is_important = 1')
+      break
+    case 'schedule':
+      conditions.push('t.is_urgent = 0 AND t.is_important = 1')
+      break
+    case 'delegate':
+      conditions.push('t.is_urgent = 1 AND t.is_important = 0')
+      break
+    case 'eliminate':
+      conditions.push('t.is_urgent = 0 AND t.is_important = 0')
+      break
+    case 'unset':
+      conditions.push('(t.is_urgent IS NULL OR t.is_important IS NULL)')
+      break
+  }
+}
 
 export function getUnassignedClientId(db: Database.Database): number {
   const row = db
@@ -46,6 +93,8 @@ export function listTasks(db: Database.Database, filters: TaskListFilters = {}):
     conditions.push('t.created_at >= @recentSince')
     params.recentSince = new Date(Date.now() - RECENT_WINDOW_MS).toISOString()
   }
+
+  appendQuadrantFilter(filters, conditions)
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
@@ -93,6 +142,8 @@ export function listTasksWithClients(
     params.recentSince = new Date(Date.now() - RECENT_WINDOW_MS).toISOString()
   }
 
+  appendQuadrantFilter(filters, conditions)
+
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
   return db
@@ -115,14 +166,15 @@ export function getTaskById(db: Database.Database, id: number): TaskRow | null {
 
 export function createTask(db: Database.Database, input: CreateTaskInput): TaskRow {
   const timestamp = nowIso()
+  const priority = resolveTaskPriority(input)
   const result = db
     .prepare(
       `
       INSERT INTO tasks (
-        client_id, title, description, priority, deadline_date,
+        client_id, title, description, priority, is_urgent, is_important, deadline_date,
         estimated_minutes, status, created_at, updated_at
       ) VALUES (
-        @client_id, @title, @description, @priority, @deadline_date,
+        @client_id, @title, @description, @priority, @is_urgent, @is_important, @deadline_date,
         @estimated_minutes, @status, @created_at, @updated_at
       )
     `
@@ -131,7 +183,9 @@ export function createTask(db: Database.Database, input: CreateTaskInput): TaskR
       client_id: input.client_id,
       title: input.title.trim(),
       description: input.description ?? null,
-      priority: input.priority ?? 3,
+      priority,
+      is_urgent: toStoredFlag(input.is_urgent),
+      is_important: toStoredFlag(input.is_important),
       deadline_date: input.deadline_date ?? null,
       estimated_minutes: input.estimated_minutes ?? 30,
       status: input.status ?? 'pending',
@@ -159,6 +213,27 @@ export function updateTask(db: Database.Database, input: UpdateTaskInput): TaskR
     completedAt = null
   }
 
+  const nextFlags: EisenhowerFlags = {
+    isUrgent:
+      input.is_urgent !== undefined
+        ? input.is_urgent
+        : existing.is_urgent == null
+          ? null
+          : existing.is_urgent === 1,
+    isImportant:
+      input.is_important !== undefined
+        ? input.is_important
+        : existing.is_important == null
+          ? null
+          : existing.is_important === 1,
+  }
+
+  const nextPriority =
+    input.priority ??
+    (input.is_urgent !== undefined || input.is_important !== undefined
+      ? priorityFromEisenhower(nextFlags)
+      : existing.priority)
+
   db.prepare(
     `
     UPDATE tasks SET
@@ -166,6 +241,8 @@ export function updateTask(db: Database.Database, input: UpdateTaskInput): TaskR
       title = @title,
       description = @description,
       priority = @priority,
+      is_urgent = @is_urgent,
+      is_important = @is_important,
       deadline_date = @deadline_date,
       estimated_minutes = @estimated_minutes,
       status = @status,
@@ -179,7 +256,11 @@ export function updateTask(db: Database.Database, input: UpdateTaskInput): TaskR
     client_id: input.client_id ?? existing.client_id,
     title: input.title?.trim() ?? existing.title,
     description: input.description !== undefined ? input.description : existing.description,
-    priority: input.priority ?? existing.priority,
+    priority: nextPriority,
+    is_urgent:
+      input.is_urgent !== undefined ? toStoredFlag(input.is_urgent) : existing.is_urgent,
+    is_important:
+      input.is_important !== undefined ? toStoredFlag(input.is_important) : existing.is_important,
     deadline_date: input.deadline_date !== undefined ? input.deadline_date : existing.deadline_date,
     estimated_minutes:
       input.estimated_minutes !== undefined ? input.estimated_minutes : existing.estimated_minutes,

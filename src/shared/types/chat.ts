@@ -90,6 +90,7 @@ export type ChatIntentType =
   | 'menu'
   | 'wake_time'
   | 'add_task'
+  | 'confirm_task_priority'
   | 'start_block'
   | 'complete_block'
   | 'long_break'

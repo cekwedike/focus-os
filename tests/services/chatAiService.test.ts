@@ -194,6 +194,7 @@ describe('resolveChatAiFallback', () => {
       routerContext: createTestContext({
         conversation: {
           pendingPrompt: null,
+          pendingTaskDraft: null,
           longBreakActive: false,
           activeFaithBlockId: null,
         },

@@ -39,8 +39,28 @@ export function wakeTimeConfirmedSummary(
   return lines.join('\n')
 }
 
-export function taskAdded(taskTitle: string, clientName: string): string {
-  return `Added "${taskTitle}" for ${clientName}. It will be included the next time your schedule is generated.`
+export function taskAdded(taskTitle: string, clientName: string, quadrantLabel?: string): string {
+  const priorityLine = quadrantLabel ? ` Priority: ${quadrantLabel}.` : ''
+  const clientLine = clientName === 'Personal' ? '' : ` for ${clientName}`
+  return `Added "${taskTitle}"${clientLine}.${priorityLine} It will be included the next time your schedule is generated.`.replace(
+    '..',
+    '.'
+  )
+}
+
+export function taskPriorityPrompt(taskTitle: string): string {
+  return [
+    `Got it — "${taskTitle}".`,
+    '',
+    'Where does this land on your Eisenhower matrix?',
+    '',
+    'Q1 Do First · urgent & important',
+    'Q2 Schedule · important, not urgent',
+    'Q3 Delegate · urgent, not important',
+    'Q4 Later · neither urgent nor important',
+    '',
+    'Or say "no priority" to drop it in your inbox untriaged.',
+  ].join('\n')
 }
 
 export function blockStarted(title: string): string {

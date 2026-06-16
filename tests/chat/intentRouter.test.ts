@@ -7,6 +7,7 @@ describe('intentRouter wake time', () => {
     const context = createTestContext({
       conversation: {
         pendingPrompt: 'wake_time',
+        pendingTaskDraft: null,
         longBreakActive: false,
         activeFaithBlockId: null,
       },
@@ -75,6 +76,7 @@ describe('intentRouter breaks', () => {
     const active = createTestContext({
       conversation: {
         pendingPrompt: null,
+        pendingTaskDraft: null,
         longBreakActive: true,
         activeFaithBlockId: null,
       },

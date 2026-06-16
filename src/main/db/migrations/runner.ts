@@ -15,6 +15,7 @@ import { applyOpenRouterFreeModelsMigration } from './013_openrouter_free_models
 import { applyVoiceSettingsMigration } from './014_voice_settings'
 import { applyTimezoneLegacyFixMigration } from './015_timezone_legacy_fix'
 import { applyMaxBufferMinutesMigration } from './016_max_buffer_minutes'
+import { applyTaskEisenhowerMigration } from './017_task_eisenhower'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -135,6 +136,13 @@ const migrations: MigrationDefinition[] = [
     name: 'max_buffer_minutes',
     up: (db) => {
       applyMaxBufferMinutesMigration(db)
+    },
+  },
+  {
+    version: 17,
+    name: 'task_eisenhower',
+    up: (db) => {
+      applyTaskEisenhowerMigration(db)
     },
   },
 ]

@@ -21,6 +21,8 @@ function listTasksForSnapshot(db: Database.Database): Array<{
   title: string
   description: string | null
   priority: number
+  is_urgent: number | null
+  is_important: number | null
   deadline_date: string | null
   estimated_minutes: number | null
   status: string
@@ -39,6 +41,8 @@ function listTasksForSnapshot(db: Database.Database): Array<{
         t.title,
         t.description,
         t.priority,
+        t.is_urgent,
+        t.is_important,
         t.deadline_date,
         t.estimated_minutes,
         t.status,
@@ -59,6 +63,8 @@ function listTasksForSnapshot(db: Database.Database): Array<{
     title: string
     description: string | null
     priority: number
+    is_urgent: number | null
+    is_important: number | null
     deadline_date: string | null
     estimated_minutes: number | null
     status: string

@@ -1,4 +1,5 @@
 import { matchAcknowledgeCheckInIntent } from './intents/acknowledgeCheckInIntent'
+import { matchTaskPriorityIntent } from './intents/taskPriorityIntent'
 import { matchAddTaskIntent } from './intents/addTaskIntent'
 import { matchCompleteBlockIntent, matchStartBlockIntent } from './intents/blockActionIntent'
 import { matchExtendBlockIntent, matchSkipBlockIntent } from './intents/blockProgressionIntent'
@@ -16,6 +17,7 @@ type IntentMatcher = (input: string, context: RouterContext) => IntentMatch | nu
 const INTENT_MATCHERS: IntentMatcher[] = [
   matchMenuIntent,
   matchWakeTimeIntent,
+  matchTaskPriorityIntent,
   matchEndBreakIntent,
   matchLongBreakIntent,
   matchFaithLogIntent,

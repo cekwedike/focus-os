@@ -1,9 +1,25 @@
 import { matchClientFromForClause } from '@shared/chat/parsers/matchClientName'
 import { parseEstimateMinutes } from '@shared/chat/parsers/parseDuration'
+import {
+  hasResolvedEisenhower,
+  isPrioritySkipped,
+  parseEisenhowerFromText,
+  stripEisenhowerTokens,
+  type EisenhowerFlags,
+} from '@shared/tasks/eisenhower'
 
 export interface QuickAddClient {
   id: number
   name: string
+}
+
+export interface QuickAddParseOptions {
+  /** Job selected in the UI when the text omits a client (Task Matrix). */
+  defaultClientId?: number | null
+  /** Fallback when no client is detected (chat flows). */
+  fallbackClientId?: number
+  /** Eisenhower flags selected in the UI when text omits priority. */
+  defaultEisenhower?: EisenhowerFlags
 }
 
 export interface QuickAddParseResult {
@@ -11,12 +27,13 @@ export interface QuickAddParseResult {
   clientId: number | null
   estimatedMinutes: number
   deadlineDate: string | null
-  priority: number
+  isUrgent: boolean | null
+  isImportant: boolean | null
+  skipPriority: boolean
   ambiguousClients?: string[]
 }
 
 const DEFAULT_ESTIMATE_MINUTES = 30
-const DEFAULT_PRIORITY = 3
 
 const ADD_TASK_PREFIX_PATTERNS = [
   /^add\s+/i,
@@ -70,12 +87,70 @@ export function stripAddTaskPrefix(input: string): string {
   return working
 }
 
+function resolveQuickAddOptions(
+  options: QuickAddParseOptions | number | undefined
+): QuickAddParseOptions {
+  if (typeof options === 'number') {
+    return { fallbackClientId: options }
+  }
+  return options ?? {}
+}
+
+function resolveClientId(
+  matchedClientId: number | null,
+  options: QuickAddParseOptions
+): number | null {
+  if (matchedClientId !== null) {
+    return matchedClientId
+  }
+  if (options.defaultClientId != null) {
+    return options.defaultClientId
+  }
+  if (options.fallbackClientId != null) {
+    return options.fallbackClientId
+  }
+  return null
+}
+
+function resolveEisenhower(
+  parsed: EisenhowerFlags | 'skip' | null,
+  options: QuickAddParseOptions
+): Pick<QuickAddParseResult, 'isUrgent' | 'isImportant' | 'skipPriority'> {
+  if (parsed === 'skip') {
+    return { isUrgent: null, isImportant: null, skipPriority: true }
+  }
+
+  if (parsed && parsed.isUrgent != null && parsed.isImportant != null) {
+    return {
+      isUrgent: parsed.isUrgent,
+      isImportant: parsed.isImportant,
+      skipPriority: false,
+    }
+  }
+
+  const defaults = options.defaultEisenhower
+  if (defaults && defaults.isUrgent != null && defaults.isImportant != null) {
+    return {
+      isUrgent: defaults.isUrgent,
+      isImportant: defaults.isImportant,
+      skipPriority: false,
+    }
+  }
+
+  return { isUrgent: null, isImportant: null, skipPriority: false }
+}
+
 export function parseQuickAddTask(
   input: string,
   clients: QuickAddClient[],
-  unassignedClientId: number
+  options?: QuickAddParseOptions | number
 ): QuickAddParseResult {
-  let working = stripAddTaskPrefix(input.trim())
+  const resolvedOptions = resolveQuickAddOptions(options)
+  const raw = stripAddTaskPrefix(input.trim())
+  const skipPriority = isPrioritySkipped(raw)
+  const eisenhowerParsed = parseEisenhowerFromText(raw)
+
+  let working = stripEisenhowerTokens(raw)
 
   const estimate = parseEstimateMinutes(working) ?? DEFAULT_ESTIMATE_MINUTES
   working = stripMatched(working, /\d+(?:\.\d+)?\s*h(?:ours?)?/i)
@@ -98,15 +173,26 @@ export function parseQuickAddTask(
     working = stripMatched(working, /\bfor\s+.+$/i)
   }
 
+  const matchedClientId =
+    clientOutcome.status === 'matched' ? clientOutcome.client.id : null
+
+  const eisenhower = resolveEisenhower(skipPriority ? 'skip' : eisenhowerParsed, resolvedOptions)
+
   return {
-    title: working || input.trim(),
-    clientId:
-      clientOutcome.status === 'matched' ? clientOutcome.client.id : unassignedClientId,
+    title: working || raw,
+    clientId: resolveClientId(matchedClientId, resolvedOptions),
     estimatedMinutes: estimate,
     deadlineDate,
-    priority: DEFAULT_PRIORITY,
+    ...eisenhower,
     ambiguousClients,
   }
+}
+
+export function quickAddHasResolvedPriority(result: QuickAddParseResult): boolean {
+  return result.skipPriority || hasResolvedEisenhower({
+    isUrgent: result.isUrgent,
+    isImportant: result.isImportant,
+  })
 }
 
 export { parseEstimateMinutes } from '@shared/chat/parsers/parseDuration'

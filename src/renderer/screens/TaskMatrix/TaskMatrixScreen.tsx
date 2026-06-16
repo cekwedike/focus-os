@@ -1,25 +1,38 @@
 import { useState } from 'react'
-import { ScreenCard } from '@renderer/components/layout/ScreenCard'
-import { getScreenDefinition } from '../screenMeta'
-import { TaskCard } from './components/TaskCard'
+import '@renderer/screens/Home/hud/hud.css'
+import './task-matrix.css'
+import { EisenhowerBoard } from './components/EisenhowerBoard'
 import { TaskEditDialog } from './components/TaskEditDialog'
-import { TaskFilters } from './components/TaskFilters'
-import { QuickAddBar } from './components/QuickAddBar'
+import { TaskMatrixBoard } from './components/TaskMatrixBoard'
+import { TaskMatrixComposer } from './components/TaskMatrixComposer'
+import { TaskMatrixHeader } from './components/TaskMatrixHeader'
+import { TaskMatrixJobRail } from './components/TaskMatrixJobRail'
 import { useTaskMatrix } from './hooks/useTaskMatrix'
 import type { TaskWithClient } from '@shared/types/tasks'
 
-const screen = getScreenDefinition('/task-matrix')
-
 export function TaskMatrixScreen(): React.JSX.Element {
   const {
-    tasks,
+    eisenhowerGroups,
+    jobGroups,
     visibleClients,
     clientFilter,
     setClientFilter,
-    priorityFilter,
-    setPriorityFilter,
+    quadrantFilter,
+    setQuadrantFilter,
+    viewMode,
+    setViewMode,
+    composeClientId,
+    setComposeClientId,
+    composeEisenhower,
+    setComposeEisenhower,
+    composeSkipPriority,
+    setComposeSkipPriority,
+    stats,
+    taskCountsByClient,
+    unassignedClientId,
     loading,
     error,
+    previewQuickAdd,
     quickAdd,
     completeTask,
     deleteTask,
@@ -29,35 +42,51 @@ export function TaskMatrixScreen(): React.JSX.Element {
   const [editing, setEditing] = useState<TaskWithClient | null>(null)
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <ScreenCard title={screen.title} description={screen.description} />
-      <TaskFilters
+    <div className="task-matrix-shell hud-shell mx-auto max-w-6xl space-y-6 pb-6">
+      <TaskMatrixHeader stats={stats} viewMode={viewMode} onViewModeChange={setViewMode} />
+      <TaskMatrixJobRail
         clients={visibleClients}
         clientFilter={clientFilter}
-        priorityFilter={priorityFilter}
+        quadrantFilter={quadrantFilter}
+        taskCounts={taskCountsByClient}
         onClientFilterChange={setClientFilter}
-        onPriorityFilterChange={setPriorityFilter}
+        onQuadrantFilterChange={setQuadrantFilter}
       />
-      {loading && <p className="text-sm text-text-muted">Loading tasks...</p>}
-      {error && <p className="text-sm text-red-400">{error}</p>}
-      <div className="space-y-3">
-        {tasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            onComplete={(id) => void completeTask(id)}
-            onEdit={setEditing}
-            onDelete={(id) => void deleteTask(id)}
-          />
-        ))}
-        {!loading && tasks.length === 0 && (
-          <p className="text-sm text-text-muted">No tasks yet. Use Quick Add below.</p>
-        )}
-      </div>
-      <QuickAddBar onSubmit={quickAdd} />
+      {error && <p className="relative z-10 text-sm text-red-400">{error}</p>}
+      {viewMode === 'eisenhower' ? (
+        <EisenhowerBoard
+          groups={eisenhowerGroups}
+          loading={loading}
+          onComplete={(id) => void completeTask(id)}
+          onEdit={setEditing}
+          onDelete={(id) => void deleteTask(id)}
+        />
+      ) : (
+        <TaskMatrixBoard
+          groups={jobGroups}
+          loading={loading}
+          onComplete={(id) => void completeTask(id)}
+          onEdit={setEditing}
+          onDelete={(id) => void deleteTask(id)}
+        />
+      )}
+      <TaskMatrixComposer
+        clients={visibleClients}
+        selectedClientId={composeClientId}
+        composeEisenhower={composeEisenhower}
+        composeSkipPriority={composeSkipPriority}
+        onClientChange={setComposeClientId}
+        onEisenhowerChange={(value, skip) => {
+          setComposeEisenhower(value)
+          setComposeSkipPriority(skip)
+        }}
+        preview={previewQuickAdd}
+        onSubmit={quickAdd}
+      />
       <TaskEditDialog
         task={editing}
         clients={visibleClients}
+        unassignedClientId={unassignedClientId}
         onClose={() => setEditing(null)}
         onSave={updateTask}
       />

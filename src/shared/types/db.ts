@@ -120,6 +120,8 @@ export interface TaskRow {
   title: string
   description: string | null
   priority: number
+  is_urgent: number | null
+  is_important: number | null
   deadline_date: string | null
   estimated_minutes: number | null
   status: TaskStatus

@@ -49,7 +49,7 @@ Valid intents: ${VALID_INTENTS.join(', ')}
 
 Extracted fields by intent:
 - wake_time: {"wakeTime":"HH:MM"} (24h)
-- add_task: {"parseResult":{"title":"...","clientId":number|null,"priority":1-5,"deadlineDate":"YYYY-MM-DD"|null,"estimatedMinutes":number|null}}
+- add_task: {"parseResult":{"title":"...","clientId":number|null,"isUrgent":boolean|null,"isImportant":boolean|null,"skipPriority":boolean,"deadlineDate":"YYYY-MM-DD"|null,"estimatedMinutes":number|null}}
 - start_block/complete_block/extend_block/skip_block: {"blockId":number,"title":"..."}
 - long_break: {"reason":"...","plannedMinutes":number|null}
 - end_break: {}

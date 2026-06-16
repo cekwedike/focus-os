@@ -2,7 +2,8 @@ import type { ChatIntentType, ChatScreenLink } from '@shared/types/chat'
 import type { QuickAddParseResult } from '@shared/parsing/quickAddTask'
 
 export interface ConversationState {
-  pendingPrompt: 'wake_time' | null
+  pendingPrompt: 'wake_time' | 'task_priority' | null
+  pendingTaskDraft: QuickAddParseResult | null
   longBreakActive: boolean
   activeFaithBlockId: number | null
 }
@@ -39,6 +40,13 @@ export interface WakeTimeExtracted {
 export interface AddTaskExtracted {
   parseResult: QuickAddParseResult
   ambiguousClients?: string[]
+}
+
+export interface ConfirmTaskPriorityExtracted {
+  draft: QuickAddParseResult
+  isUrgent: boolean | null
+  isImportant: boolean | null
+  skipPriority: boolean
 }
 
 export interface BlockActionExtracted {
@@ -82,6 +90,7 @@ export interface UpdateTaskExtracted {
 export type IntentExtracted =
   | WakeTimeExtracted
   | AddTaskExtracted
+  | ConfirmTaskPriorityExtracted
   | BlockActionExtracted
   | LongBreakExtracted
   | FaithLogExtracted
@@ -112,6 +121,7 @@ export const CHAT_SCREEN_LINKS: ChatScreenLink[] = [
 export function createDefaultConversationState(): ConversationState {
   return {
     pendingPrompt: null,
+    pendingTaskDraft: null,
     longBreakActive: false,
     activeFaithBlockId: null,
   }

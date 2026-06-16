@@ -5,6 +5,7 @@ import type { IntentExtracted, RouterContext } from './routerContext'
 const EXECUTABLE_INTENTS = new Set<ChatIntentType>([
   'wake_time',
   'add_task',
+  'confirm_task_priority',
   'start_block',
   'complete_block',
   'extend_block',
@@ -33,6 +34,13 @@ export function validateAiExecuteResponse(
   }
 
   if (response.intent === 'wake_time' && context.conversation.pendingPrompt !== 'wake_time') {
+    return null
+  }
+
+  if (
+    response.intent === 'confirm_task_priority' &&
+    context.conversation.pendingPrompt !== 'task_priority'
+  ) {
     return null
   }
 

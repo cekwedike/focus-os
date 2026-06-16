@@ -39,7 +39,7 @@ export interface ChatAiFallbackPayload {
 
 export interface ChatRouterContextSummary {
   today: string
-  pendingPrompt: 'wake_time' | null
+  pendingPrompt: 'wake_time' | 'task_priority' | null
   longBreakActive: boolean
   activeFaithBlockId: number | null
   activeBlockId: number | null

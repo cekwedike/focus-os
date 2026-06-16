@@ -1,10 +1,11 @@
-import type { ChatAttachment } from '@shared/types/chat'
+import type { ChatAttachment, QuickReplyChip } from '@shared/types/chat'
 import type { IntentMatch } from '@shared/chat/routerContext'
 import type {
   AddTaskExtracted,
   AcknowledgeCheckInExtracted,
   BlockActionExtracted,
   CompleteTaskExtracted,
+  ConfirmTaskPriorityExtracted,
   DeleteTaskExtracted,
   UpdateTaskExtracted,
   FaithLogExtracted,
@@ -29,8 +30,13 @@ import {
   taskDeleted,
   taskUpdated,
   taskListIntro,
+  taskPriorityPrompt,
   wakeTimeConfirmedSummary,
 } from '@shared/chat/responseTemplates'
+import { buildTaskPriorityQuickReplies } from '@shared/chat/intents/taskPriorityIntent'
+import { quickAddHasResolvedPriority } from '@shared/parsing/quickAddTask'
+import { formatQuadrantLabel } from '@shared/tasks/eisenhower'
+import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import { buildFaithStreakCard } from '@shared/chat/attachments/buildFaithStreakCard'
 import { buildFocusScoreCard } from '@shared/chat/attachments/buildFocusScoreCard'
 import { buildPlannedVsActualCard } from '@shared/chat/attachments/buildPlannedVsActualCard'
@@ -39,7 +45,8 @@ import { buildTaskSummaryCard } from '@shared/chat/attachments/buildTaskSummaryC
 import type { DailyScheduleRow } from '@shared/types/db'
 
 export interface ConversationPatch {
-  pendingPrompt?: 'wake_time' | null
+  pendingPrompt?: 'wake_time' | 'task_priority' | null
+  pendingTaskDraft?: import('@shared/parsing/quickAddTask').QuickAddParseResult | null
   longBreakActive?: boolean
   longBreakBreakId?: number | null
   longBreakStartedAt?: string | null
@@ -49,6 +56,7 @@ export interface ConversationPatch {
 export interface IntentExecutionResult {
   content?: string
   attachments?: ChatAttachment[]
+  quickReplies?: QuickReplyChip[]
   conversationPatch?: ConversationPatch
   skipDelivery?: boolean
 }
@@ -130,30 +138,95 @@ export async function executeIntent(
     case 'add_task': {
       const extracted = match.extracted as AddTaskExtracted
       const { parseResult } = extracted
+
+      if (!quickAddHasResolvedPriority(parseResult)) {
+        return {
+          content: aiReplyText ?? taskPriorityPrompt(parseResult.title),
+          quickReplies: buildTaskPriorityQuickReplies(),
+          conversationPatch: {
+            pendingPrompt: 'task_priority',
+            pendingTaskDraft: parseResult,
+          },
+        }
+      }
+
       const created = await window.focusOS.tasks.create({
         client_id: parseResult.clientId ?? deps.unassignedClientId,
         title: parseResult.title,
-        priority: parseResult.priority,
+        is_urgent: parseResult.skipPriority ? null : parseResult.isUrgent,
+        is_important: parseResult.skipPriority ? null : parseResult.isImportant,
         deadline_date: parseResult.deadlineDate,
         estimated_minutes: parseResult.estimatedMinutes,
       })
-      const clientName =
-        deps.clients.find((client) => client.id === created.client_id)?.name ?? 'Unassigned'
+      const clientRow = deps.clients.find((client) => client.id === created.client_id)
+      const clientName = clientRow?.name ?? 'Personal'
+      const displayClient = isSystemUnassignedClient(clientName) ? 'Personal' : clientName
+      const quadrantLabel = parseResult.skipPriority
+        ? 'Inbox'
+        : formatQuadrantLabel({
+            isUrgent: parseResult.isUrgent,
+            isImportant: parseResult.isImportant,
+          })
 
       return {
-        content: aiReplyText ?? taskAdded(created.title, clientName),
+        content: aiReplyText ?? taskAdded(created.title, displayClient, quadrantLabel),
         attachments: [
           buildTaskSummaryCard([
             {
               id: created.id,
               title: created.title,
-              client_name: clientName,
+              client_name: displayClient,
               priority: created.priority,
               deadline_date: created.deadline_date,
               status: created.status,
             },
           ]),
         ],
+        conversationPatch: {
+          pendingPrompt: null,
+          pendingTaskDraft: null,
+        },
+      }
+    }
+    case 'confirm_task_priority': {
+      const extracted = match.extracted as ConfirmTaskPriorityExtracted
+      const { draft } = extracted
+      const created = await window.focusOS.tasks.create({
+        client_id: draft.clientId ?? deps.unassignedClientId,
+        title: draft.title,
+        is_urgent: extracted.skipPriority ? null : extracted.isUrgent,
+        is_important: extracted.skipPriority ? null : extracted.isImportant,
+        deadline_date: draft.deadlineDate,
+        estimated_minutes: draft.estimatedMinutes,
+      })
+      const clientRow = deps.clients.find((client) => client.id === created.client_id)
+      const clientName = clientRow?.name ?? 'Personal'
+      const displayClient = isSystemUnassignedClient(clientName) ? 'Personal' : clientName
+      const quadrantLabel = extracted.skipPriority
+        ? 'Inbox'
+        : formatQuadrantLabel({
+            isUrgent: extracted.isUrgent,
+            isImportant: extracted.isImportant,
+          })
+
+      return {
+        content: aiReplyText ?? taskAdded(created.title, displayClient, quadrantLabel),
+        attachments: [
+          buildTaskSummaryCard([
+            {
+              id: created.id,
+              title: created.title,
+              client_name: displayClient,
+              priority: created.priority,
+              deadline_date: created.deadline_date,
+              status: created.status,
+            },
+          ]),
+        ],
+        conversationPatch: {
+          pendingPrompt: null,
+          pendingTaskDraft: null,
+        },
       }
     }
     case 'start_block': {

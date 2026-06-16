@@ -52,6 +52,8 @@ function task(partial: Partial<TaskRow> & Pick<TaskRow, 'id' | 'title'>): TaskRo
     client_id: 1,
     description: null,
     priority: 2,
+    is_urgent: null,
+    is_important: null,
     deadline_date: null,
     estimated_minutes: 60,
     status: 'pending',
