@@ -1,24 +1,15 @@
 import { app, Menu, Tray, nativeImage, type BrowserWindow } from 'electron'
-import { existsSync } from 'fs'
-import { join } from 'path'
 import { setAppQuitting } from '../appState'
+import { resolveAppIconPath } from '../utils/appIcon'
 
 let tray: Tray | null = null
-
-function resolveTrayIconPath(): string | undefined {
-  const candidates = [
-    join(__dirname, '../../resources/icon.png'),
-    join(process.resourcesPath, 'icon.png'),
-  ]
-  return candidates.find((candidate) => existsSync(candidate))
-}
 
 export function createTray(getMainWindow: () => BrowserWindow | null): Tray {
   if (tray) {
     return tray
   }
 
-  const iconPath = resolveTrayIconPath()
+  const iconPath = resolveAppIconPath()
   const icon = iconPath ? nativeImage.createFromPath(iconPath) : nativeImage.createEmpty()
   tray = new Tray(icon.resize({ width: 16, height: 16 }))
   tray.setToolTip('Focus OS')

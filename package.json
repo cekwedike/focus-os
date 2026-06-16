@@ -31,7 +31,8 @@
     "format:check": "prettier --check .",
     "test": "node scripts/run-vitest-electron.mjs",
     "test:watch": "node scripts/run-vitest-electron.mjs --watch",
-    "predev": "pnpm exec electron-builder install-app-deps",
+    "predev": "pnpm generate:icons && pnpm exec electron-builder install-app-deps",
+    "prebuild": "pnpm generate:icons",
     "preview": "electron-vite preview",
     "generate:icons": "node scripts/generate-icons.mjs",
     "generate:installer": "node scripts/generate-installer-assets.mjs",
@@ -88,13 +89,17 @@
       {
         "from": "resources/icon.png",
         "to": "icon.png"
+      },
+      {
+        "from": "resources/icon.ico",
+        "to": "icon.ico"
       }
     ],
     "asarUnpack": [
       "**/node_modules/better-sqlite3/**/*"
     ],
     "win": {
-      "icon": "resources/icon.png",
+      "icon": "resources/icon.ico",
       "signAndEditExecutable": false,
       "target": [
         {

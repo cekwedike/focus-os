@@ -1,6 +1,5 @@
 import './config/loadEnv'
 import { app, BrowserWindow, session, shell } from 'electron'
-import { existsSync } from 'fs'
 import { join } from 'path'
 
 const APP_USER_MODEL_ID = 'com.focusos.app'
@@ -31,17 +30,9 @@ import { startStalenessService, stopStalenessService } from './services/stalenes
 import { startTimerService, stopTimerService } from './services/timerService'
 import { createTray, destroyTray } from './services/trayService'
 import { configureWindowChrome } from './window/windowChrome'
+import { resolveAppIconPath } from './utils/appIcon'
 
 let mainWindow: BrowserWindow | null = null
-
-function resolveWindowIcon(): string | undefined {
-  const candidates = [
-    join(__dirname, '../../resources/icon.png'),
-    join(process.resourcesPath, 'icon.png'),
-  ]
-
-  return candidates.find((candidate) => existsSync(candidate))
-}
 
 function showTrayCloseTipOnce(): void {
   const db = getDatabase()
@@ -72,7 +63,7 @@ function createWindow(): void {
     minHeight: MIN_WINDOW_HEIGHT,
     show: false,
     backgroundColor: APP_BACKGROUND_COLOR,
-    icon: resolveWindowIcon(),
+    icon: resolveAppIconPath(),
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

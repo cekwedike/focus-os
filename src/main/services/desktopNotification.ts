@@ -1,8 +1,7 @@
-import { existsSync } from 'fs'
-import { join } from 'path'
 import { Notification, nativeImage, type BrowserWindow } from 'electron'
 import type { NotificationPreferences } from '@shared/types/settings'
 import type { NotificationType } from '@shared/types/notifications'
+import { resolveAppIconPath } from '../utils/appIcon'
 
 let unsupportedLogged = false
 let mainWindow: BrowserWindow | null = null
@@ -17,12 +16,7 @@ export function setDesktopNotificationWindow(
 }
 
 function resolveNotificationIcon(): Electron.NativeImage | undefined {
-  const candidates = [
-    join(__dirname, '../../resources/icon.png'),
-    join(process.resourcesPath, 'icon.png'),
-  ]
-
-  const iconPath = candidates.find((candidate) => existsSync(candidate))
+  const iconPath = resolveAppIconPath()
   if (!iconPath) {
     return undefined
   }
