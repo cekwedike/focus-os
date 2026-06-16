@@ -16,6 +16,7 @@ win:
         - x64
 
 nsis:
+  include: build/installer.nsh
   oneClick: false
   allowToChangeInstallationDirectory: true
   installerIcon: resources/icon.ico
