@@ -9,6 +9,7 @@ directories:
 
 win:
   icon: resources/icon.png
+  signAndEditExecutable: false
   target:
     - target: nsis
       arch:

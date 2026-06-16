@@ -41,6 +41,8 @@ jobs:
 
       - name: Build Windows executable
         run: pnpm build:exe
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Upload installer artifact
         if: inputs.upload_artifact
