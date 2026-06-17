@@ -100,7 +100,7 @@
     ],
     "win": {
       "icon": "resources/icon.ico",
-      "signAndEditExecutable": false,
+      "signExecutable": false,
       "target": [
         {
           "target": "nsis",
