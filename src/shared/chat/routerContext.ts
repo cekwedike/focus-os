@@ -2,7 +2,7 @@ import type { ChatIntentType, ChatScreenLink } from '@shared/types/chat'
 import type { QuickAddParseResult } from '@shared/parsing/quickAddTask'
 
 export interface ConversationState {
-  pendingPrompt: 'wake_time' | 'task_priority' | null
+  pendingPrompt: 'wake_time' | 'task_priority' | 'morning_confirm' | null
   pendingTaskDraft: QuickAddParseResult | null
   longBreakActive: boolean
   activeFaithBlockId: number | null
@@ -96,6 +96,15 @@ export interface AcceptEmailTaskExtracted {
   emailId: number
 }
 
+export interface SnoozeBlockExtracted {
+  minutes: number
+  blockId: number | null
+}
+
+export interface PauseAutoStartExtracted {
+  minutes: number
+}
+
 export type IntentExtracted =
   | WakeTimeExtracted
   | AddTaskExtracted
@@ -109,6 +118,8 @@ export type IntentExtracted =
   | UpdateTaskExtracted
   | FindMeetingSlotExtracted
   | AcceptEmailTaskExtracted
+  | SnoozeBlockExtracted
+  | PauseAutoStartExtracted
   | Record<string, never>
 
 export interface IntentMatch {

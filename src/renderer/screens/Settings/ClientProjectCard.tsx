@@ -4,12 +4,14 @@ import { formatDurationLabel } from '@renderer/components/ui/DurationInput'
 
 interface ClientProjectCardProps {
   client: ClientProjectRow
+  priorityRank?: number | null
   onEdit: (client: ClientProjectRow) => void
   onDeactivate: (client: ClientProjectRow) => void
 }
 
 export function ClientProjectCard({
   client,
+  priorityRank,
   onEdit,
   onDeactivate,
 }: ClientProjectCardProps): React.JSX.Element {
@@ -32,7 +34,11 @@ export function ClientProjectCard({
           <div>
             <h4 className="font-medium text-text-primary">{client.name}</h4>
             <p className="text-xs text-text-muted">
-              {client.weight_percent}% of flexible time · {fixedSummary}
+              {client.fixed_block_enabled
+                ? fixedSummary
+                : priorityRank
+                  ? `Priority ${priorityRank} · ${fixedSummary}`
+                  : fixedSummary}
             </p>
           </div>
         </div>

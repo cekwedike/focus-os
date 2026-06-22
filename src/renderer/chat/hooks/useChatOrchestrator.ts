@@ -11,14 +11,16 @@ import { CHAT_SCREEN_LINKS } from '@shared/chat/routerContext'
 import { isSystemUnassignedClient } from '@shared/constants/systemClient'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { executeIntent, type ConversationPatch } from '@renderer/chat/executeIntent'
+import type { PendingMorningPlan } from '@renderer/chat/executeIntent'
 import type { AssistantDeliveryInput } from '@shared/chat/assistantDelivery'
 import { buildAttachmentByType } from '@shared/chat/attachments'
 import type { ChatAttachmentType } from '@shared/types/chat'
 import type { ChatRouterContextSummary } from '@shared/types/chatAi'
 
 interface ExtendedConversationState {
-  pendingPrompt: 'wake_time' | 'task_priority' | null
+  pendingPrompt: 'wake_time' | 'task_priority' | 'morning_confirm' | null
   pendingTaskDraft: import('@shared/parsing/quickAddTask').QuickAddParseResult | null
+  pendingMorningPlan: PendingMorningPlan | null
   longBreakActive: boolean
   activeFaithBlockId: number | null
   longBreakBreakId: number | null
@@ -28,6 +30,7 @@ interface ExtendedConversationState {
 function createExtendedConversationState(): ExtendedConversationState {
   return {
     ...createDefaultConversationState(),
+    pendingMorningPlan: null,
     longBreakBreakId: null,
     longBreakStartedAt: null,
   }
@@ -192,6 +195,7 @@ export function useChatOrchestrator({
       conversation: {
         longBreakBreakId: conversation.longBreakBreakId,
         longBreakStartedAt: conversation.longBreakStartedAt,
+        pendingMorningPlan: conversation.pendingMorningPlan,
       },
       nextBlock,
       activeBlock,
@@ -207,6 +211,7 @@ export function useChatOrchestrator({
       defaultBufferPercent,
       conversation.longBreakBreakId,
       conversation.longBreakStartedAt,
+      conversation.pendingMorningPlan,
       nextBlock,
       activeBlock,
       refresh,

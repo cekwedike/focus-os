@@ -16,6 +16,7 @@ const OPENROUTER_MODELS = [
 ]
 
 interface AppSettingsSectionProps {
+  tier?: 'essentials' | 'advanced' | 'all'
   settings: AppSettings
   openrouterKeyConfigured: boolean
   onSettingsChange: (settings: AppSettings) => void
@@ -24,6 +25,7 @@ interface AppSettingsSectionProps {
 }
 
 export function AppSettingsSection({
+  tier = 'all',
   settings,
   openrouterKeyConfigured,
   onSettingsChange,
@@ -39,11 +41,15 @@ export function AppSettingsSection({
     await onUpdate(partial)
   }
 
+  const showEssentials = tier === 'all' || tier === 'essentials'
+  const showAdvanced = tier === 'all' || tier === 'advanced'
+
   return (
     <>
+      {showAdvanced ? (
       <SettingsSectionCard
         title="How Your Day Is Built"
-        description="Defaults Focus OS uses when it plans your schedule each morning."
+        description="Optional tuning for buffer and block sizing. Most people can leave these alone."
       >
         <FormField
           label="Extra Breathing Room (%)"
@@ -96,10 +102,12 @@ export function AppSettingsSection({
           />
         </FormField>
       </SettingsSectionCard>
+      ) : null}
 
+      {showAdvanced ? (
       <SettingsSectionCard
         title="Daily Insight (Optional)"
-        description="AI can write a short daily briefing. Use cloud AI with an API key, or run a local model with Ollama."
+        description="Cloud or local AI for richer chat and daily briefings. Not required for the core assistant."
       >
         <OpenRouterKeyField
           configured={openrouterKeyConfigured}
@@ -191,10 +199,12 @@ export function AppSettingsSection({
           )}
         </div>
       </SettingsSectionCard>
+      ) : null}
 
+      {showAdvanced ? (
       <SettingsSectionCard
         title="Voice"
-        description="Speech-to-text uses OpenRouter Whisper transcription (requires an API key). Text-to-speech uses your system voices. A new assistant message cancels any speech in progress."
+        description="Optional speech input and read-aloud for assistant messages."
       >
         <Toggle
           label="Show Microphone In Chat"
@@ -213,7 +223,9 @@ export function AppSettingsSection({
           progress.
         </p>
       </SettingsSectionCard>
+      ) : null}
 
+      {showEssentials ? (
       <SettingsSectionCard
         title="Reminders"
         description="Control break prompts and other nudges during your day."
@@ -273,6 +285,7 @@ export function AppSettingsSection({
           showState
         />
       </SettingsSectionCard>
+      ) : null}
     </>
   )
 }

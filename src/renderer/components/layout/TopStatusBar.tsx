@@ -1,9 +1,8 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useScheduleContext } from '@renderer/context/ScheduleContext'
 import { useBreakContext } from '@renderer/context/BreakContext'
 import { useFaithEntry } from '@renderer/context/FaithEntryContext'
-import { useFaithStreak } from '@renderer/hooks/useFaithStreak'
-import { formatStreakDays } from '@shared/utils/faithStreak'
+import { assistantLexicon } from '@shared/copy/assistantLexicon'
 import { ActiveBlockTimer } from '@renderer/components/schedule/ActiveBlockTimer'
 import { HudChronoDisplay } from '@renderer/components/chrono/HudChronoDisplay'
 import {
@@ -40,15 +39,45 @@ function MenuIcon(): React.JSX.Element {
   )
 }
 
+function GearIcon(): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-4 w-4">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+      />
+    </svg>
+  )
+}
+
 interface TopStatusBarProps {
-  onToggleNav: () => void
+  onOpenMenu?: () => void
+  onOpenSettings?: () => void
   navOpen: boolean
 }
 
-export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React.JSX.Element {
-  const { activeBlock, dayBundle, refresh } = useScheduleContext()
-  const { longBreakActive, longBreakStartedAt, longBreakPlannedMinutes, openLongBreakModal, endLongBreak } = useBreakContext()
-  const { stats: faithStats } = useFaithStreak()
+function minutesUntil(iso: string | undefined): number | null {
+  if (!iso) {
+    return null
+  }
+  const diff = new Date(iso).getTime() - Date.now()
+  return Math.max(0, Math.ceil(diff / 60_000))
+}
+
+export function TopStatusBar({
+  onOpenMenu,
+  onOpenSettings,
+  navOpen,
+}: TopStatusBarProps): React.JSX.Element {
+  const { activeBlock, refresh } = useScheduleContext()
+  const { longBreakActive, longBreakStartedAt, longBreakPlannedMinutes, openLongBreakModal, endLongBreak } =
+    useBreakContext()
   const { isFaithBlockActive, openFaithEntry } = useFaithEntry()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const notificationCount = useNotificationCenterCount()
@@ -58,32 +87,35 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
     setNotificationsOpen((open) => !open)
   }, [])
 
-  const focusLabel =
-    dayBundle?.focusScore === null || dayBundle?.focusScore === undefined
-      ? '--'
-      : `${dayBundle.focusScore}%`
-
-  const faithStreakLabel =
-    faithStats === null ? '--' : formatStreakDays(faithStats.currentStreak)
+  const nowPlayingLabel = useMemo(() => {
+    if (longBreakActive) {
+      return 'Long break'
+    }
+    if (activeBlock?.status === 'active') {
+      return assistantLexicon.nowPlaying(
+        activeBlock.title,
+        minutesUntil(activeBlock.planned_end)
+      )
+    }
+    return assistantLexicon.awaitingSchedule
+  }, [activeBlock, longBreakActive])
 
   const isLive = Boolean(activeBlock) || longBreakActive
-
-  const blockTitle = longBreakActive
-    ? 'Long Break'
-    : activeBlock?.title ?? 'Awaiting Schedule'
 
   return (
     <header className="focus-status-rail relative z-20">
       <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-        <button
-          type="button"
-          onClick={onToggleNav}
-          className={`focus-btn-ghost !px-2.5 !py-2 md:hidden ${navOpen ? 'border-accent-mint/40' : ''}`}
-          aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={navOpen}
-        >
-          <MenuIcon />
-        </button>
+        {onOpenMenu ? (
+          <button
+            type="button"
+            onClick={onOpenMenu}
+            className={`focus-btn-ghost !px-2.5 !py-2 ${navOpen ? 'border-accent-mint/40' : ''}`}
+            aria-label={assistantLexicon.openMenu}
+            aria-expanded={navOpen}
+          >
+            <MenuIcon />
+          </button>
+        ) : null}
 
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           {isLive ? (
@@ -94,11 +126,10 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
           <HudChronoDisplay showSeconds />
         </div>
 
-        <div className="hidden h-5 w-px shrink-0 bg-surface-border lg:block" aria-hidden="true" />
+        <div className="hidden h-5 w-px shrink-0 bg-surface-border sm:block" aria-hidden="true" />
 
-        <div className="hidden min-w-0 lg:block">
-          <p className="focus-metric-label">Current Block</p>
-          <p className="truncate text-sm font-medium text-text-primary">{blockTitle}</p>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-text-primary">{nowPlayingLabel}</p>
         </div>
 
         {longBreakActive && longBreakStartedAt ? (
@@ -117,14 +148,6 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-        <span className="focus-badge focus-badge-mint !px-2 !py-0.5 text-[11px] sm:!px-2.5 sm:text-xs" title="Faith streak">
-          <span className="hidden sm:inline">Streak </span>
-          {faithStreakLabel}
-        </span>
-        <span className="focus-badge focus-badge-slate !px-2 !py-0.5 text-[11px] sm:!px-2.5 sm:text-xs" title="Focus score">
-          <span className="hidden sm:inline">Focus </span>
-          {focusLabel}
-        </span>
         {isFaithBlockActive ? (
           <button
             type="button"
@@ -153,6 +176,16 @@ export function TopStatusBar({ onToggleNav, navOpen }: TopStatusBarProps): React
             <span className="hidden sm:inline">Long Break</span>
           </button>
         )}
+        {onOpenSettings ? (
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            className="focus-btn-ghost !px-2 !py-1.5 sm:!px-2.5 sm:!py-2"
+            aria-label={assistantLexicon.openSettings}
+          >
+            <GearIcon />
+          </button>
+        ) : null}
         <div className="relative">
           <button
             type="button"

@@ -1,3 +1,4 @@
+import type { AllocationOutput } from '@shared/allocation/types'
 import type { ChatAttachment, QuickReplyChip } from '@shared/types/chat'
 import type { IntentMatch } from '@shared/chat/routerContext'
 import type {
@@ -32,7 +33,9 @@ import {
   taskListIntro,
   taskPriorityPrompt,
   wakeTimeConfirmedSummary,
+  morningPlanPreview,
 } from '@shared/chat/responseTemplates'
+import { assistantLexicon } from '@shared/copy/assistantLexicon'
 import { buildTaskPriorityQuickReplies } from '@shared/chat/intents/taskPriorityIntent'
 import { quickAddHasResolvedPriority } from '@shared/parsing/quickAddTask'
 import { formatQuadrantLabel } from '@shared/tasks/eisenhower'
@@ -41,24 +44,23 @@ import { buildFaithStreakCard } from '@shared/chat/attachments/buildFaithStreakC
 import { buildFocusScoreCard } from '@shared/chat/attachments/buildFocusScoreCard'
 import { buildPlannedVsActualCard } from '@shared/chat/attachments/buildPlannedVsActualCard'
 import { buildScheduleCard } from '@shared/chat/attachments/buildScheduleCard'
+import { buildDayTimelineCard } from '@shared/chat/attachments/buildDayTimelineCard'
 import { buildTaskSummaryCard } from '@shared/chat/attachments/buildTaskSummaryCard'
 import type { DailyScheduleRow } from '@shared/types/db'
 
 export interface ConversationPatch {
-  pendingPrompt?: 'wake_time' | 'task_priority' | null
+  pendingPrompt?: 'wake_time' | 'task_priority' | 'morning_confirm' | null
   pendingTaskDraft?: import('@shared/parsing/quickAddTask').QuickAddParseResult | null
+  pendingMorningPlan?: PendingMorningPlan | null
   longBreakActive?: boolean
   longBreakBreakId?: number | null
   longBreakStartedAt?: string | null
   activeFaithBlockId?: number | null
 }
 
-export interface IntentExecutionResult {
-  content?: string
-  attachments?: ChatAttachment[]
-  quickReplies?: QuickReplyChip[]
-  conversationPatch?: ConversationPatch
-  skipDelivery?: boolean
+export interface PendingMorningPlan {
+  wakeTime: string
+  blocks: AllocationOutput['blocks']
 }
 
 export interface IntentExecutionDeps {
@@ -71,11 +73,32 @@ export interface IntentExecutionDeps {
   conversation: {
     longBreakBreakId: number | null
     longBreakStartedAt: string | null
+    pendingMorningPlan: PendingMorningPlan | null
   }
   nextBlock: DailyScheduleRow | null
   activeBlock: DailyScheduleRow | null
   refresh: () => Promise<void>
   mapBlocks: (blocks: DailyScheduleRow[]) => RouterBlockSummary[]
+}
+
+export interface IntentExecutionResult {
+  content?: string
+  attachments?: ChatAttachment[]
+  quickReplies?: QuickReplyChip[]
+  conversationPatch?: ConversationPatch
+  skipDelivery?: boolean
+}
+
+function mapPreviewBlocks(blocks: AllocationOutput['blocks']): RouterBlockSummary[] {
+  return blocks.map((block, index) => ({
+    id: index,
+    title: block.title,
+    status: 'planned',
+    block_type: block.blockType,
+    protected_subtype: block.protectedSubtype ?? null,
+    planned_start: block.plannedStart,
+    planned_end: block.plannedEnd,
+  }))
 }
 
 function mapBlocksFromRows(blocks: DailyScheduleRow[]): RouterBlockSummary[] {
@@ -114,53 +137,93 @@ export async function executeIntent(
         capacityMinutes: deps.defaultCapacityMinutes,
       })
 
-      const committed = await window.focusOS.schedule.commit({
-        scheduleDate: deps.today,
-        settings: {
-          settings_date: deps.today,
-          wake_time: extracted.wakeTime,
-          sleep_target_time: deps.defaultSleepTime,
-          buffer_percent: deps.defaultBufferPercent,
-          remaining_minutes_at_wake: deps.defaultCapacityMinutes,
-        },
-        blocks: preview.blocks,
-      })
-
-      await deps.refresh()
-      const blocks = mapBlocksFromRows(committed.blocks)
+      const blocks = mapPreviewBlocks(preview.blocks)
+      const hoursUntilWindDown = Math.round(deps.defaultCapacityMinutes / 60)
       const external = await window.focusOS.integrations.externalSummary()
-      const attachments = [
-        buildScheduleCard(blocks),
-        {
-          type: 'external_summary_card' as const,
+      const attachments: ChatAttachment[] = [buildDayTimelineCard(blocks)]
+
+      if (external.nextCalendarEvent || external.actionableEmailCount > 0) {
+        attachments.push({
+          type: 'external_summary_card',
           nextEventTitle: external.nextCalendarEvent?.title ?? null,
           nextEventStart: external.nextCalendarEvent?.startAt ?? null,
           actionableEmailCount: external.actionableEmailCount,
           upcomingEventsToday: external.upcomingEventsToday,
           conflictCount: external.scheduleConflicts.length,
-        },
-      ]
-
-      const proposedAttachments = []
-      const proposedActions = []
-      if (external.scheduleConflicts.length > 0) {
-        proposedActions.push({
-          id: 'replan',
-          label: 'Replan day',
-          sendText: 'replan my day',
-          description: 'Regenerate schedule around calendar conflicts',
-        })
-        proposedAttachments.push({
-          type: 'proposed_actions_card' as const,
-          title: 'Calendar conflicts detected',
-          actions: proposedActions,
         })
       }
 
+      const quickReplies: QuickReplyChip[] = [
+        { label: assistantLexicon.morningConfirmPlan, sendText: 'looks good' },
+        { label: assistantLexicon.morningChangePlan, sendText: 'change something in my plan' },
+      ]
+
       return {
-        content: aiReplyText ?? wakeTimeConfirmedSummary(extracted.wakeTime, blocks),
-        attachments: [...attachments, ...proposedAttachments],
-        conversationPatch: { pendingPrompt: null },
+        content: aiReplyText ?? morningPlanPreview(extracted.wakeTime, blocks, hoursUntilWindDown),
+        attachments,
+        quickReplies,
+        conversationPatch: {
+          pendingPrompt: 'morning_confirm',
+          pendingMorningPlan: {
+            wakeTime: extracted.wakeTime,
+            blocks: preview.blocks,
+          },
+        },
+      }
+    }
+    case 'confirm_morning_plan': {
+      const plan = deps.conversation.pendingMorningPlan
+      if (!plan) {
+        return {
+          content: 'I do not have a plan ready yet. Tell me what time you woke up first.',
+        }
+      }
+
+      const committed = await window.focusOS.schedule.commit({
+        scheduleDate: deps.today,
+        settings: {
+          settings_date: deps.today,
+          wake_time: plan.wakeTime,
+          sleep_target_time: deps.defaultSleepTime,
+          buffer_percent: deps.defaultBufferPercent,
+          remaining_minutes_at_wake: deps.defaultCapacityMinutes,
+        },
+        blocks: plan.blocks,
+      })
+
+      await deps.refresh()
+      await window.focusOS.schedule.autoStartDay()
+
+      const firstBlock = committed.blocks.find((block) => block.status === 'active') ??
+        committed.blocks.find((block) => block.status === 'planned')
+
+      return {
+        content:
+          aiReplyText ??
+          (firstBlock
+            ? `Starting **${firstBlock.title}** now. I'll ping you when it's time for what's next.`
+            : wakeTimeConfirmedSummary(plan.wakeTime, deps.mapBlocks(committed.blocks))),
+        conversationPatch: {
+          pendingPrompt: null,
+          pendingMorningPlan: null,
+        },
+      }
+    }
+    case 'snooze_block': {
+      const extracted = match.extracted as { minutes: number; blockId: number | null }
+      const blockId = extracted.blockId ?? deps.activeBlock?.id ?? deps.nextBlock?.id ?? null
+      if (blockId) {
+        await window.focusOS.schedule.snoozeBlock({ blockId, minutes: extracted.minutes ?? 5 })
+      }
+      return {
+        content: `Snoozed for ${extracted.minutes ?? 5} minutes.`,
+      }
+    }
+    case 'pause_auto_start': {
+      const extracted = match.extracted as { minutes: number }
+      await window.focusOS.schedule.pauseAutoStart({ minutes: extracted.minutes ?? 30 })
+      return {
+        content: `No problem — I'll hold off starting blocks for ${extracted.minutes ?? 30} minutes.`,
       }
     }
     case 'add_task': {

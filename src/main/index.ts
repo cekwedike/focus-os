@@ -34,6 +34,7 @@ import {
   startAssistantOrchestrator,
   stopAssistantOrchestrator,
 } from './services/assistantOrchestrator'
+import { startDayNarrator, stopDayNarrator } from './services/dayNarrator'
 import { configureWindowChrome } from './window/windowChrome'
 import { resolveAppIconPath } from './utils/appIcon'
 
@@ -96,6 +97,7 @@ function createWindow(): void {
     startCheckInService(mainWindow!)
     startGoogleSyncService(getDatabase())
     startAssistantOrchestrator(mainWindow!)
+    startDayNarrator(mainWindow!)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -164,6 +166,7 @@ app.on('before-quit', () => {
   stopCheckInService()
   stopGoogleSyncService()
   stopAssistantOrchestrator()
+  stopDayNarrator()
   setNotificationWindow(null)
   setAppNavigateWindow(null)
   destroyTray()

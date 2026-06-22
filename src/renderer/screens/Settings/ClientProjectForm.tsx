@@ -124,19 +124,6 @@ export function ClientProjectForm({
       <FormField label="Color On Your Schedule">
         <ColorPicker value={values.color} onChange={(color) => setValues({ ...values, color })} />
       </FormField>
-      {!values.fixed_block_enabled && (
-        <FormField
-          label="Share of Remaining Work Time (%)"
-          hint="How much of your unscheduled hours go to this client, relative to your other flexible clients. All active flexible clients should add up to 100%."
-        >
-          <NumberInput
-            value={values.weight_percent}
-            min={0}
-            max={100}
-            onChange={(weight_percent) => setValues({ ...values, weight_percent })}
-          />
-        </FormField>
-      )}
       <Toggle
         label="Include In My Schedule"
         checked={values.is_active}

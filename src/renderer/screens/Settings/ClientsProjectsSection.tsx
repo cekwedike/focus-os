@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import type { ClientProjectRow } from '@shared/types/db'
 import { isSystemUnassignedClient } from '@shared/constants/systemClient'
+import { rebalanceClientWeights } from '@shared/clients/priorityWeights'
 import { ConfirmDialog } from '@renderer/components/ui/ConfirmDialog'
 import { SettingsSectionCard } from '@renderer/components/ui/SettingsSectionCard'
 import { Toggle } from '@renderer/components/ui/Toggle'
-import { WeightTotalBanner } from '@renderer/components/ui/WeightTotalBanner'
 import { ClientProjectCard } from './ClientProjectCard'
 import { ClientProjectForm } from './ClientProjectForm'
+import { ClientPriorityRankList } from './ClientPriorityRankList'
 
 interface ClientsProjectsSectionProps {
   clients: ClientProjectRow[]
@@ -30,18 +31,41 @@ export function ClientsProjectsSection({
     [clients, showInactive]
   )
 
-  const activeWeightTotal = useMemo(
+  const activeFlexibleCount = useMemo(
     () =>
-      clients
-        .filter(
-          (client) =>
-            client.is_active === 1 &&
-            client.fixed_block_enabled !== 1 &&
-            !isSystemUnassignedClient(client.name)
-        )
-        .reduce((sum, client) => sum + client.weight_percent, 0),
+      clients.filter(
+        (client) =>
+          client.is_active === 1 &&
+          client.fixed_block_enabled !== 1 &&
+          !isSystemUnassignedClient(client.name)
+      ).length,
     [clients]
   )
+
+  const persistClients = async (nextClients: ClientProjectRow[]): Promise<void> => {
+    const rebalanced = rebalanceClientWeights(
+      nextClients.map((client) => ({
+        id: client.id,
+        sortOrder: client.sort_order,
+        fixedBlockEnabled: client.fixed_block_enabled === 1,
+        weight_percent: client.weight_percent,
+      }))
+    )
+    const weightById = new Map(rebalanced.map((client) => [client.id, client.weight_percent]))
+
+    const updates = await Promise.all(
+      nextClients.map((client) =>
+        window.focusOS.clients.update({
+          id: client.id,
+          sort_order: client.sort_order,
+          weight_percent: weightById.get(client.id) ?? client.weight_percent,
+        })
+      )
+    )
+
+    const byId = new Map(updates.map((client) => [client.id, client]))
+    onClientsChange(nextClients.map((client) => byId.get(client.id) ?? client))
+  }
 
   const handleSave = async (
     values: Parameters<typeof window.focusOS.clients.create>[0] & { id?: number }
@@ -60,13 +84,18 @@ export function ClientsProjectsSection({
         reminder_interval_minutes: values.reminder_interval_minutes,
         reminder_label: values.reminder_label,
       })
-      onClientsChange(clients.map((client) => (client.id === updated.id ? updated : client)))
+      const next = clients.map((client) => (client.id === updated.id ? updated : client))
+      await persistClients(next)
       setEditing(null)
       return
     }
 
-    const created = await window.focusOS.clients.create(values)
-    onClientsChange([...clients, created])
+    const maxSort = clients.reduce((max, client) => Math.max(max, client.sort_order), -1)
+    const created = await window.focusOS.clients.create({
+      ...values,
+      sort_order: maxSort + 1,
+    })
+    await persistClients([...clients, created])
     setCreating(false)
   }
 
@@ -78,16 +107,25 @@ export function ClientsProjectsSection({
       id: deactivating.id,
       is_active: false,
     })
-    onClientsChange(clients.map((client) => (client.id === updated.id ? updated : client)))
+    const next = clients.map((client) => (client.id === updated.id ? updated : client))
+    await persistClients(next)
     setDeactivating(null)
   }
 
   return (
     <SettingsSectionCard
-      title="Clients And Projects"
-      description="Who you work for and how much of your flexible day goes to each. Percentages should add up to 100%."
+      title="My Jobs"
+      description="Who you work for and what matters most today. Higher priority clients get more flexible time."
     >
-      <WeightTotalBanner total={activeWeightTotal} />
+      {activeFlexibleCount > 1 ? (
+        <ClientPriorityRankList
+          clients={clients}
+          onReorder={(next) => {
+            void persistClients(next)
+          }}
+        />
+      ) : null}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Toggle
           label="Show Paused Clients"
@@ -108,10 +146,18 @@ export function ClientsProjectsSection({
       </div>
 
       <div className="space-y-3">
-        {visibleClients.map((client) => (
+        {visibleClients.map((client, index) => (
           <ClientProjectCard
             key={client.id}
             client={client}
+            priorityRank={
+              client.fixed_block_enabled === 1
+                ? null
+                : visibleClients
+                    .filter((row) => row.is_active === 1 && row.fixed_block_enabled !== 1)
+                    .sort((a, b) => a.sort_order - b.sort_order)
+                    .findIndex((row) => row.id === client.id) + 1 || index + 1
+            }
             onEdit={(selected) => {
               setEditing(selected)
               setCreating(false)
@@ -121,7 +167,7 @@ export function ClientsProjectsSection({
         ))}
         {visibleClients.length === 0 && (
           <p className="text-sm text-text-muted">
-            No clients yet. Tap Add Client to set up who you work for.
+            No clients yet. Say &quot;set up my jobs&quot; in chat or tap Add Client.
           </p>
         )}
       </div>

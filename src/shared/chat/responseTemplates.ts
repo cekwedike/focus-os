@@ -13,6 +13,29 @@ export function wakeTimePrompt(): string {
   return 'What time did you wake up?'
 }
 
+export function morningPlanPreview(
+  wakeTime: string,
+  blocks: RouterBlockSummary[],
+  hoursUntilWindDown?: number | null
+): string {
+  const hoursLine =
+    hoursUntilWindDown && hoursUntilWindDown > 0
+      ? `You've got about ${hoursUntilWindDown} hour${hoursUntilWindDown === 1 ? '' : 's'} before wind-down. `
+      : ''
+
+  const blockNames = blocks
+    .filter((block) => block.block_type !== 'buffer' && block.block_type !== 'break')
+    .slice(0, 6)
+    .map((block) => block.title)
+
+  const flow =
+    blockNames.length > 0
+      ? `Here's how I'd run today: ${blockNames.join(' → ')}${blocks.length > blockNames.length ? ' → …' : ''}.`
+      : 'I could not build blocks yet — check your clients and tasks.'
+
+  return `Got it — wake time ${wakeTime}. ${hoursLine}${flow} Tap **Looks good** when you're ready and I'll start your first block.`
+}
+
 export function wakeTimeConfirmedSummary(
   wakeTime: string,
   blocks: RouterBlockSummary[]

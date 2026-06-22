@@ -1,16 +1,15 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { ChatInputBar } from '@renderer/chat/ChatInputBar'
 import { ChatThread } from '@renderer/chat/ChatThread'
 import { useProactiveGreeting } from '@renderer/chat/hooks/useProactiveGreeting'
 import { useChatContext } from '@renderer/context/useChatContext'
-import { HudWaveform } from '../hud/HudWaveform'
-import { HudScanline } from '../hud/HudScanline'
+import { assistantLexicon } from '@shared/copy/assistantLexicon'
 import { DayPanelDrawer } from './DayPanelDrawer'
 import { ConfirmDialog } from '@renderer/components/modals/ConfirmDialog'
-import '../hud/hud.css'
 
 export function ChatPanel(): React.JSX.Element {
+  const navigate = useNavigate()
   const {
     initialized,
     greetingComplete,
@@ -48,52 +47,52 @@ export function ChatPanel(): React.JSX.Element {
     deliverAssistantMessages,
   })
 
-  const systemActive = initialized && (aiThinking || isTyping)
-
   return (
-    <div className="hud-command-frame relative flex min-h-0 min-w-[18rem] flex-1 flex-col overflow-hidden">
-      <HudScanline />
-      <span className="hud-corner-bracket hud-corner-tl" aria-hidden="true" />
-      <span className="hud-corner-bracket hud-corner-tr" aria-hidden="true" />
+    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-surface-base">
+      <header className="relative z-10 flex shrink-0 items-center justify-between gap-3 border-b border-surface-border px-4 py-3 sm:px-6">
+        <div className="min-w-0">
+          <h1 className="truncate font-display text-lg font-semibold text-text-primary sm:text-xl">
+            {assistantLexicon.appName}
+          </h1>
+          <p className="hidden truncate text-xs text-text-muted sm:block">{assistantLexicon.tagline}</p>
+        </div>
 
-      <header className="relative z-10 shrink-0 border-b border-accent-cyan/15 px-3 py-3 sm:px-5 sm:py-4">
-        <div className="flex items-start justify-between gap-3">
-          <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            className="focus-btn-ghost text-xs"
+            onClick={() => setDayPanelOpen(true)}
           >
-            <p className="hud-kicker">Command Interface</p>
-            <h1 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
-              <span className="text-gradient-mint">Focus</span>
-              <span className="text-text-primary"> Assistant</span>
-            </h1>
-            <p className="mt-1 hidden max-w-md text-xs text-text-muted sm:block">
-              Voice or type — &quot;what&apos;s next&quot;, &quot;extend by 5&quot;, /menu
-            </p>
-          </motion.div>
-
-          <div className="flex shrink-0 flex-col items-end gap-2">
-            <HudWaveform active={systemActive || initialized} className="hidden sm:flex" />
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="focus-btn-ghost text-xs"
-                onClick={handleClearChat}
-                disabled={sending || isTyping || aiThinking}
-                title="Clear conversation"
-              >
-                Clear
-              </button>
-              <button
-                type="button"
-                className="focus-btn-ghost text-xs lg:hidden"
-                onClick={() => setDayPanelOpen(true)}
-              >
-                Telemetry
-              </button>
-            </div>
-          </div>
+            {assistantLexicon.dayDetails}
+          </button>
+          <button
+            type="button"
+            className="focus-btn-ghost text-xs"
+            onClick={handleClearChat}
+            disabled={sending || isTyping || aiThinking}
+            title="Clear conversation"
+          >
+            {assistantLexicon.clearChat}
+          </button>
+          <button
+            type="button"
+            className="focus-btn-ghost !px-2.5 !py-2"
+            onClick={() => navigate('/settings')}
+            aria-label={assistantLexicon.openSettings}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-4 w-4">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+              />
+            </svg>
+          </button>
         </div>
       </header>
 

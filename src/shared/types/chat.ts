@@ -108,6 +108,26 @@ export interface MeetingSlotsCardAttachment {
   slots: Array<{ startAt: string; endAt: string; reason: string }>
 }
 
+export interface NowPlayingCardAttachment {
+  type: 'now_playing_card'
+  blockId: number
+  title: string
+  plannedStart: string
+  plannedEnd: string
+}
+
+export interface CountdownCardAttachment {
+  type: 'countdown_card'
+  blockId: number
+  title: string
+  secondsUntil: number
+}
+
+export interface DayTimelineCardAttachment {
+  type: 'day_timeline_card'
+  blocks: ScheduleCardBlock[]
+}
+
 export type ChatAttachment =
   | ScheduleCardAttachment
   | TaskSummaryCardAttachment
@@ -118,6 +138,9 @@ export type ChatAttachment =
   | SuggestedTasksCardAttachment
   | ProposedActionsCardAttachment
   | MeetingSlotsCardAttachment
+  | NowPlayingCardAttachment
+  | CountdownCardAttachment
+  | DayTimelineCardAttachment
 
 export type ChatAttachmentType = ChatAttachment['type']
 
@@ -156,6 +179,9 @@ export type ChatIntentType =
   | 'find_meeting_slot'
   | 'triage_inbox'
   | 'accept_email_task'
+  | 'confirm_morning_plan'
+  | 'snooze_block'
+  | 'pause_auto_start'
   | 'unrecognized'
 
 export interface ChatScreenLink {

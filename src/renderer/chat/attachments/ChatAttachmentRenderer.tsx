@@ -8,6 +8,9 @@ import { ExternalSummaryCardAttachmentView } from './ExternalSummaryCardAttachme
 import { SuggestedTasksCardAttachmentView } from './SuggestedTasksCardAttachment'
 import { MeetingSlotsCardAttachmentView } from './MeetingSlotsCardAttachment'
 import { ProposedActionsCardAttachmentView } from './ProposedActionsCardAttachment'
+import { NowPlayingCardAttachmentView } from './NowPlayingCardAttachment'
+import { CountdownCardAttachmentView } from './CountdownCardAttachment'
+import { DayTimelineCardAttachmentView } from './DayTimelineCardAttachment'
 
 interface ChatAttachmentRendererProps {
   attachment: ChatAttachment
@@ -46,6 +49,12 @@ export function ChatAttachmentRenderer({
       return (
         <ProposedActionsCardAttachmentView attachment={attachment} onAction={onSendText} />
       )
+    case 'now_playing_card':
+      return <NowPlayingCardAttachmentView attachment={attachment} onSendText={onSendText} />
+    case 'countdown_card':
+      return <CountdownCardAttachmentView attachment={attachment} />
+    case 'day_timeline_card':
+      return <DayTimelineCardAttachmentView attachment={attachment} />
     default:
       return null
   }

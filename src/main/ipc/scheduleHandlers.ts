@@ -164,4 +164,40 @@ export function registerScheduleHandlers(): void {
       return failure('SCHEDULE_REALLOCATE_FAILED', String(error))
     }
   })
+
+  ipcMain.handle('schedule:auto-start-day', async () => {
+    try {
+      const { autoStartFirstBlockOfDay } = await import('../services/dayNarrator')
+      autoStartFirstBlockOfDay()
+      return success({ started: true })
+    } catch (error) {
+      return failure('SCHEDULE_AUTO_START_FAILED', String(error))
+    }
+  })
+
+  ipcMain.handle(
+    'schedule:snooze-block',
+    async (_event, payload: { blockId: number; minutes?: number }) => {
+      try {
+        const { handleSnoozeBlock } = await import('../services/dayNarrator')
+        handleSnoozeBlock(payload.blockId, payload.minutes ?? 5)
+        return success({ snoozed: true })
+      } catch (error) {
+        return failure('SCHEDULE_SNOOZE_FAILED', String(error))
+      }
+    }
+  )
+
+  ipcMain.handle(
+    'schedule:pause-auto-start',
+    async (_event, payload: { minutes?: number }) => {
+      try {
+        const { handlePauseAutoStart } = await import('../services/dayNarrator')
+        handlePauseAutoStart(payload.minutes ?? 30)
+        return success({ paused: true })
+      } catch (error) {
+        return failure('SCHEDULE_PAUSE_AUTO_START_FAILED', String(error))
+      }
+    }
+  )
 }

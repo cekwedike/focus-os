@@ -4,7 +4,9 @@ import { getActiveBlock } from '../db/repositories/dailyScheduleRepository'
 import { getActiveLongBreak } from '../db/repositories/breaksLogRepository'
 import { getAllSettings } from '../db/repositories/appSettingsRepository'
 import { MICRO_BREAK_NOTIFICATION_ACTIONS } from '@shared/notifications/notificationActions'
+import { isBlockSnoozed, isAutoStartPaused } from './autoStartService'
 import { autoCompleteAndAdvance, tryActivateDueBlock } from './blockProgressionService'
+import { narrateBlockStarted } from './dayNarrator'
 import { tickBlockNotifications } from './blockNotificationService'
 import { tickFaithReminder } from './faithReminderService'
 import { notify } from './notificationService'
@@ -38,7 +40,7 @@ function emitScheduleBlockChanged(payload: {
 }
 
 function tickDueBlockActivation(): void {
-  if (isWorkPaused()) {
+  if (isWorkPaused() || isAutoStartPaused()) {
     return
   }
 
@@ -47,6 +49,8 @@ function tickDueBlockActivation(): void {
   if (!started) {
     return
   }
+
+  narrateBlockStarted(started)
 
   emitScheduleBlockChanged({
     scheduleDate,

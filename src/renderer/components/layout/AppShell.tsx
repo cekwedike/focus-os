@@ -1,4 +1,5 @@
 import { useCallback, useState, type ReactNode } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { TopStatusBar } from './TopStatusBar'
 import { LongBreakModal } from '@renderer/components/modals/LongBreakModal'
 import { ReplanSummaryModal } from '@renderer/components/modals/ReplanSummaryModal'
@@ -10,16 +11,28 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps): React.JSX.Element {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const closeMobileNav = useCallback(() => setMobileNavOpen(false), [])
-  const toggleMobileNav = useCallback(() => setMobileNavOpen((open) => !open), [])
+  const [navOpen, setNavOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isHome = location.pathname === '/' || location.pathname === '/dashboard'
+
+  const closeNav = useCallback(() => setNavOpen(false), [])
+  const openNav = useCallback(() => setNavOpen(true), [])
+  const openSettings = useCallback(() => {
+    navigate('/settings')
+    setNavOpen(false)
+  }, [navigate])
 
   return (
     <div className="focus-app-bg flex h-screen min-h-screen flex-col overflow-hidden">
-      <TopStatusBar onToggleNav={toggleMobileNav} navOpen={mobileNavOpen} />
+      <TopStatusBar
+        onOpenMenu={isHome ? openNav : undefined}
+        onOpenSettings={isHome ? openSettings : undefined}
+        navOpen={navOpen}
+      />
       <PersistentNotificationBanner />
       <div className="relative z-10 flex min-h-0 min-w-0 flex-1">
-        <ScreenIconRail mobileOpen={mobileNavOpen} onMobileClose={closeMobileNav} />
+        {navOpen ? <ScreenIconRail mobileOpen={navOpen} onMobileClose={closeNav} /> : null}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{children}</main>
       </div>
       <LongBreakModal />

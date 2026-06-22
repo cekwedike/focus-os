@@ -41,11 +41,13 @@ export function ChatProvider({ children }: { children: ReactNode }): React.JSX.E
       content: string
       quickReplies?: QuickReplyChip[]
       notificationId?: number
+      attachments?: import('@shared/types/chat').ChatAttachment[]
     }): Promise<void> => {
       await deliverAssistantMessage({
         content: input.content,
         quickReplies: input.quickReplies,
         notificationId: input.notificationId,
+        attachments: input.attachments,
       })
     },
     [deliverAssistantMessage]

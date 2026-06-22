@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ScreenCard } from '@renderer/components/layout/ScreenCard'
 import { getScreenDefinition } from '../screenMeta'
 import { AppSettingsSection } from './AppSettingsSection'
@@ -12,7 +12,10 @@ import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesConte
 
 const screen = getScreenDefinition('/settings')
 
+type SettingsTab = 'essentials' | 'advanced'
+
 export function SettingsScreen(): React.JSX.Element {
+  const [tab, setTab] = useState<SettingsTab>('essentials')
   const { refreshPreferences, applyPreferences } = useDisplayPreferences()
   const {
     clients,
@@ -46,15 +49,28 @@ export function SettingsScreen(): React.JSX.Element {
       <ScreenCard title={screen.title} description={screen.description}>
         {loading && <p className="mt-4 text-sm text-text-muted">Loading your settings...</p>}
         {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+        {!loading && !error ? (
+          <div className="mt-4 flex gap-2">
+            <button
+              type="button"
+              className={tab === 'essentials' ? 'focus-btn-primary' : 'focus-btn-ghost'}
+              onClick={() => setTab('essentials')}
+            >
+              Essentials
+            </button>
+            <button
+              type="button"
+              className={tab === 'advanced' ? 'focus-btn-primary' : 'focus-btn-ghost'}
+              onClick={() => setTab('advanced')}
+            >
+              Advanced
+            </button>
+          </div>
+        ) : null}
       </ScreenCard>
 
-      {!loading && !error && settings && (
+      {!loading && !error && settings && tab === 'essentials' && (
         <>
-          <ClientsProjectsSection clients={clients} onClientsChange={setClients} />
-          <ProtectedBlocksSection
-            protectedBlocks={protectedBlocks}
-            onProtectedBlocksChange={setProtectedBlocks}
-          />
           <DisplayPreferencesSection
             settings={settings}
             onSettingsChange={setSettings}
@@ -63,17 +79,36 @@ export function SettingsScreen(): React.JSX.Element {
               await refreshPreferences()
             }}
           />
-          <StartupBackgroundSection
-            settings={settings}
-            onSettingsChange={setSettings}
-            onUpdate={updateSettings}
-          />
+          <ClientsProjectsSection clients={clients} onClientsChange={setClients} />
           <GoogleConnectSection
             settings={settings}
             onSettingsChange={setSettings}
             onUpdate={updateSettings}
           />
           <AppSettingsSection
+            tier="essentials"
+            settings={settings}
+            openrouterKeyConfigured={openrouterKeyConfigured}
+            onSettingsChange={setSettings}
+            onUpdate={updateSettings}
+            onOpenrouterKeyConfiguredChange={setOpenrouterKeyConfigured}
+          />
+        </>
+      )}
+
+      {!loading && !error && settings && tab === 'advanced' && (
+        <>
+          <ProtectedBlocksSection
+            protectedBlocks={protectedBlocks}
+            onProtectedBlocksChange={setProtectedBlocks}
+          />
+          <StartupBackgroundSection
+            settings={settings}
+            onSettingsChange={setSettings}
+            onUpdate={updateSettings}
+          />
+          <AppSettingsSection
+            tier="advanced"
             settings={settings}
             openrouterKeyConfigured={openrouterKeyConfigured}
             onSettingsChange={setSettings}

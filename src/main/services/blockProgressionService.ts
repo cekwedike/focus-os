@@ -27,6 +27,7 @@ import {
 } from '../db/repositories/dailyScheduleRepository'
 import { listProtectedBlocks } from '../db/repositories/protectedBlocksRepository'
 import { completeBlock, startBlock } from './scheduleService'
+import { isBlockSnoozed, isAutoStartPaused } from './autoStartService'
 import { notify } from './notificationService'
 import { resetBlockNotificationState } from './blockNotificationService'
 import { resetPauseTracking, isWorkPaused } from './workPauseService'
@@ -42,8 +43,12 @@ function tryStartNextDueBlock(
   scheduleDate: string,
   nowMs: number
 ): DailyScheduleRow | null {
+  if (isAutoStartPaused()) {
+    return null
+  }
+
   const next = findNextPlannedBlock(db, scheduleDate)
-  if (!next || !isBlockStartDue(next, nowMs)) {
+  if (!next || isBlockSnoozed(next.id) || !isBlockStartDue(next, nowMs)) {
     return null
   }
 

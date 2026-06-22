@@ -18,6 +18,7 @@ import { applyMaxBufferMinutesMigration } from './016_max_buffer_minutes'
 import { applyTaskEisenhowerMigration } from './017_task_eisenhower'
 import { applyGoogleIntegrationsMigration } from './018_google_integrations'
 import { applyAssistantBriefingsMigration } from './019_assistant_briefings'
+import { applySkipWizardIfClientsExistMigration } from './020_skip_wizard_if_clients_exist'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -159,6 +160,13 @@ const migrations: MigrationDefinition[] = [
     name: 'assistant_briefings',
     up: (db) => {
       applyAssistantBriefingsMigration(db)
+    },
+  },
+  {
+    version: 20,
+    name: 'skip_wizard_if_clients_exist',
+    up: (db) => {
+      applySkipWizardIfClientsExistMigration(db)
     },
   },
 ]

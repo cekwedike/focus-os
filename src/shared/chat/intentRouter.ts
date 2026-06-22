@@ -10,6 +10,7 @@ import { matchQueryScheduleIntent, matchQueryStreakIntent } from './intents/quer
 import { matchQueryStatusIntent, matchQueryTasksIntent, matchCompleteTaskIntent, matchDeleteTaskIntent, matchUpdateTaskIntent, matchReplanDayIntent } from './intents/statusAndTaskIntent'
 import { matchFindMeetingSlotIntent } from './intents/findMeetingSlotIntent'
 import { matchAcceptEmailTaskIntent, matchTriageInboxIntent } from './intents/integrationIntent'
+import { matchConfirmMorningPlanIntent, matchSnoozeIntent } from './intents/morningRitualIntent'
 import { buildUnrecognizedMatch } from './intents/unrecognizedIntent'
 import { matchWakeTimeIntent } from './intents/wakeTimeIntent'
 import type { IntentMatch, RouterContext } from './routerContext'
@@ -40,6 +41,11 @@ const INTENT_MATCHERS: IntentMatcher[] = [
   (input, context) => matchFindMeetingSlotIntent(input, { today: context.today }),
   matchTriageInboxIntent,
   matchAcceptEmailTaskIntent,
+  (input, context) => matchSnoozeIntent(input, { activeBlockId: context.activeBlockId }),
+  (input, context) =>
+    context.conversation.pendingPrompt === 'morning_confirm'
+      ? matchConfirmMorningPlanIntent(input)
+      : null,
 ]
 
 export function classifyIntent(input: string, context: RouterContext): IntentMatch {

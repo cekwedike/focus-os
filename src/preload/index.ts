@@ -71,6 +71,9 @@ const invokeChannels: IpcInvokeChannel[] = [
   'schedule:extend-block',
   'schedule:skip-block',
   'schedule:update-block',
+  'schedule:auto-start-day',
+  'schedule:snooze-block',
+  'schedule:pause-auto-start',
   'tasks:list',
   'tasks:get',
   'tasks:create',
@@ -219,6 +222,11 @@ const focusOSApi: FocusOSApi = {
     skipBlock: async (payload) => unwrap(await createInvoke('schedule:skip-block', payload)),
     updateBlock: async (payload) => unwrap(await createInvoke('schedule:update-block', payload)),
     reallocate: async (payload) => unwrap(await createInvoke('schedule:reallocate', payload)),
+    autoStartDay: async () => unwrap(await createInvoke('schedule:auto-start-day')),
+    snoozeBlock: async (payload: { blockId: number; minutes?: number }) =>
+      unwrap(await createInvoke('schedule:snooze-block', payload)),
+    pauseAutoStart: async (payload: { minutes?: number }) =>
+      unwrap(await createInvoke('schedule:pause-auto-start', payload)),
   },
   breaks: {
     list: async (filters) => unwrap(await createInvoke('breaks:list', filters)),

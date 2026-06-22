@@ -2,9 +2,15 @@ import type { NotificationActionResponse } from '@shared/types/notifications'
 import { getDatabase } from '../db/connection'
 import { createBreak } from '../db/repositories/breaksLogRepository'
 import { acknowledgeCheckIn } from './checkInService'
-import { completeAndAdvance, extendActiveBlock } from './blockProgressionService'
+import {
+  completeAndAdvance,
+  extendActiveBlock,
+  skipBlock,
+  tryActivateDueBlock,
+} from './blockProgressionService'
 import { resetMicroBreakAccumulator } from './timerService'
 import { emitAppNavigate } from './appNavigateBridge'
+import { handlePauseAutoStart, handleSnoozeBlock } from './dayNarrator'
 
 const MICRO_ACTIVITY_MINUTES: Record<string, number> = {
   read: 10,
@@ -81,6 +87,33 @@ export function routeNotificationAction(input: {
     }
 
     if (actionId === 'block.got_it') {
+      return { acknowledged: true }
+    }
+  }
+
+  if (type === 'generic') {
+    const blockId = getMetadataNumber(metadata, 'blockId')
+
+    if (actionId === 'ready' && blockId !== null) {
+      const started = tryActivateDueBlock(getDatabase(), todayDateString())
+      if (started) {
+        return { acknowledged: true }
+      }
+      return { acknowledged: true }
+    }
+
+    if (actionId === 'snooze_5' && blockId !== null) {
+      handleSnoozeBlock(blockId, 5)
+      return { acknowledged: true }
+    }
+
+    if (actionId === 'skip' && blockId !== null) {
+      skipBlock(getDatabase(), blockId)
+      return { acknowledged: true }
+    }
+
+    if (actionId === 'not_ready') {
+      handlePauseAutoStart(30)
       return { acknowledged: true }
     }
   }

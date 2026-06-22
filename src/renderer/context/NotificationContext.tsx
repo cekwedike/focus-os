@@ -10,6 +10,7 @@ import {
 import type { ActiveNotificationSummary, NotificationDispatchedPayload } from '@shared/types/notifications'
 import type { DueCheckInEntry } from '@shared/types/ipc'
 import { mapNotificationActionsToChips } from '@shared/notifications/mapActionsToChips'
+import { buildNotificationAttachments } from '@shared/chat/attachments/buildNotificationAttachments'
 
 interface NotificationContextValue {
   activeNotifications: ActiveNotificationSummary[]
@@ -34,6 +35,7 @@ export function NotificationProvider({
     content: string
     quickReplies?: ReturnType<typeof mapNotificationActionsToChips>
     notificationId?: number
+    attachments?: import('@shared/types/chat').ChatAttachment[]
   }) => Promise<void>
   resolveNotificationMessage: (notificationId: number) => void
   onNavigate: (path: string) => void
@@ -104,6 +106,7 @@ export function NotificationProvider({
           content: briefingContent ?? payload.message,
           quickReplies: mapNotificationActionsToChips(payload.actions),
           notificationId: payload.id,
+          attachments: buildNotificationAttachments(payload.metadata),
         })
       }
 

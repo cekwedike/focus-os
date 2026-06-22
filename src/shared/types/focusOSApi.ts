@@ -134,6 +134,9 @@ export interface FocusOSApi {
     reallocate(payload: ScheduleReallocatePayload): Promise<
       AllocationOutput & { replanSummary: import('@shared/allocation/types').ReplanSummary; dayBundle: DayBundle }
     >
+    autoStartDay(): Promise<{ started: boolean }>
+    snoozeBlock(payload: { blockId: number; minutes?: number }): Promise<{ snoozed: boolean }>
+    pauseAutoStart(payload: { minutes?: number }): Promise<{ paused: boolean }>
   }
   breaks: {
     list(filters?: BreakListFilters): Promise<BreakLogRow[]>
