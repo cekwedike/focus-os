@@ -16,6 +16,8 @@ import { applyVoiceSettingsMigration } from './014_voice_settings'
 import { applyTimezoneLegacyFixMigration } from './015_timezone_legacy_fix'
 import { applyMaxBufferMinutesMigration } from './016_max_buffer_minutes'
 import { applyTaskEisenhowerMigration } from './017_task_eisenhower'
+import { applyGoogleIntegrationsMigration } from './018_google_integrations'
+import { applyAssistantBriefingsMigration } from './019_assistant_briefings'
 import { seedInitialData } from './seed'
 
 export interface MigrationDefinition {
@@ -143,6 +145,20 @@ const migrations: MigrationDefinition[] = [
     name: 'task_eisenhower',
     up: (db) => {
       applyTaskEisenhowerMigration(db)
+    },
+  },
+  {
+    version: 18,
+    name: 'google_integrations',
+    up: (db) => {
+      applyGoogleIntegrationsMigration(db)
+    },
+  },
+  {
+    version: 19,
+    name: 'assistant_briefings',
+    up: (db) => {
+      applyAssistantBriefingsMigration(db)
     },
   },
 ]

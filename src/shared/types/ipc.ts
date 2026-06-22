@@ -72,6 +72,17 @@ export type IpcInvokeChannel =
   | 'voice:transcribe'
   | 'notification:list-active'
   | 'notification:action'
+  | 'google:status'
+  | 'google:connect'
+  | 'google:disconnect'
+  | 'google:sync'
+  | 'google:list-calendars'
+  | 'integrations:external-summary'
+  | 'integrations:suggested-tasks'
+  | 'integrations:accept-email-task'
+  | 'integrations:find-meeting-slots'
+  | 'assistant:list-briefings'
+  | 'onboarding:complete'
 
 export type IpcEventChannel =
   | 'app:navigate'

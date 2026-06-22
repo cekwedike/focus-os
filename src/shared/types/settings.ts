@@ -8,6 +8,22 @@ export interface NotificationPreferences {
   insightReady: boolean
   clientReminder: boolean
   blockReminder: boolean
+  assistantBriefing: boolean
+  preMeeting: boolean
+}
+
+export interface AssistantPreferences {
+  morningEnabled: boolean
+  hourlyEnabled: boolean
+  preMeetingEnabled: boolean
+  morningHour: number
+}
+
+export interface GoogleIntegrationSettings {
+  syncIntervalMinutes: number
+  calendarIds: string[]
+  gmailEnabled: boolean
+  calendarEnabled: boolean
 }
 
 export interface AppSettings {
@@ -35,6 +51,10 @@ export interface AppSettings {
   sidebarExpanded: boolean
   launchAtLogin: boolean
   trayCloseTipShown: boolean
+  googleSyncIntervalMinutes: number
+  assistant: AssistantPreferences
+  google: GoogleIntegrationSettings
+  freelancerWizardComplete: boolean
 }
 
 export type AppSettingsUpdate = Partial<AppSettings>

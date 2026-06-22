@@ -6,6 +6,7 @@ import { FocusHudCard } from './cards/FocusHudCard'
 import { FaithHudCard } from './cards/FaithHudCard'
 import { BreakHudCard } from './cards/BreakHudCard'
 import { StalenessHudCard } from './cards/StalenessHudCard'
+import { ExternalHudCard } from './cards/ExternalHudCard'
 import { HudScanline } from './HudScanline'
 import './hud.css'
 
@@ -50,6 +51,7 @@ export function HudTelemetryPanel(): React.JSX.Element {
           <div className="col-span-full sm:col-span-2">
             <StalenessHudCard />
           </div>
+          <ExternalHudCard />
         </div>
       </motion.div>
     </aside>

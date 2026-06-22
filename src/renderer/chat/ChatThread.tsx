@@ -42,6 +42,8 @@ export function ChatThread(): React.JSX.Element {
             key={message.id}
             message={message}
             onQuickReply={(msg, chip) => void handleQuickReply(msg, chip)}
+            onSendText={(text) => void sendMessage(text)}
+            onAcceptEmailTask={(emailId) => void sendMessage(`accept email task ${emailId}`)}
             quickRepliesDisabled={sending || isTyping || aiThinking}
           />
         ))}

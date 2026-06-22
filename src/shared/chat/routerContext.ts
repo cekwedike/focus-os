@@ -87,6 +87,15 @@ export interface UpdateTaskExtracted {
   previousTitle: string
 }
 
+export interface FindMeetingSlotExtracted {
+  durationMinutes: number
+  scheduleDate: string
+}
+
+export interface AcceptEmailTaskExtracted {
+  emailId: number
+}
+
 export type IntentExtracted =
   | WakeTimeExtracted
   | AddTaskExtracted
@@ -98,6 +107,8 @@ export type IntentExtracted =
   | CompleteTaskExtracted
   | DeleteTaskExtracted
   | UpdateTaskExtracted
+  | FindMeetingSlotExtracted
+  | AcceptEmailTaskExtracted
   | Record<string, never>
 
 export interface IntentMatch {

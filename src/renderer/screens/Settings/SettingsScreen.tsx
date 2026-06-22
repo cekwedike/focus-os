@@ -6,6 +6,7 @@ import { ClientsProjectsSection } from './ClientsProjectsSection'
 import { DisplayPreferencesSection } from './DisplayPreferencesSection'
 import { ProtectedBlocksSection } from './ProtectedBlocksSection'
 import { StartupBackgroundSection } from './StartupBackgroundSection'
+import { GoogleConnectSection } from './GoogleConnectSection'
 import { useSettingsScreen } from './hooks/useSettingsScreen'
 import { useDisplayPreferences } from '@renderer/context/DisplayPreferencesContext'
 
@@ -63,6 +64,11 @@ export function SettingsScreen(): React.JSX.Element {
             }}
           />
           <StartupBackgroundSection
+            settings={settings}
+            onSettingsChange={setSettings}
+            onUpdate={updateSettings}
+          />
+          <GoogleConnectSection
             settings={settings}
             onSettingsChange={setSettings}
             onUpdate={updateSettings}

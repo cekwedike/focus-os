@@ -1,4 +1,12 @@
-export type BlockType = 'protected' | 'fixed_client' | 'weighted_client' | 'buffer' | 'break'
+export type BlockType = 'protected' | 'fixed_client' | 'weighted_client' | 'buffer' | 'break' | 'calendar'
+
+export interface CalendarBlockInput {
+  externalId: string
+  title: string
+  startTime: string
+  endTime: string
+  location?: string | null
+}
 
 export interface ScheduleBlock {
   tempId: string
@@ -68,6 +76,7 @@ export interface AllocationInput {
   maxBufferMinutes: number
   capacityMinutes?: number
   existingBreaks?: BreakInput[]
+  calendarBlocks?: CalendarBlockInput[]
 }
 
 export interface AllocationMetadata {

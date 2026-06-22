@@ -3,6 +3,7 @@ import { allocateDay, reallocateAfterLongBreak } from '@shared/allocation'
 import type {
   AllocationInput,
   AllocationOutput,
+  CalendarBlockInput,
   ClientInput,
   ProtectedBlockTemplate,
   ReallocationOutput,
@@ -14,6 +15,7 @@ import type { FixedBlockOverride } from '@shared/types/schedule'
 import { applyFixedBlockOverrides } from './allocationHelpers'
 import { getAllSettings } from '../db/repositories/appSettingsRepository'
 import { DEFAULT_MAX_BUFFER_MINUTES } from '@shared/allocation/constants'
+import { listCalendarEventsForDate } from '../db/repositories/calendarEventsRepository'
 
 export interface TaskRowForAllocation {
   id: number
@@ -76,6 +78,16 @@ function mapTask(row: TaskRowForAllocation): TaskInput {
   }
 }
 
+function mapCalendarBlocks(db: Database.Database, scheduleDate: string): CalendarBlockInput[] {
+  return listCalendarEventsForDate(db, scheduleDate).map((event) => ({
+    externalId: event.external_id,
+    title: event.title,
+    startTime: event.start_at,
+    endTime: event.end_at,
+    location: event.location,
+  }))
+}
+
 export function buildAllocationInput(
   db: Database.Database,
   params: RunAllocationParams,
@@ -108,6 +120,7 @@ export function buildAllocationInput(
     minViableBlockMinutes: settings.minViableBlockMinutes,
     maxBufferMinutes: settings.maxBufferMinutes ?? DEFAULT_MAX_BUFFER_MINUTES,
     capacityMinutes: params.capacityMinutes,
+    calendarBlocks: mapCalendarBlocks(db, params.scheduleDate),
   }
 }
 

@@ -40,6 +40,13 @@ import type {
   SettingsGetResponse,
 } from '@shared/types/settings'
 import type { FocusOSApi, Unsubscribe } from '@shared/types/focusOSApi'
+import type {
+  ExternalDaySummary,
+  FindMeetingSlotsPayload,
+  FindMeetingSlotsResponse,
+  GoogleConnectionStatus,
+  SuggestedEmailTask,
+} from '@shared/types/integrations'
 
 const invokeChannels: IpcInvokeChannel[] = [
   'app:ping',
@@ -99,6 +106,17 @@ const invokeChannels: IpcInvokeChannel[] = [
   'voice:transcribe',
   'notification:list-active',
   'notification:action',
+  'google:status',
+  'google:connect',
+  'google:disconnect',
+  'google:sync',
+  'google:list-calendars',
+  'integrations:external-summary',
+  'integrations:suggested-tasks',
+  'integrations:accept-email-task',
+  'integrations:find-meeting-slots',
+  'assistant:list-briefings',
+  'onboarding:complete',
 ]
 
 const eventChannels: IpcEventChannel[] = [
@@ -259,6 +277,32 @@ const focusOSApi: FocusOSApi = {
       unwrap(await createInvoke<NotificationListActiveResponse>('notification:list-active')),
     action: async (payload: NotificationActionPayload) =>
       unwrap(await createInvoke<NotificationActionResponse>('notification:action', payload)),
+  },
+  integrations: {
+    googleStatus: async () => unwrap(await createInvoke<GoogleConnectionStatus>('google:status')),
+    googleConnect: async () => unwrap(await createInvoke<GoogleConnectionStatus>('google:connect')),
+    googleDisconnect: async () =>
+      unwrap(await createInvoke<GoogleConnectionStatus>('google:disconnect')),
+    googleSync: async () =>
+      unwrap(await createInvoke<{ calendarCount: number; emailCount: number }>('google:sync')),
+    listCalendars: async () =>
+      unwrap(
+        await createInvoke<Array<{ id: string; summary: string; primary?: boolean }>>(
+          'google:list-calendars'
+        )
+      ),
+    externalSummary: async () =>
+      unwrap(await createInvoke<ExternalDaySummary>('integrations:external-summary')),
+    suggestedTasks: async () =>
+      unwrap(await createInvoke<SuggestedEmailTask[]>('integrations:suggested-tasks')),
+    acceptEmailTask: async (payload: { emailId: number }) =>
+      unwrap(await createInvoke<{ taskId: number }>('integrations:accept-email-task', payload)),
+    findMeetingSlots: async (payload: FindMeetingSlotsPayload) =>
+      unwrap(await createInvoke<FindMeetingSlotsResponse>('integrations:find-meeting-slots', payload)),
+    listBriefings: async (payload?: { scheduleDate?: string }) =>
+      unwrap(await createInvoke('assistant:list-briefings', payload)),
+    completeOnboarding: async () =>
+      unwrap(await createInvoke<{ freelancerWizardComplete: boolean }>('onboarding:complete')),
   },
   onNavigate: (callback) => subscribeToEvent<AppNavigatePayload>('app:navigate', callback),
   onNotificationDispatched: (callback) =>

@@ -66,12 +66,58 @@ export interface PlannedVsActualCardAttachment {
   dateLabel: string
 }
 
+export interface ExternalSummaryCardAttachment {
+  type: 'external_summary_card'
+  nextEventTitle: string | null
+  nextEventStart: string | null
+  actionableEmailCount: number
+  upcomingEventsToday: number
+  conflictCount: number
+}
+
+export interface SuggestedTaskItem {
+  emailId: number
+  title: string
+  fromAddress: string
+  clientName: string | null
+  summary: string
+}
+
+export interface SuggestedTasksCardAttachment {
+  type: 'suggested_tasks_card'
+  tasks: SuggestedTaskItem[]
+}
+
+export interface ProposedActionItem {
+  id: string
+  label: string
+  sendText: string
+  description?: string
+}
+
+export interface ProposedActionsCardAttachment {
+  type: 'proposed_actions_card'
+  title: string
+  actions: ProposedActionItem[]
+}
+
+export interface MeetingSlotsCardAttachment {
+  type: 'meeting_slots_card'
+  durationMinutes: number
+  scheduleDate: string
+  slots: Array<{ startAt: string; endAt: string; reason: string }>
+}
+
 export type ChatAttachment =
   | ScheduleCardAttachment
   | TaskSummaryCardAttachment
   | FaithStreakCardAttachment
   | FocusScoreCardAttachment
   | PlannedVsActualCardAttachment
+  | ExternalSummaryCardAttachment
+  | SuggestedTasksCardAttachment
+  | ProposedActionsCardAttachment
+  | MeetingSlotsCardAttachment
 
 export type ChatAttachmentType = ChatAttachment['type']
 
@@ -107,6 +153,9 @@ export type ChatIntentType =
   | 'acknowledge_check_in'
   | 'extend_block'
   | 'skip_block'
+  | 'find_meeting_slot'
+  | 'triage_inbox'
+  | 'accept_email_task'
   | 'unrecognized'
 
 export interface ChatScreenLink {

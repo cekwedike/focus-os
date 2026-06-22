@@ -11,6 +11,7 @@ import {
   countProtectedMinutes,
   placeProtectedBlocks,
 } from './steps/placeProtectedBlocks'
+import { placeCalendarBlocks } from './steps/placeCalendarBlocks'
 import { sortTasksForFill } from './taskOrdering'
 import {
   blocksToIntervals,
@@ -64,8 +65,12 @@ export function allocateDay(input: AllocationInput): AllocationOutput {
     dayWindow.end
   )
 
+  if (input.calendarBlocks && input.calendarBlocks.length > 0) {
+    state = placeCalendarBlocks(state, input.calendarBlocks, input.scheduleDate)
+  }
+
   const protectedIntervals = blocksToIntervals(
-    state.blocks.filter((block) => block.blockType === 'protected')
+    state.blocks.filter((block) => block.blockType === 'protected' || block.blockType === 'calendar')
   )
 
   state = placeFixedClientBlocks(state, input.clients, input.scheduleDate, protectedIntervals)

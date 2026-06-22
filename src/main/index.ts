@@ -29,6 +29,11 @@ import { startFaithReminderService, stopFaithReminderService } from './services/
 import { startStalenessService, stopStalenessService } from './services/stalenessService'
 import { startTimerService, stopTimerService } from './services/timerService'
 import { createTray, destroyTray } from './services/trayService'
+import { startGoogleSyncService, stopGoogleSyncService } from './services/googleSyncService'
+import {
+  startAssistantOrchestrator,
+  stopAssistantOrchestrator,
+} from './services/assistantOrchestrator'
 import { configureWindowChrome } from './window/windowChrome'
 import { resolveAppIconPath } from './utils/appIcon'
 
@@ -89,6 +94,8 @@ function createWindow(): void {
     startFaithReminderService(mainWindow!)
     startStalenessService(mainWindow!)
     startCheckInService(mainWindow!)
+    startGoogleSyncService(getDatabase())
+    startAssistantOrchestrator(mainWindow!)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -155,6 +162,8 @@ app.on('before-quit', () => {
   stopFaithReminderService()
   stopStalenessService()
   stopCheckInService()
+  stopGoogleSyncService()
+  stopAssistantOrchestrator()
   setNotificationWindow(null)
   setAppNavigateWindow(null)
   destroyTray()

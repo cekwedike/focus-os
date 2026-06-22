@@ -5,6 +5,14 @@ const SECRETS_FILE_NAME = 'secrets.json'
 
 interface SecretsFile {
   openrouter_api_key?: string
+  google_tokens?: Record<string, GoogleTokenBundle>
+}
+
+export interface GoogleTokenBundle {
+  accessToken: string
+  refreshToken: string
+  expiresAt: number
+  scopes: string
 }
 
 function getUserDataPath(): string {
@@ -73,4 +81,41 @@ export function getOpenRouterApiKeyForMainProcess(): string | null {
   const secrets = readSecretsFile()
   const fileKey = secrets.openrouter_api_key?.trim()
   return fileKey || null
+}
+
+export function isGoogleOAuthConfigured(): boolean {
+  const clientId = process.env.GOOGLE_CLIENT_ID?.trim()
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim()
+  return Boolean(clientId && clientSecret)
+}
+
+export function getGoogleOAuthClientId(): string | null {
+  return process.env.GOOGLE_CLIENT_ID?.trim() || null
+}
+
+export function getGoogleOAuthClientSecret(): string | null {
+  return process.env.GOOGLE_CLIENT_SECRET?.trim() || null
+}
+
+export function getGoogleTokens(tokenKeyRef: string): GoogleTokenBundle | null {
+  const secrets = readSecretsFile()
+  return secrets.google_tokens?.[tokenKeyRef] ?? null
+}
+
+export function setGoogleTokens(tokenKeyRef: string, tokens: GoogleTokenBundle): void {
+  const secrets = readSecretsFile()
+  if (!secrets.google_tokens) {
+    secrets.google_tokens = {}
+  }
+  secrets.google_tokens[tokenKeyRef] = tokens
+  writeSecretsFile(secrets)
+}
+
+export function clearGoogleTokens(tokenKeyRef: string): void {
+  const secrets = readSecretsFile()
+  if (!secrets.google_tokens?.[tokenKeyRef]) {
+    return
+  }
+  delete secrets.google_tokens[tokenKeyRef]
+  writeSecretsFile(secrets)
 }

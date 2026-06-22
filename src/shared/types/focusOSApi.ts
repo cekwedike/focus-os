@@ -76,6 +76,13 @@ import type {
 import type { ChatAiFallbackResult } from './chatAi'
 import type { RouterContext } from '@shared/chat/routerContext'
 import type { ChatRouterContextSummary } from './chatAi'
+import type {
+  ExternalDaySummary,
+  FindMeetingSlotsPayload,
+  FindMeetingSlotsResponse,
+  GoogleConnectionStatus,
+  SuggestedEmailTask,
+} from './integrations'
 
 export type Unsubscribe = () => void
 
@@ -182,6 +189,27 @@ export interface FocusOSApi {
   notifications: {
     listActive(): Promise<NotificationListActiveResponse>
     action(payload: NotificationActionPayload): Promise<NotificationActionResponse>
+  }
+  integrations: {
+    googleStatus(): Promise<GoogleConnectionStatus>
+    googleConnect(): Promise<GoogleConnectionStatus>
+    googleDisconnect(): Promise<GoogleConnectionStatus>
+    googleSync(): Promise<{ calendarCount: number; emailCount: number }>
+    listCalendars(): Promise<Array<{ id: string; summary: string; primary?: boolean }>>
+    externalSummary(): Promise<ExternalDaySummary>
+    suggestedTasks(): Promise<SuggestedEmailTask[]>
+    acceptEmailTask(payload: { emailId: number }): Promise<{ taskId: number }>
+    findMeetingSlots(payload: FindMeetingSlotsPayload): Promise<FindMeetingSlotsResponse>
+    listBriefings(payload?: { scheduleDate?: string }): Promise<{
+      briefings: Array<{
+        id: number
+        briefing_type: string
+        schedule_date: string | null
+        generated_at: string
+        content_md: string
+      }>
+    }>
+    completeOnboarding(): Promise<{ freelancerWizardComplete: boolean }>
   }
   onNavigate(callback: (payload: AppNavigatePayload) => void): Unsubscribe
   onNotificationDispatched(callback: (payload: NotificationDispatchedPayload) => void): Unsubscribe

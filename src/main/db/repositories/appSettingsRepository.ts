@@ -33,6 +33,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     insightReady: false,
     clientReminder: true,
     blockReminder: true,
+    assistantBriefing: true,
+    preMeeting: true,
   },
   themeAccent: '#2DD4A0',
   onboardingComplete: false,
@@ -40,6 +42,20 @@ const DEFAULT_SETTINGS: AppSettings = {
   sidebarExpanded: true,
   launchAtLogin: false,
   trayCloseTipShown: false,
+  googleSyncIntervalMinutes: 30,
+  assistant: {
+    morningEnabled: true,
+    hourlyEnabled: true,
+    preMeetingEnabled: true,
+    morningHour: 6,
+  },
+  google: {
+    syncIntervalMinutes: 30,
+    calendarIds: ['primary'],
+    gmailEnabled: true,
+    calendarEnabled: true,
+  },
+  freelancerWizardComplete: false,
 }
 
 const KEY_MAP: Record<keyof AppSettings, string> = {
@@ -67,6 +83,10 @@ const KEY_MAP: Record<keyof AppSettings, string> = {
   sidebarExpanded: 'sidebar_expanded',
   launchAtLogin: 'launch_at_login',
   trayCloseTipShown: 'tray_close_tip_shown',
+  googleSyncIntervalMinutes: 'google_sync_interval_minutes',
+  assistant: 'assistant_preferences',
+  google: 'google_integration',
+  freelancerWizardComplete: 'freelancer_wizard_complete',
 }
 
 function parseSettingValue<T>(raw: string): T {
@@ -96,6 +116,14 @@ export function getAllSettings(db: Database.Database): AppSettings {
     notifications: {
       ...DEFAULT_SETTINGS.notifications,
       ...merged.notifications,
+    },
+    assistant: {
+      ...DEFAULT_SETTINGS.assistant,
+      ...merged.assistant,
+    },
+    google: {
+      ...DEFAULT_SETTINGS.google,
+      ...merged.google,
     },
   }
 }

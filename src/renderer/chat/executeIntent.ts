@@ -128,10 +128,38 @@ export async function executeIntent(
 
       await deps.refresh()
       const blocks = mapBlocksFromRows(committed.blocks)
+      const external = await window.focusOS.integrations.externalSummary()
+      const attachments = [
+        buildScheduleCard(blocks),
+        {
+          type: 'external_summary_card' as const,
+          nextEventTitle: external.nextCalendarEvent?.title ?? null,
+          nextEventStart: external.nextCalendarEvent?.startAt ?? null,
+          actionableEmailCount: external.actionableEmailCount,
+          upcomingEventsToday: external.upcomingEventsToday,
+          conflictCount: external.scheduleConflicts.length,
+        },
+      ]
+
+      const proposedAttachments = []
+      const proposedActions = []
+      if (external.scheduleConflicts.length > 0) {
+        proposedActions.push({
+          id: 'replan',
+          label: 'Replan day',
+          sendText: 'replan my day',
+          description: 'Regenerate schedule around calendar conflicts',
+        })
+        proposedAttachments.push({
+          type: 'proposed_actions_card' as const,
+          title: 'Calendar conflicts detected',
+          actions: proposedActions,
+        })
+      }
 
       return {
         content: aiReplyText ?? wakeTimeConfirmedSummary(extracted.wakeTime, blocks),
-        attachments: [buildScheduleCard(blocks)],
+        attachments: [...attachments, ...proposedAttachments],
         conversationPatch: { pendingPrompt: null },
       }
     }
@@ -466,6 +494,80 @@ export async function executeIntent(
     case 'replan_day': {
       return {
         content: replanDayPrompt(),
+      }
+    }
+    case 'find_meeting_slot': {
+      const extracted = match.extracted as { durationMinutes: number; scheduleDate: string }
+      const result = await window.focusOS.integrations.findMeetingSlots({
+        durationMinutes: extracted.durationMinutes,
+        scheduleDate: extracted.scheduleDate,
+      })
+
+      if (result.slots.length === 0) {
+        return {
+          content:
+            aiReplyText ??
+            `I couldn't find a conflict-free ${extracted.durationMinutes}-minute slot on ${extracted.scheduleDate}. Try a shorter duration or another day.`,
+        }
+      }
+
+      return {
+        content:
+          aiReplyText ??
+          `Here are ${result.slots.length} conflict-free ${extracted.durationMinutes}-minute slot${result.slots.length === 1 ? '' : 's'}:`,
+        attachments: [
+          {
+            type: 'meeting_slots_card',
+            durationMinutes: extracted.durationMinutes,
+            scheduleDate: extracted.scheduleDate,
+            slots: result.slots.map((slot) => ({
+              startAt: slot.startAt,
+              endAt: slot.endAt,
+              reason: slot.reason,
+            })),
+          },
+        ],
+      }
+    }
+    case 'triage_inbox': {
+      const suggestions = await window.focusOS.integrations.suggestedTasks()
+      if (suggestions.length === 0) {
+        return {
+          content:
+            aiReplyText ??
+            'No actionable emails right now. Connect Gmail in Settings or say "sync google" after connecting.',
+        }
+      }
+
+      return {
+        content:
+          aiReplyText ??
+          `I found ${suggestions.length} email${suggestions.length === 1 ? '' : 's'} that may need action:`,
+        attachments: [
+          {
+            type: 'suggested_tasks_card',
+            tasks: suggestions.slice(0, 8).map((item) => ({
+              emailId: item.emailId,
+              title: item.suggestedTitle,
+              fromAddress: item.fromAddress,
+              clientName: item.suggestedClientName,
+              summary: item.triageSummary,
+            })),
+          },
+        ],
+        quickReplies: suggestions.slice(0, 3).map((item) => ({
+          label: `Accept: ${item.suggestedTitle.slice(0, 28)}`,
+          sendText: `accept email task ${item.emailId}`,
+        })),
+      }
+    }
+    case 'accept_email_task': {
+      const extracted = match.extracted as { emailId: number }
+      const result = await window.focusOS.integrations.acceptEmailTask({
+        emailId: extracted.emailId,
+      })
+      return {
+        content: aiReplyText ?? `Added email task #${result.taskId} to your queue.`,
       }
     }
     default:

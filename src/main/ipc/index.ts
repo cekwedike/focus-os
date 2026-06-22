@@ -15,6 +15,7 @@ import { registerCheckInHandlers } from './checkInHandlers'
 import { registerNotificationHandlers } from './notificationHandlers'
 import { registerChatHandlers } from './chatHandlers'
 import { registerVoiceHandlers } from './voiceHandlers'
+import { registerIntegrationHandlers } from './integrationHandlers'
 
 let databaseReady = false
 
@@ -55,4 +56,5 @@ export function registerIpcHandlers(): void {
   registerNotificationHandlers()
   registerChatHandlers()
   registerVoiceHandlers()
+  registerIntegrationHandlers()
 }

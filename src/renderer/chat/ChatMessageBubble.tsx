@@ -7,12 +7,16 @@ import { motion } from 'framer-motion'
 interface ChatMessageBubbleProps {
   message: ChatMessage
   onQuickReply?: (chip: QuickReplyChip) => void
+  onSendText?: (text: string) => void
+  onAcceptEmailTask?: (emailId: number) => void
   quickRepliesDisabled?: boolean
 }
 
 export function ChatMessageBubble({
   message,
   onQuickReply,
+  onSendText,
+  onAcceptEmailTask,
   quickRepliesDisabled = false,
 }: ChatMessageBubbleProps): React.JSX.Element {
   const isUser = message.role === 'user'
@@ -42,7 +46,11 @@ export function ChatMessageBubble({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2 }}
             >
-              <ChatAttachmentRenderer attachment={attachment} />
+              <ChatAttachmentRenderer
+                attachment={attachment}
+                onSendText={onSendText}
+                onAcceptEmailTask={onAcceptEmailTask}
+              />
             </motion.div>
           ))}
         </div>

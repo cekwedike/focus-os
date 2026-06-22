@@ -8,6 +8,8 @@ import { matchFaithLogIntent } from './intents/faithLogIntent'
 import { matchMenuIntent } from './intents/menuIntent'
 import { matchQueryScheduleIntent, matchQueryStreakIntent } from './intents/queryIntent'
 import { matchQueryStatusIntent, matchQueryTasksIntent, matchCompleteTaskIntent, matchDeleteTaskIntent, matchUpdateTaskIntent, matchReplanDayIntent } from './intents/statusAndTaskIntent'
+import { matchFindMeetingSlotIntent } from './intents/findMeetingSlotIntent'
+import { matchAcceptEmailTaskIntent, matchTriageInboxIntent } from './intents/integrationIntent'
 import { buildUnrecognizedMatch } from './intents/unrecognizedIntent'
 import { matchWakeTimeIntent } from './intents/wakeTimeIntent'
 import type { IntentMatch, RouterContext } from './routerContext'
@@ -35,6 +37,9 @@ const INTENT_MATCHERS: IntentMatcher[] = [
   (input, context) => matchDeleteTaskIntent(input, { tasks: context.openTasks ?? [] }),
   (input, context) => matchUpdateTaskIntent(input, { tasks: context.openTasks ?? [] }),
   matchReplanDayIntent,
+  (input, context) => matchFindMeetingSlotIntent(input, { today: context.today }),
+  matchTriageInboxIntent,
+  matchAcceptEmailTaskIntent,
 ]
 
 export function classifyIntent(input: string, context: RouterContext): IntentMatch {

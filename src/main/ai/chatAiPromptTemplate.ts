@@ -20,6 +20,9 @@ const VALID_INTENTS: ChatIntentType[] = [
   'query_tasks',
   'complete_task',
   'acknowledge_check_in',
+  'find_meeting_slot',
+  'triage_inbox',
+  'accept_email_task',
 ]
 
 export function buildChatAiUserPrompt(
@@ -56,6 +59,9 @@ Extracted fields by intent:
 - faith_log: {"bibleReference":"...","prayerNotes":"...","blockId":number|null}
 - acknowledge_check_in: {"clientId":number,"clientName":"..."}
 - complete_task: {"taskId":number,"title":"..."}
+- find_meeting_slot: {"durationMinutes":number,"scheduleDate":"YYYY-MM-DD"}
+- triage_inbox: {}
+- accept_email_task: {"emailId":number}
 - query_schedule, query_streak, query_status, query_tasks: {}
 
 2. Conversational reply (no action):

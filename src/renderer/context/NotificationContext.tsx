@@ -98,8 +98,10 @@ export function NotificationProvider({
       }
 
       if (payload.showInChat && !payload.skippedDuplicate) {
+        const briefingContent =
+          typeof payload.metadata?.content === 'string' ? payload.metadata.content : null
         void deliverNotificationToChat({
-          content: payload.message,
+          content: briefingContent ?? payload.message,
           quickReplies: mapNotificationActionsToChips(payload.actions),
           notificationId: payload.id,
         })

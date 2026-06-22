@@ -37,6 +37,8 @@ const baseSettings: AppSettings = {
     insightReady: true,
     clientReminder: true,
     blockReminder: true,
+    assistantBriefing: true,
+    preMeeting: true,
   },
   themeAccent: '#2DD4A0',
   onboardingComplete: false,
@@ -44,6 +46,20 @@ const baseSettings: AppSettings = {
   sidebarExpanded: true,
   launchAtLogin: false,
   trayCloseTipShown: false,
+  googleSyncIntervalMinutes: 30,
+  assistant: {
+    morningEnabled: true,
+    hourlyEnabled: true,
+    preMeetingEnabled: true,
+    morningHour: 6,
+  },
+  google: {
+    syncIntervalMinutes: 30,
+    calendarIds: ['primary'],
+    gmailEnabled: true,
+    calendarEnabled: true,
+  },
+  freelancerWizardComplete: false,
 }
 
 const snapshot: DailyInsightSnapshot = {

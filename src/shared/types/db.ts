@@ -137,6 +137,7 @@ export type ScheduleBlockType =
   | 'weighted_client'
   | 'buffer'
   | 'break'
+  | 'calendar'
 
 export type ScheduleBlockStatus =
   | 'planned'
