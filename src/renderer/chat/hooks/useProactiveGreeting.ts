@@ -80,7 +80,7 @@ export function useProactiveGreeting({
       })
 
       const deliveries: AssistantDeliveryInput[] = textMessages.map((content, index) => {
-        if (!wakeTimeLogged && index === 1) {
+        if (!wakeTimeLogged && index === 0) {
           return {
             content,
             quickReplies: resolveContextualChips('awaiting_wake'),

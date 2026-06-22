@@ -34,7 +34,16 @@ export function buildTimeOfDayGreeting(date: Date, userDisplayName?: string): st
 }
 
 export function buildWakeTimeFollowUp(): string {
-  return 'What time did you wake up?'
+  return 'What time did you wake up? Just tell me — like 9 or 9:30.'
+}
+
+export function buildMorningOpening(userDisplayName: string | undefined, now: Date): string {
+  const period = getTimeOfDayPeriod(now.getHours())
+  const greeting = buildTimeOfDayGreeting(now, userDisplayName)
+  if (period === 'morning') {
+    return `${greeting} What time did you wake up?`
+  }
+  return `${greeting} When did you get up today?`
 }
 
 export interface WelcomeBackBlockInfo {
@@ -64,7 +73,7 @@ export function buildWelcomeBackMessage(input: WelcomeBackInput): string {
   const parts: string[] = []
 
   if (input.longBreakActive) {
-    parts.push('Welcome back. You are on a long break right now.')
+    parts.push('You are on a long break right now.')
     return parts.join(' ')
   }
 
@@ -74,25 +83,25 @@ export function buildWelcomeBackMessage(input: WelcomeBackInput): string {
 
   if (!input.hasSchedule) {
     return (
-      "Welcome back. Your wake time is logged, but today's schedule isn't built yet. " +
-      'Open Daily Workspace to generate it, or tell me your wake time again to rebuild.'
+      "I have your wake time, but I haven't built today's plan yet. " +
+      'Tell me your wake time again and I\'ll lay out the day for you.'
     )
   }
 
   if (input.activeBlock) {
     const minutesLeft = minutesUntil(input.activeBlock.planned_end, now)
     parts.push(
-      `Welcome back. You're in your ${input.activeBlock.title} block, ${formatDurationProse(minutesLeft)} left.`
+      `You're on ${input.activeBlock.title} — ${formatDurationProse(minutesLeft)} left.`
     )
     return parts.join(' ')
   }
 
   if (input.nextBlock) {
-    parts.push(`Welcome back. ${input.nextBlock.title} is up next.`)
+    parts.push(`${input.nextBlock.title} is up next. I'll let you know when it's time.`)
     return parts.join(' ')
   }
 
-  return "Welcome back. You're between blocks right now."
+  return "You're between blocks. I'll nudge you when the next one starts."
 }
 
 export interface ProactiveGreetingInput {
@@ -106,7 +115,7 @@ export function buildProactiveGreetingMessages(input: ProactiveGreetingInput): s
   const now = input.now ?? new Date()
 
   if (!input.wakeTimeLogged) {
-    return [buildTimeOfDayGreeting(now, input.userDisplayName), buildWakeTimeFollowUp()]
+    return [buildMorningOpening(input.userDisplayName, now)]
   }
 
   return [buildWelcomeBackMessage(input.welcomeBack)]

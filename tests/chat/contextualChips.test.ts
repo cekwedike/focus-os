@@ -19,6 +19,6 @@ describe('resolveContextualChips', () => {
 
   it('returns awaiting wake chips', () => {
     const chips = resolveContextualChips('awaiting_wake')
-    expect(chips).toHaveLength(3)
+    expect(chips).toHaveLength(4)
   })
 })

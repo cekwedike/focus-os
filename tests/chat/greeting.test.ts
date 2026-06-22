@@ -81,12 +81,12 @@ describe('buildWelcomeBackMessage', () => {
       nextBlock: null,
       now,
     })
-    expect(message).toContain("schedule isn't built yet")
+    expect(message).toContain("haven't built today's plan")
   })
 })
 
 describe('buildProactiveGreetingMessages', () => {
-  it('returns greeting plus wake follow-up when wake not logged', () => {
+  it('returns a single morning opening when wake not logged', () => {
     const messages = buildProactiveGreetingMessages({
       wakeTimeLogged: false,
       userDisplayName: 'Alex',
@@ -98,9 +98,9 @@ describe('buildProactiveGreetingMessages', () => {
       },
       now: new Date('2026-06-15T08:00:00'),
     })
-    expect(messages).toHaveLength(2)
-    expect(messages[0]).toBe('Good morning, Alex.')
-    expect(messages[1]).toBe('What time did you wake up?')
+    expect(messages).toHaveLength(1)
+    expect(messages[0]).toContain('Good morning, Alex')
+    expect(messages[0]).toContain('wake up')
   })
 
   it('returns welcome back when wake is logged', () => {
@@ -115,6 +115,6 @@ describe('buildProactiveGreetingMessages', () => {
       now: new Date('2026-06-15T10:00:00'),
     })
     expect(messages).toHaveLength(1)
-    expect(messages[0]).toContain('Welcome back')
+    expect(messages[0]).toContain("between blocks")
   })
 })

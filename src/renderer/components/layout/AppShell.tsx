@@ -5,6 +5,7 @@ import { LongBreakModal } from '@renderer/components/modals/LongBreakModal'
 import { ReplanSummaryModal } from '@renderer/components/modals/ReplanSummaryModal'
 import { ScreenIconRail } from '@renderer/chat/ScreenIconRail'
 import { PersistentNotificationBanner } from '@renderer/components/layout/PersistentNotificationBanner'
+import { AssistantNavProvider } from '@renderer/screens/Home/components/AssistantNavContext'
 
 interface AppShellProps {
   children: ReactNode
@@ -25,16 +26,14 @@ export function AppShell({ children }: AppShellProps): React.JSX.Element {
 
   return (
     <div className="focus-app-bg flex h-screen min-h-screen flex-col overflow-hidden">
-      <TopStatusBar
-        onOpenMenu={isHome ? openNav : undefined}
-        onOpenSettings={isHome ? openSettings : undefined}
-        navOpen={navOpen}
-      />
+      {!isHome ? <TopStatusBar /> : null}
       <PersistentNotificationBanner />
-      <div className="relative z-10 flex min-h-0 min-w-0 flex-1">
-        {navOpen ? <ScreenIconRail mobileOpen={navOpen} onMobileClose={closeNav} /> : null}
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{children}</main>
-      </div>
+      <AssistantNavProvider openNav={openNav} openSettings={openSettings}>
+        <div className="relative z-10 flex min-h-0 min-w-0 flex-1">
+          {navOpen ? <ScreenIconRail mobileOpen={navOpen} onMobileClose={closeNav} /> : null}
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{children}</main>
+        </div>
+      </AssistantNavProvider>
       <LongBreakModal />
       <ReplanSummaryModal />
     </div>

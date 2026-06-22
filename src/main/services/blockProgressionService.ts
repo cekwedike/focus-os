@@ -16,6 +16,7 @@ import {
 } from '@shared/schedule/blockTimeShift'
 import { resolveContextualChips } from '@shared/chat/contextualChips'
 import { mapChipsToProgressionActions } from '@shared/notifications/notificationActions'
+import { assistantLexicon } from '@shared/copy/assistantLexicon'
 import { nowIso } from '@shared/utils/time'
 import { shouldAutoCompleteBlock } from '@shared/schedule/blockAutoComplete'
 import {
@@ -92,7 +93,7 @@ function postProgressionMessage(
   notify(
     {
       type: notificationType,
-      title: 'Focus OS',
+      title: assistantLexicon.appName,
       message: text,
       urgency: 'normal',
       persistent: false,

@@ -32,11 +32,16 @@ export function ChatThread(): React.JSX.Element {
   }, [messages, isTyping, aiThinking])
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 py-4 sm:px-5 sm:py-6 md:px-8">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto py-4 sm:py-5">
       {!initialized && (
-        <p className="hud-kicker animate-pulse">Starting Assistant...</p>
+        <p className="py-8 text-center text-sm text-text-muted animate-pulse">One moment…</p>
       )}
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+      {initialized && messages.length === 0 && !isTyping && !aiThinking ? (
+        <p className="py-12 text-center text-sm text-text-muted">
+          Your assistant will check in here throughout the day.
+        </p>
+      ) : null}
+      <div className="flex flex-col gap-3 sm:gap-4">
         {messages.map((message) => (
           <AnimatedChatMessageBubble
             key={message.id}

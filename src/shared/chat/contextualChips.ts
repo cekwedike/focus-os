@@ -63,8 +63,8 @@ export function resolveContextualChips(chipContext: ChipContextKey): QuickReplyC
       ]
     case 'welcome_standby':
       return [
-        { label: "What's Next?", sendText: "What's next?" },
-        { label: "Show Today's Schedule", sendText: "Show today's schedule" },
+        { label: "What's next?", sendText: "What's next?" },
+        { label: "Today's plan", sendText: "Show today's schedule" },
       ]
     case 'pre_completion_warning':
       return [
@@ -97,8 +97,9 @@ export function resolveContextualChips(chipContext: ChipContextKey): QuickReplyC
       ]
     case 'awaiting_wake':
       return [
-        { label: 'Just Woke Up', sendText: 'Just woke up' },
-        { label: '9am', sendText: '9am' },
+        { label: '7:00', sendText: '7' },
+        { label: '8:00', sendText: '8' },
+        { label: '9:00', sendText: '9' },
         { label: '9:30', sendText: '9:30' },
       ]
     case 'awaiting_task_priority':

@@ -33,7 +33,7 @@ export function morningPlanPreview(
       ? `Here's how I'd run today: ${blockNames.join(' → ')}${blocks.length > blockNames.length ? ' → …' : ''}.`
       : 'I could not build blocks yet — check your clients and tasks.'
 
-  return `Got it — wake time ${wakeTime}. ${hoursLine}${flow} Tap **Looks good** when you're ready and I'll start your first block.`
+  return `Got it — wake time ${wakeTime}. ${hoursLine}${flow} Tap Looks good when you're ready and I'll start your first block.`
 }
 
 export function wakeTimeConfirmedSummary(

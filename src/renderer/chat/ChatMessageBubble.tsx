@@ -12,6 +12,17 @@ interface ChatMessageBubbleProps {
   quickRepliesDisabled?: boolean
 }
 
+function AssistantAvatar(): React.JSX.Element {
+  return (
+    <div
+      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-mint/15 text-xs font-semibold text-accent-mint"
+      aria-hidden
+    >
+      F
+    </div>
+  )
+}
+
 export function ChatMessageBubble({
   message,
   onQuickReply,
@@ -24,20 +35,29 @@ export function ChatMessageBubble({
   const chipsDisabled =
     quickRepliesDisabled || message.notificationResolved === true
 
-  const alignment = isUser ? 'justify-end' : 'justify-start'
-  const bubbleClass = isUser
-    ? 'bg-accent-mint/15 text-text-primary border-accent-mint/30'
-    : isSystem
-      ? 'bg-surface-elevated/40 text-text-muted border-surface-border/60'
-      : 'bg-surface-card text-text-secondary border-surface-border'
+  if (isUser) {
+    return (
+      <div className="flex justify-end">
+        <div
+          className="max-w-[min(100%,28rem)] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent-mint px-4 py-2.5 text-sm leading-relaxed text-surface-base shadow-sm"
+        >
+          {message.content}
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className={`flex ${alignment}`}>
-      <div className="flex max-w-[min(100%,32rem)] flex-col gap-1.5 sm:max-w-[85%]">
+    <div className="flex items-start gap-2.5 sm:gap-3">
+      {!isSystem ? <AssistantAvatar /> : null}
+      <div className="flex min-w-0 max-w-[min(100%,32rem)] flex-1 flex-col gap-2">
         <div
-          className={`whitespace-pre-wrap break-words rounded-panel border px-3 py-2.5 text-sm leading-relaxed shadow-panel sm:px-4 sm:py-3 ${bubbleClass}`}
+          className={`whitespace-pre-wrap break-words rounded-2xl rounded-tl-md px-4 py-2.5 text-sm leading-relaxed shadow-sm ${
+            isSystem
+              ? 'bg-surface-elevated/60 text-text-muted'
+              : 'bg-surface-card text-text-primary border border-surface-border/60'
+          }`}
         >
-          {!isUser && !isSystem && <p className="focus-kicker mb-1">Assistant</p>}
           {message.content}
           {message.attachments?.map((attachment, index) => (
             <motion.div
@@ -45,6 +65,7 @@ export function ChatMessageBubble({
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2 }}
+              className="mt-3"
             >
               <ChatAttachmentRenderer
                 attachment={attachment}
@@ -54,14 +75,12 @@ export function ChatMessageBubble({
             </motion.div>
           ))}
         </div>
-        {!isUser && message.quickReplies && message.quickReplies.length > 0 && onQuickReply ? (
-          <div className="ml-1 border-l-2 border-accent-mint/25 pl-3">
-            <InlineQuickReplies
-              chips={message.quickReplies}
-              disabled={chipsDisabled}
-              onSelect={onQuickReply}
-            />
-          </div>
+        {!isSystem && message.quickReplies && message.quickReplies.length > 0 && onQuickReply ? (
+          <InlineQuickReplies
+            chips={message.quickReplies}
+            disabled={chipsDisabled}
+            onSelect={onQuickReply}
+          />
         ) : null}
       </div>
     </div>

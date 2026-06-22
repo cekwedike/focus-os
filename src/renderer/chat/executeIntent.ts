@@ -201,7 +201,7 @@ export async function executeIntent(
         content:
           aiReplyText ??
           (firstBlock
-            ? `Starting **${firstBlock.title}** now. I'll ping you when it's time for what's next.`
+            ? `Starting ${firstBlock.title} now. I'll ping you when it's time for what's next.`
             : wakeTimeConfirmedSummary(plan.wakeTime, deps.mapBlocks(committed.blocks))),
         conversationPatch: {
           pendingPrompt: null,
