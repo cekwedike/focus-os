@@ -67,8 +67,8 @@ importers:
         specifier: ^26.0.12
         version: 26.15.3(electron-builder-squirrel-windows@26.15.3)
       electron-vite:
-        specifier: ^3.1.0
-        version: 3.1.0(vite@6.4.3(@types/node@22.19.21)(jiti@1.21.7))
+        specifier: ^5.0.0
+        version: 5.0.0(vite@6.4.3(@types/node@22.19.21)(jiti@1.21.7))
       eslint:
         specifier: ^9.28.0
         version: 9.39.4(jiti@1.21.7)
@@ -1523,13 +1523,13 @@ packages:
   electron-to-chromium@1.5.372:
     resolution: {integrity: sha512-M3yhbAlilnwqC8D21t28UCDGHyitShTmmLRU/H+b74P6Ski16Nb9HONYEaVpMj/pwC7BEo5B95FpjODLCWbtfA==}
 
-  electron-vite@3.1.0:
-    resolution: {integrity: sha512-M7aAzaRvSl5VO+6KN4neJCYLHLpF/iWo5ztchI/+wMxIieDZQqpbCYfaEHHHPH6eupEzfvZdLYdPdmvGqoVe0Q==}
-    engines: {node: ^18.0.0 || >=20.0.0}
+  electron-vite@5.0.0:
+    resolution: {integrity: sha512-OHp/vjdlubNlhNkPkL/+3JD34ii5ov7M0GpuXEVdQeqdQ3ulvVR7Dg/rNBLfS5XPIFwgoBLDf9sjjrL+CuDyRQ==}
+    engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
       '@swc/core': ^1.0.0
-      vite: ^4.0.0 || ^5.0.0 || ^6.0.0
+      vite: ^5.0.0 || ^6.0.0 || ^7.0.0
     peerDependenciesMeta:
       '@swc/core':
         optional: true
@@ -5110,7 +5110,7 @@ snapshots:
 
   electron-to-chromium@1.5.372: {}
 
-  electron-vite@3.1.0(vite@6.4.3(@types/node@22.19.21)(jiti@1.21.7)):
+  electron-vite@5.0.0(vite@6.4.3(@types/node@22.19.21)(jiti@1.21.7)):
     dependencies:
       '@babel/core': 7.29.7
       '@babel/plugin-transform-arrow-functions': 7.29.7(@babel/core@7.29.7)
